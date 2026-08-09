@@ -265,10 +265,15 @@ a{
   background:var(--orange);
 }
 
-/* ---------- iOS SAFE AREA ---------- */
+/* ---------- iOS SAFE AREA / DYNAMIC ISLAND ---------- */
 
 body{
   padding-bottom:env(safe-area-inset-bottom);
+}
+
+.app{
+  padding-top:calc(env(safe-area-inset-top) + 18px) !important;
+  box-sizing:border-box;
 }
 
 /* =========================================================
