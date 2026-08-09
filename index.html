@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-title" content="Gengrail TCG">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png"><title>Gengrail TCG Business Log</title>
-<meta name="gengrail-build" content="command-centre-v2">
+<meta name="gengrail-build" content="command-centre-v4-section-polish">
   
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
@@ -413,6 +413,311 @@ body.home-page .brand{
   .home-menu .home-sub{font-size:11px;margin-top:7px}
   .home-menu button:after{right:11px;font-size:38px}
   .home-footer{padding-top:66px}
+}
+
+
+/* GENGRAIL COMMAND CENTRE v3 — viewport lock + crown-gold actions */
+:root{
+  --crown:#e0ad16;
+  --crown-hi:#f2c84b;
+  --crown-deep:#b98208;
+  --crown-text:#0b0b0b;
+}
+
+/* Prevent whole-app horizontal drift on iPhone/PWA.
+   Tables can still scroll inside their own containers. */
+html,body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden !important;
+}
+.app,.home-screen,.sec,.panel{
+  max-width:100%;
+  min-width:0;
+}
+body.home-page .app{
+  width:100%;
+  margin-left:auto;
+  margin-right:auto;
+  overflow-x:hidden;
+}
+.home-screen{
+  width:100%;
+  min-width:0;
+  overflow-x:hidden;
+  padding-left:2px;
+  padding-right:2px;
+}
+.home-menu{
+  width:100%;
+  min-width:0;
+}
+.home-menu > button{
+  min-width:0;
+  max-width:100%;
+}
+.home-menu .home-label,
+.home-menu .home-sub{
+  max-width:100%;
+}
+.home-screen:before{left:0 !important}
+.home-screen:after{right:0 !important}
+
+/* Crown-gold action language across the app */
+.btn,
+.stock-ebay-btn,
+.ge-btn{
+  background:linear-gradient(180deg,var(--crown-hi),var(--crown)) !important;
+  color:var(--crown-text) !important;
+  border:1px solid var(--crown-deep) !important;
+  box-shadow:
+    0 0 9px rgba(224,173,22,.20),
+    0 3px 0 rgba(0,0,0,.35);
+  text-shadow:none !important;
+}
+.btn:hover,
+.stock-ebay-btn:hover,
+.ge-btn:hover{
+  background:linear-gradient(180deg,#f6cf57,#e7b416) !important;
+}
+.btn:active,
+.stock-ebay-btn:active,
+.ge-btn:active{
+  transform:translateY(1px);
+  box-shadow:0 1px 0 rgba(0,0,0,.35);
+}
+
+/* Preserve intentional secondary/destructive semantics */
+.btn.alt,
+.ge-btn.secondary{
+  background:#252525 !important;
+  color:#f4f1ea !important;
+  border:1px solid #444 !important;
+  box-shadow:none;
+}
+.btn.red{
+  background:#7b3030 !important;
+  color:#fff !important;
+  border-color:#954141 !important;
+  box-shadow:none;
+}
+
+/* Bring other formerly-orange UI accents into the crown palette too */
+.nav button.on,
+.pricing-tab.on{
+  background:var(--crown) !important;
+  border-color:var(--crown-hi) !important;
+  color:var(--crown-text) !important;
+}
+.bar i{background:var(--crown) !important}
+
+/* Keep scrollable data tables contained instead of widening the page */
+.table{
+  max-width:100%;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+
+/* GENGRAIL v4 — polished individual section pages */
+body.inner-page{
+  background:
+    radial-gradient(circle at 50% -5%,rgba(224,173,22,.055),transparent 26%),
+    linear-gradient(#080808,#050505);
+}
+
+/* App-like section header */
+body.inner-page .page-head{
+  position:sticky;
+  top:max(0px,env(safe-area-inset-top));
+  z-index:20;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-height:68px;
+  margin:0 -2px 10px;
+  padding:8px 6px;
+  background:linear-gradient(180deg,rgba(8,8,8,.97),rgba(8,8,8,.90));
+  border-bottom:1px solid rgba(224,173,22,.18);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+.page-head-copy{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.page-head-title{
+  color:#f4f1ea;
+  font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;
+  font-size:25px;
+  line-height:1;
+  letter-spacing:.035em;
+  text-transform:uppercase;
+}
+.page-head-sub{
+  margin-top:5px;
+  color:#9e9b95;
+  font-size:11px;
+  font-weight:750;
+  letter-spacing:.02em;
+}
+.page-back{
+  width:48px;
+  height:48px;
+  flex:0 0 48px;
+  border:1px solid #9e7410;
+  border-radius:14px;
+  background:linear-gradient(180deg,#1b170d,#111);
+  color:var(--crown-hi,#f2c84b);
+  font-size:28px;
+  line-height:1;
+  box-shadow:
+    0 0 8px rgba(224,173,22,.15),
+    2px 3px 0 #000;
+}
+
+/* Consistent page panels */
+body.inner-page .panel{
+  background:
+    radial-gradient(circle at 50% 0%,rgba(224,173,22,.035),transparent 55%),
+    linear-gradient(180deg,#171717,#101010);
+  border:1px solid #343434;
+  border-radius:16px;
+  box-shadow:0 7px 18px rgba(0,0,0,.38);
+  padding:15px;
+  margin-top:12px;
+}
+body.inner-page .panel > .title{
+  color:#f4f1ea;
+  font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;
+  font-size:25px;
+  line-height:1;
+  letter-spacing:.035em;
+  text-transform:uppercase;
+  margin:2px 0 16px;
+}
+body.inner-page .panel > .title:after{
+  content:"";
+  display:block;
+  width:54px;
+  height:3px;
+  margin-top:9px;
+  border-radius:3px;
+  background:linear-gradient(90deg,var(--crown,#e0ad16),transparent);
+}
+
+/* Inputs become quieter/slate until active */
+body.inner-page input,
+body.inner-page select,
+body.inner-page textarea{
+  width:100%;
+  background:#090909;
+  color:#f2efe8;
+  border:1px solid #3a3a3a;
+  border-radius:10px;
+  outline:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.015);
+}
+body.inner-page input:focus,
+body.inner-page select:focus,
+body.inner-page textarea:focus{
+  border-color:var(--crown,#e0ad16);
+  box-shadow:0 0 0 2px rgba(224,173,22,.10);
+}
+body.inner-page label{
+  color:#aaa7a1;
+  letter-spacing:.01em;
+}
+
+/* KPI cards */
+body.inner-page .kpi{
+  background:linear-gradient(160deg,#101010,#090909);
+  border:1px solid #323232;
+  border-radius:11px;
+  box-shadow:inset 0 0 14px rgba(224,173,22,.018);
+}
+body.inner-page .kpi small{
+  color:#98958f;
+}
+body.inner-page .kpi b{
+  color:#f4f1ea;
+}
+
+/* Tables — crown headers, slate rows, contained scrolling */
+body.inner-page .table{
+  border:1px solid #2f2f2f;
+  border-radius:12px;
+  background:#0b0b0b;
+}
+body.inner-page table{
+  width:100%;
+}
+body.inner-page th{
+  color:var(--crown-hi,#f2c84b);
+  background:#111;
+  border-bottom:1px solid #2d2d2d;
+  font-weight:900;
+}
+body.inner-page td{
+  color:#e8e4dc;
+  border-bottom-color:#242424;
+}
+body.inner-page tbody tr:last-child td{
+  border-bottom:0;
+}
+
+/* Notes/help blocks */
+body.inner-page .note{
+  background:#090909;
+  border-left:4px solid var(--crown,#e0ad16);
+  color:#c7c3bc;
+  border-radius:0 8px 8px 0;
+}
+
+/* Give the major primary action buttons a consistent premium shape */
+body.inner-page .btn,
+body.inner-page .stock-ebay-btn,
+body.inner-page .ge-btn:not(.secondary){
+  min-height:48px;
+  border-radius:12px !important;
+  font-weight:950;
+  letter-spacing:.015em;
+}
+
+/* eBay module harmonisation */
+body.inner-page #gengrail-ebay-channel .ge-panel{
+  background:linear-gradient(180deg,#151515,#0d0d0d);
+  border:1px solid #343434;
+  box-shadow:0 7px 18px rgba(0,0,0,.38);
+}
+body.inner-page #gengrail-ebay-channel .ge-title b,
+body.inner-page #gengrail-ebay-channel .ge-badge{
+  color:var(--crown-hi,#f2c84b) !important;
+}
+body.inner-page #gengrail-ebay-channel .ge-badge{
+  background:#1b1608 !important;
+  border-color:#57430e !important;
+}
+
+/* Mobile spacing */
+@media(max-width:520px){
+  body.inner-page{
+    padding-left:12px;
+    padding-right:12px;
+  }
+  body.inner-page .page-head{
+    margin-left:-2px;
+    margin-right:-2px;
+  }
+  .page-head-title{font-size:22px}
+  .page-head-sub{font-size:10px}
+  body.inner-page .panel{
+    padding:13px;
+    border-radius:14px;
+  }
+  body.inner-page .panel > .title{font-size:22px}
 }
 
 </style>
@@ -952,13 +1257,23 @@ const PAGE_TITLES={
  dash:'Dashboard',stock:'Stock',sales:'Sales',exp:'Expenses',
  owner:'Owner & Funding',tax:'Tax',pricing:'Pricing Calculator',opps:'Opportunity Finder'
 };
+const PAGE_SUBTITLES={
+ dash:'Business overview',
+ stock:'Manage inventory',
+ sales:'Track performance',
+ exp:'Log business costs',
+ owner:'Funding & dividends',
+ tax:'Corporation tax tools',
+ pricing:'Work out true value',
+ opps:'Source winning cards'
+};
 
 function ensurePageHeaders(){
  document.querySelectorAll('.sec').forEach(sec=>{
   if(sec.querySelector(':scope > .page-head'))return;
   const head=document.createElement('div');
   head.className='page-head';
-  head.innerHTML=`<button type="button" class="page-back" aria-label="Back to Home">←</button><div class="page-head-title">${PAGE_TITLES[sec.id]||'Gengrail'}</div>`;
+  head.innerHTML=`<button type="button" class="page-back" aria-label="Back to Home">←</button><div class="page-head-copy"><div class="page-head-title">${PAGE_TITLES[sec.id]||'Gengrail'}</div><div class="page-head-sub">${PAGE_SUBTITLES[sec.id]||''}</div></div>`;
   sec.prepend(head);
   head.querySelector('.page-back').onclick=()=>showHome(true);
  });
