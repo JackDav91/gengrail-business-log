@@ -1,4 +1,4 @@
-const C='gengrail-log-v7-data-safety';
+const C='gengrail-log-v8-persistence-test';
 const A=[
   './',
   './index.html',
