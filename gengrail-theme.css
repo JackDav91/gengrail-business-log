@@ -1,0 +1,284 @@
+/* =========================================================
+   GENGRAIL TCG — BLACK / CHARCOAL APP THEME
+   Drop-in theme file
+   ========================================================= */
+
+:root{
+  --bg:#080808;            /* Main app background */
+  --panel:#121212;         /* Large panels */
+  --panel-2:#0b0b0b;       /* Metric cards / inner panels */
+  --panel-3:#171717;       /* Slightly raised areas */
+
+  --orange:#e0ad16;        /* Primary action / active tab */
+  --orange-hover:#f2c84b;  /* Hover / pressed accent */
+
+  --gold:#e0ad16;          /* Gengrail gold accent */
+  --gold-soft:#f2c84b;     /* Brighter gold highlight */
+
+  --text:#f4f1eb;          /* Main text */
+  --muted:#9a9a9a;         /* Secondary labels */
+
+  --border:#303030;        /* Borders */
+  --border-soft:#242424;
+
+  --success:#82dda0;
+  --danger:#ff6464;
+
+  --shadow:0 8px 24px rgba(0,0,0,.35);
+}
+
+/* ---------- PAGE ---------- */
+
+html,
+body{
+  margin:0;
+  min-height:100%;
+  background:#080808 !important;
+  color:var(--text);
+}
+
+/* Also catches common outer wrappers that may currently be brown */
+body,
+#app,
+.app,
+.page,
+.wrapper,
+.container,
+main{
+  background-color:var(--bg) !important;
+}
+
+/* ---------- MAIN PANELS ---------- */
+
+.card,
+.panel,
+.section,
+.dashboard,
+.dashboard-panel,
+.form-card,
+.summary-card,
+.stats-panel{
+  background:linear-gradient(180deg,var(--panel-3),var(--panel)) !important;
+  border:1px solid var(--border);
+  color:var(--text);
+  box-shadow:var(--shadow);
+}
+
+/* ---------- INNER METRIC CARDS ---------- */
+
+.stat-card,
+.metric,
+.metric-card,
+.kpi,
+.kpi-card,
+.tile,
+.summary-item{
+  background:var(--panel-2) !important;
+  border:1px solid var(--border);
+  color:var(--text);
+}
+
+/* ---------- HEADINGS ---------- */
+
+h1,
+h2,
+h3,
+h4,
+.section-title,
+.dashboard-title{
+  color:var(--text);
+}
+
+/* Gold reserved for small branded highlights only */
+.brand-accent,
+.gold,
+.highlight{
+  color:var(--gold);
+}
+
+/* ---------- LABELS / SECONDARY TEXT ---------- */
+
+label,
+.subtitle,
+.caption,
+.muted,
+.stat-label,
+.metric-label,
+.kpi-label{
+  color:var(--muted) !important;
+}
+
+/* ---------- NAV / TABS ---------- */
+
+nav,
+.tabs,
+.tab-bar,
+.nav-grid,
+.nav-panel{
+  background:#090909 !important;
+  border-color:var(--border-soft);
+}
+
+.tab,
+.nav-btn,
+.tab-btn,
+button.tab{
+  background:#141414 !important;
+  color:#b7b7b7 !important;
+  border:1px solid var(--border) !important;
+}
+
+/* Active tab stays bright Gengrail orange */
+.tab.active,
+.nav-btn.active,
+.tab-btn.active,
+button.tab.active,
+[aria-selected="true"]{
+  background:var(--orange) !important;
+  color:#111 !important;
+  border-color:var(--orange) !important;
+  font-weight:700;
+}
+
+/* ---------- PRIMARY BUTTONS ---------- */
+
+button,
+.btn,
+.action-btn,
+.primary-btn,
+input[type="submit"]{
+  border-radius:10px;
+}
+
+.btn-primary,
+.action-btn,
+.primary-btn,
+button.primary,
+input[type="submit"]{
+  background:var(--orange) !important;
+  color:#111 !important;
+  border:1px solid var(--orange) !important;
+  font-weight:700;
+}
+
+.btn-primary:hover,
+.action-btn:hover,
+.primary-btn:hover,
+button.primary:hover,
+input[type="submit"]:hover{
+  background:var(--orange-hover) !important;
+}
+
+/* ---------- SECONDARY BUTTONS ---------- */
+
+.btn-secondary,
+.secondary-btn{
+  background:#151515 !important;
+  color:var(--gold-soft) !important;
+  border:1px solid var(--border) !important;
+}
+
+/* ---------- INPUTS ---------- */
+
+input,
+select,
+textarea{
+  background:#0b0b0b !important;
+  color:var(--text) !important;
+  border:1px solid var(--border) !important;
+}
+
+input::placeholder,
+textarea::placeholder{
+  color:#6f6f6f;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  outline:none;
+  border-color:var(--orange) !important;
+  box-shadow:0 0 0 2px rgba(255,122,0,.15);
+}
+
+/* ---------- TABLES ---------- */
+
+table{
+  background:var(--panel) !important;
+  color:var(--text);
+  border-color:var(--border);
+}
+
+th{
+  background:#181818 !important;
+  color:var(--gold-soft);
+}
+
+td{
+  border-color:var(--border-soft);
+}
+
+/* ---------- STATUS COLOURS ---------- */
+
+.positive,
+.profit,
+.success{
+  color:var(--success) !important;
+}
+
+.negative,
+.loss,
+.danger{
+  color:var(--danger) !important;
+}
+
+/* ---------- LINKS ---------- */
+
+a{
+  color:var(--gold-soft);
+}
+
+/* ---------- OPTIONAL GENGRAIL ACCENT RULE ---------- */
+
+.gengrail-accent-line{
+  height:3px;
+  background:linear-gradient(90deg,var(--orange),var(--gold),var(--orange));
+  border-radius:999px;
+}
+
+/* ---------- SCROLLBAR ---------- */
+
+::-webkit-scrollbar{
+  width:7px;
+}
+
+::-webkit-scrollbar-track{
+  background:#080808;
+}
+
+::-webkit-scrollbar-thumb{
+  background:#333;
+  border-radius:10px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+  background:var(--orange);
+}
+
+/* ---------- iOS SAFE AREA / DYNAMIC ISLAND ---------- */
+
+body{
+  padding-bottom:env(safe-area-inset-bottom);
+}
+
+/* Keep the entire interface below the iPhone status area / Dynamic Island. */
+.app{
+  padding-top:calc(env(safe-area-inset-top) + 18px) !important;
+  box-sizing:border-box;
+}
+
+/* =========================================================
+   IMPORTANT:
+   This deliberately removes brown / coffee backgrounds.
+   Final look = black + charcoal + orange + restrained gold.
+   ========================================================= */
