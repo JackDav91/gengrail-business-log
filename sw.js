@@ -1,4 +1,4 @@
-const C='gengrail-log-v9';
+const C='gengrail-log-v10';
 const A=[
   './',
   './index.html',
