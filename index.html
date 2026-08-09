@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-title" content="Gengrail TCG">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png"><title>Gengrail TCG Business Log</title>
+<meta name="gengrail-build" content="data-safety-v1">
   
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
@@ -374,16 +375,57 @@ body:not(.sales-active) [data-ebay-channel-main="true"]{
 </div>
 
 <script>
-const K='gengrailBizV1', $=x=>document.getElementById(x), m=v=>new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP'}).format(v||0), d=()=>new Date().toISOString().slice(0,10);
-let db={purchases:[],sales:[],expenses:[],funding:[],dividends:[],opportunities:[],settings:{salary:57000,divUsedElsewhere:0,startupAmazonLoaded:false}};
-try{
- const old=JSON.parse(localStorage.getItem(K));
- if(old){
-  db={...db,...old};
-  db.funding=old.funding||[]; db.dividends=old.dividends||[]; db.expenses=old.expenses||[]; db.opportunities=old.opportunities||[];
-  db.settings={salary:57000,divUsedElsewhere:0,startupAmazonLoaded:false,...(old.settings||{})};
- }
-}catch{}
+const K='gengrailBizV1', SAFETY_K='gengrailBizV1_lastGood', SCHEMA_VERSION=2,
+$=x=>document.getElementById(x),
+m=v=>new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP'}).format(v||0),
+d=()=>new Date().toISOString().slice(0,10);
+
+const freshDB=()=>({
+ schemaVersion:SCHEMA_VERSION,
+ purchases:[],sales:[],expenses:[],funding:[],dividends:[],opportunities:[],
+ settings:{salary:57000,divUsedElsewhere:0,startupAmazonLoaded:false}
+});
+
+function normaliseDB(input){
+ const x=(input&&typeof input==='object')?input:{};
+ return {
+  ...freshDB(),
+  ...x,
+  schemaVersion:SCHEMA_VERSION,
+  purchases:Array.isArray(x.purchases)?x.purchases:[],
+  sales:Array.isArray(x.sales)?x.sales:[],
+  expenses:Array.isArray(x.expenses)?x.expenses:[],
+  funding:Array.isArray(x.funding)?x.funding:[],
+  dividends:Array.isArray(x.dividends)?x.dividends:[],
+  opportunities:Array.isArray(x.opportunities)?x.opportunities:[],
+  settings:{...freshDB().settings,...(x.settings&&typeof x.settings==='object'?x.settings:{})}
+ };
+}
+
+function validDB(x){
+ return !!x && typeof x==='object' &&
+  Array.isArray(x.purchases) && Array.isArray(x.sales) && Array.isArray(x.expenses);
+}
+
+function readJSON(key){
+ try{
+  const raw=localStorage.getItem(key);
+  return raw?JSON.parse(raw):null;
+ }catch{return null}
+}
+
+let db;
+const primary=readJSON(K);
+const safety=readJSON(SAFETY_K);
+
+if(validDB(primary)){
+ db=normaliseDB(primary);
+}else if(validDB(safety)){
+ db=normaliseDB(safety);
+ try{localStorage.setItem(K,JSON.stringify(db))}catch{}
+}else{
+ db=freshDB();
+}
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
 const PHOTO_DB='gengrailPhotosV1', PHOTO_STORE='photos';
@@ -524,7 +566,21 @@ function preloadAmazonStartup(){
 preloadAmazonStartup();
 
 ['pd','sd','ed','fd','dd'].forEach(x=>$(x).value=d());$('salary').value=db.settings.salary;$('divUsedElsewhere').value=db.settings.divUsedElsewhere;
-const save=()=>{db.settings.salary=parseFloat($('salary').value)||0;db.settings.divUsedElsewhere=parseFloat($('divUsedElsewhere').value)||0;localStorage.setItem(K,JSON.stringify(db));render()}, id=uid, n=x=>parseFloat($(x).value)||0;
+function persistDB({renderAfter=true}={}){
+ db=normaliseDB(db);
+ db.settings.salary=parseFloat($('salary').value)||0;
+ db.settings.divUsedElsewhere=parseFloat($('divUsedElsewhere').value)||0;
+ try{
+  const current=readJSON(K);
+  if(validDB(current))localStorage.setItem(SAFETY_K,JSON.stringify(normaliseDB(current)));
+  localStorage.setItem(K,JSON.stringify(db));
+ }catch(err){
+  console.error('Gengrail save failed',err);
+  alert('Gengrail could not save data on this device. Export a JSON backup before continuing.');
+ }
+ if(renderAfter)render();
+}
+const save=()=>persistDB({renderAfter:true}), id=uid, n=x=>parseFloat($(x).value)||0;
 
 function sold(pid){return db.sales.filter(s=>s.pid===pid).reduce((a,s)=>a+s.q,0)}
 function left(p){return Math.max(0,p.q-sold(p.id))}
@@ -884,7 +940,24 @@ window.addEventListener('load',()=>setTimeout(placeEbayChannelInSales,150));
 setTimeout(placeEbayChannelInSales,300);
 
 function dl(name,text,type){let a=document.createElement('a'),b=new Blob([text],{type});a.href=URL.createObjectURL(b);a.download=name;a.click()}
-$('json').onclick=()=>{const out={...db,_backupNote:'Product photos are stored separately in IndexedDB on this device and are not included in this JSON accounting backup.'};dl('gengrail-business-backup.json',JSON.stringify(out,null,2),'application/json')};
+$('json').onclick=()=>{
+ const prefs={};
+ for(let i=0;i<localStorage.length;i++){
+  const k=localStorage.key(i);
+  if(k && (k.startsWith('gengrailPricing_')||k.startsWith('gengrailOpp_')||k==='gengrailPricingPlatform')){
+   prefs[k]=localStorage.getItem(k);
+  }
+ }
+ const out={
+  ...db,
+  _backupVersion:2,
+  _exportedAt:new Date().toISOString(),
+  _preferences:prefs,
+  ebay:(window.GengrailEbay&&window.GengrailEbay.exportData)?window.GengrailEbay.exportData():null,
+  _backupNote:'Product photos are stored separately in IndexedDB on this device and are not included in this JSON accounting backup.'
+ };
+ dl('gengrail-business-backup.json',JSON.stringify(out,null,2),'application/json')
+};
 
 $('csv').onclick=()=>{
  let rows=[['TYPE','DATE','SUPPLIER','ITEM','CATEGORY/PLATFORM','CLASS','QTY','REVENUE','COST/COGS','FEES','POSTAGE','PACKAGING ALLOC','OTHER/EXPENSE','STARTUP','PROFIT/CONTRIBUTION','NOTES']];
@@ -896,9 +969,56 @@ $('csv').onclick=()=>{
  dl('gengrail-business-log.csv',rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n'),'text/csv')
 };
 
-$('imp').onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.purchases||!x.sales||!x.expenses)throw 0;db={purchases:[],sales:[],expenses:[],funding:[],dividends:[],opportunities:[],settings:{salary:57000,divUsedElsewhere:0,startupAmazonLoaded:false},...x};db.settings={salary:57000,divUsedElsewhere:0,startupAmazonLoaded:false,...(db.settings||{})};save();alert('Restored.')}catch{alert('Invalid backup.')}};r.readAsText(f)};
-$('wipe').onclick=()=>{if(confirm('Erase all data?')){db={purchases:[],sales:[],expenses:[],funding:[],dividends:[],opportunities:[],settings:{salary:57000,divUsedElsewhere:0,startupAmazonLoaded:true}};$('salary').value=57000;$('divUsedElsewhere').value=0;save()}};
+$('imp').onchange=e=>{
+ let f=e.target.files[0];if(!f)return;
+ let r=new FileReader();
+ r.onload=()=>{
+  try{
+   const x=JSON.parse(r.result);
+   if(!validDB(x))throw new Error('Invalid Gengrail backup');
+   const before=readJSON(K);
+   if(validDB(before))localStorage.setItem(SAFETY_K,JSON.stringify(normaliseDB(before)));
+   db=normaliseDB(x);
+   if(x._preferences&&typeof x._preferences==='object'){
+    Object.entries(x._preferences).forEach(([k,v])=>{if(typeof v==='string')localStorage.setItem(k,v)});
+   }
+   persistDB({renderAfter:true});
+   if(x.ebay){
+    const restoreEbay=()=>{
+     if(window.GengrailEbay&&window.GengrailEbay.importData){
+      window.GengrailEbay.importData(x.ebay);
+      return true;
+     }
+     return false;
+    };
+    if(!restoreEbay()){
+     window.__gengrailPendingEbayRestore=x.ebay;
+     setTimeout(()=>{
+      if(window.__gengrailPendingEbayRestore&&restoreEbay())window.__gengrailPendingEbayRestore=null;
+     },500);
+    }
+   }
+   alert('Backup restored successfully.');
+  }catch(err){
+   console.error(err);
+   alert('Invalid backup. No existing data was replaced.');
+  }
+ };
+ r.readAsText(f)
+};
+$('wipe').onclick=()=>{if(confirm('Erase all data? A last-good safety snapshot will be kept on this device.')){const before=readJSON(K);if(validDB(before))localStorage.setItem(SAFETY_K,JSON.stringify(normaliseDB(before)));db=freshDB();db.settings.startupAmazonLoaded=true;$('salary').value=57000;$('divUsedElsewhere').value=0;save()}};
 
-save();
+// Startup must never overwrite existing records merely because a new build loaded.
+if(!validDB(readJSON(K)))persistDB({renderAfter:false});
+render();
+
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
-</script><script src="gengrail-ebay.js"></script></body></html>
+</script><script src="gengrail-ebay.js"></script>
+<script>
+window.addEventListener('load',()=>{
+ if(window.__gengrailPendingEbayRestore && window.GengrailEbay && window.GengrailEbay.importData){
+  window.GengrailEbay.importData(window.__gengrailPendingEbayRestore);
+  window.__gengrailPendingEbayRestore=null;
+ }
+});
+</script></body></html>
