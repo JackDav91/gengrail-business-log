@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-title" content="Gengrail TCG">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png"><title>Gengrail TCG Business Log</title>
-<meta name="gengrail-build" content="command-centre-v1">
+<meta name="gengrail-build" content="command-centre-v2">
   
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
@@ -261,6 +261,160 @@ body.home-page .brand{
   .home-menu .home-sub{font-size:10px;margin-top:6px}
 }
 
+
+/* GENGRAIL COMMAND CENTRE v2 — closer to approved concept */
+body.home-page{
+  background:
+    radial-gradient(circle at 0% 10%,rgba(224,160,0,.08),transparent 24%),
+    radial-gradient(circle at 100% 90%,rgba(224,160,0,.07),transparent 25%),
+    linear-gradient(#070707,#030303);
+}
+body.home-page .app{max-width:840px}
+body.home-page .brand{
+  border:1px solid #262626;
+  border-radius:18px;
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.62),
+    0 0 0 1px rgba(224,160,0,.08);
+}
+.home-command-title{
+  margin:18px 0 20px;
+  color:#d3d0ca;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.30em;
+}
+.home-command-title:before,.home-command-title:after{
+  height:2px;
+  background:linear-gradient(90deg,transparent,#d59a09);
+}
+.home-command-title:after{
+  background:linear-gradient(90deg,#d59a09,transparent);
+}
+.home-menu{
+  gap:13px;
+}
+.home-menu button{
+  min-height:148px;
+  padding:22px 44px 20px 18px;
+  border:2px solid #e1a10a;
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(226,161,10,.11),transparent 58%),
+    linear-gradient(145deg,#171717,#0a0a0a 70%);
+  box-shadow:
+    0 0 10px rgba(225,160,10,.42),
+    0 0 24px rgba(225,140,0,.14),
+    inset 0 0 24px rgba(225,160,10,.045),
+    5px 7px 14px rgba(0,0,0,.7);
+}
+.home-menu button:after{
+  content:"›";
+  right:15px;
+  font-size:42px;
+  color:#f0a900;
+  text-shadow:0 0 7px rgba(240,169,0,.28);
+}
+.home-menu button:active{
+  transform:translateY(1px) scale(.995);
+}
+.home-menu .home-icon{
+  margin:0 0 13px;
+  line-height:1;
+  color:#f0a900;
+  text-shadow:none;
+}
+.home-icon svg{
+  display:block;
+  width:46px;
+  height:46px;
+  margin:0 auto;
+  fill:none;
+  stroke:#f0a900;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  filter:drop-shadow(0 0 4px rgba(240,169,0,.2));
+}
+.home-menu .home-label{
+  font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;
+  font-size:24px;
+  line-height:1;
+  letter-spacing:.018em;
+  text-transform:uppercase;
+  color:#f4f1ea;
+}
+.home-menu .home-sub{
+  margin-top:9px;
+  font-size:13px;
+  line-height:1.15;
+  color:#aaa7a1;
+  font-weight:650;
+}
+.home-footer{
+  position:relative;
+  margin-top:14px;
+  padding:74px 0 18px;
+  color:#d29a12;
+  font-weight:950;
+  font-size:12px;
+  letter-spacing:.40em;
+}
+.home-footer:before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:10px;
+  width:95px;
+  height:58px;
+  transform:translateX(-50%) rotate(-5deg);
+  opacity:.25;
+  background:
+    linear-gradient(135deg,transparent 40%,#d09a11 41% 48%,transparent 49%) 5px 10px/36px 40px no-repeat,
+    linear-gradient(45deg,transparent 40%,#d09a11 41% 48%,transparent 49%) 31px 5px/36px 42px no-repeat,
+    linear-gradient(135deg,transparent 40%,#d09a11 41% 48%,transparent 49%) 54px 12px/34px 39px no-repeat,
+    linear-gradient(#d09a11,#d09a11) 18px 43px/62px 5px no-repeat;
+}
+.home-footer-crown{display:none}
+.home-screen{
+  position:relative;
+}
+.home-screen:before,.home-screen:after{
+  content:"";
+  pointer-events:none;
+  position:absolute;
+  width:130px;
+  height:130px;
+  opacity:.12;
+  filter:blur(.2px);
+  background:
+    radial-gradient(circle at 20% 20%,#d89a00 0 2px,transparent 3px),
+    radial-gradient(circle at 35% 35%,#d89a00 0 1.7px,transparent 2.7px),
+    radial-gradient(circle at 60% 25%,#d89a00 0 2px,transparent 3px),
+    radial-gradient(circle at 70% 55%,#d89a00 0 1.8px,transparent 2.8px);
+}
+.home-screen:before{left:-20px;bottom:20px}
+.home-screen:after{right:-25px;bottom:35px;transform:rotate(22deg)}
+
+@media(max-width:520px){
+  .home-command-title{
+    font-size:10px;
+    letter-spacing:.21em;
+    margin:14px 0 17px;
+  }
+  .home-menu{gap:11px}
+  .home-menu button{
+    min-height:132px;
+    padding:18px 37px 17px 12px;
+    border-radius:18px;
+  }
+  .home-icon svg{width:40px;height:40px}
+  .home-menu .home-label{font-size:21px}
+  .home-menu .home-sub{font-size:11px;margin-top:7px}
+  .home-menu button:after{right:11px;font-size:38px}
+  .home-footer{padding-top:66px}
+}
+
 </style>
 <link rel="stylesheet" href="gengrail-theme.css">
 <link rel="stylesheet" href="gengrail-gold-tabs.css"> 
@@ -272,28 +426,28 @@ body.home-page .brand{
   <div class="home-command-title">Business Command Centre</div>
   <div class="home-menu">
     <button type="button" data-go="dash">
-      <span class="home-icon">▥</span><span class="home-label">Dashboard</span><span class="home-sub">Business overview</span>
+      <span class="home-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V11"/><path d="M9 19V7"/><path d="M14 19V4"/><path d="M19 19V9"/><path d="M3 19h18"/></svg></span><span class="home-label">Dashboard</span><span class="home-sub">Business overview</span>
     </button>
     <button type="button" data-go="stock">
-      <span class="home-icon">▦</span><span class="home-label">Stock</span><span class="home-sub">Manage inventory</span>
+      <span class="home-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l5-3 5 3-5 3-5-3Z"/><path d="M7 5v6l5 3 5-3V5"/><path d="M2 13l5-3 5 3-5 3-5-3Z"/><path d="M2 13v6l5 3 5-3v-6"/><path d="M12 13l5-3 5 3-5 3-5-3Z"/><path d="M12 13v6l5 3 5-3v-6"/></svg></span><span class="home-label">Stock</span><span class="home-sub">Manage inventory</span>
     </button>
     <button type="button" data-go="sales">
-      <span class="home-icon">▱</span><span class="home-label">Sales</span><span class="home-sub">Track performance</span>
+      <span class="home-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2 10h10l3-7H6"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg></span><span class="home-label">Sales</span><span class="home-sub">Track performance</span>
     </button>
     <button type="button" data-go="exp">
-      <span class="home-icon">▣</span><span class="home-label">Expenses</span><span class="home-sub">Log business costs</span>
+      <span class="home-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h14a3 3 0 0 1 3 3v8H6a3 3 0 0 1-3-3V8a1 1 0 0 1 1-1Z"/><path d="M6 7V5a2 2 0 0 1 2-2h9"/><path d="M17 11h4v4h-4a2 2 0 1 1 0-4Z"/></svg></span><span class="home-label">Expenses</span><span class="home-sub">Log business costs</span>
     </button>
     <button type="button" data-go="owner">
-      <span class="home-icon">♛</span><span class="home-label">Owner</span><span class="home-sub">Funding &amp; dividends</span>
+      <span class="home-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M5 21c.8-4.4 3.2-6.5 7-6.5s6.2 2.1 7 6.5"/><path d="M9 3l1.5-2L12 3l1.5-2L15 3"/></svg></span><span class="home-label">Owner</span><span class="home-sub">Funding &amp; dividends</span>
     </button>
     <button type="button" data-go="tax">
-      <span class="home-icon">⌂</span><span class="home-label">Tax</span><span class="home-sub">Corporation tax tools</span>
+      <span class="home-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h18"/><path d="M5 8v11"/><path d="M9 8v11"/><path d="M15 8v11"/><path d="M19 8v11"/><path d="M2 21h20"/><path d="M12 2 3 7h18l-9-5Z"/></svg></span><span class="home-label">Tax</span><span class="home-sub">Corporation tax tools</span>
     </button>
     <button type="button" data-go="pricing">
-      <span class="home-icon">▤</span><span class="home-label">Pricing Calculator</span><span class="home-sub">Work out true value</span>
+      <span class="home-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8"/><circle cx="9" cy="11" r=".7"/><circle cx="12" cy="11" r=".7"/><circle cx="15" cy="11" r=".7"/><circle cx="9" cy="15" r=".7"/><circle cx="12" cy="15" r=".7"/><circle cx="15" cy="15" r=".7"/><circle cx="9" cy="19" r=".7"/><circle cx="12" cy="19" r=".7"/><circle cx="15" cy="19" r=".7"/></svg></span><span class="home-label">Pricing Calculator</span><span class="home-sub">Work out true value</span>
     </button>
     <button type="button" data-go="opps">
-      <span class="home-icon">◎</span><span class="home-label">Opportunity Finder</span><span class="home-sub">Source winning cards</span>
+      <span class="home-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="12" r="7"/><circle cx="11" cy="12" r="3"/><path d="M16 7l5-5"/><path d="M17 2h4v4"/><path d="M16 7l-3 3"/></svg></span><span class="home-label">Opportunity Finder</span><span class="home-sub">Source winning cards</span>
     </button>
   </div>
   <div class="home-footer"><span class="home-footer-crown">♛</span>Gengrail TCG</div>
