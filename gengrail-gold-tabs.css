@@ -1,0 +1,32 @@
+/* GENGRAIL TCG — CROWN GOLD ACTIVE TABS
+   Load this AFTER gengrail-theme.css
+*/
+
+:root{
+  --active-tab-gold:#e0ad16;
+  --active-tab-gold-edge:#f2c84b;
+}
+
+/* Main navigation — selected tab only */
+.nav button.on{
+  background:var(--active-tab-gold) !important;
+  border-color:var(--active-tab-gold-edge) !important;
+  color:#0b0b0b !important;
+  box-shadow:0 2px 0 rgba(0,0,0,.45);
+}
+
+/* Pricing Calculator marketplace tabs */
+.pricing-tab.on{
+  background:var(--active-tab-gold) !important;
+  border-color:var(--active-tab-gold-edge) !important;
+  color:#0b0b0b !important;
+  box-shadow:0 2px 0 rgba(0,0,0,.45);
+}
+
+/* Keep action / CTA buttons orange */
+.btn,
+.action-btn,
+.stock-ebay-btn,
+.ge-btn{
+  /* deliberately unchanged */
+}
