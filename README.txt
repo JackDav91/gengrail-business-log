@@ -1,0 +1,1 @@
+Upload index.html, manifest.json and sw.js to a new public GitHub repository. Enable GitHub Pages from main /(root). Open the live page in Safari and choose Share > Add to Home Screen. Use BACKUP JSON regularly because data is stored locally on the device.
