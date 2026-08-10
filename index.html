@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-title" content="Gengrail TCG">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png"><title>Gengrail TCG Business Log</title>
-<meta name="gengrail-build" content="warehouse-v1-sku-storage-orders">
+<meta name="gengrail-build" content="warehouse-v1.1-linked-sale-order-cleanup">
   
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
@@ -1411,7 +1411,30 @@ $('addfund').onclick=()=>{if(n('fa')<=0)return alert('Enter funding amount.');db
 $('adddiv').onclick=()=>{if(n('da')<=0)return alert('Enter dividend amount.');db.dividends.push({id:id(),date:$('dd').value,amount:n('da'),note:$('dn').value});$('da').value='';$('dn').value='';save()};
 
 window.dp=async x=>{if(db.sales.some(s=>s.pid===x))return alert('Delete related sales first.');if(confirm('Delete purchase?')){db.purchases=db.purchases.filter(p=>p.id!==x);try{await deletePhotosFor(x)}catch(e){console.error(e)}save()}};
-window.ds=x=>{if(confirm('Delete sale?')){db.sales=db.sales.filter(s=>s.id!==x);save()}};
+window.ds=x=>{
+ const sale=db.sales.find(s=>s.id===x);
+ if(!sale)return;
+ const linked=db.orders.filter(o=>o.saleId===x);
+ const dispatched=linked.some(o=>o.status==='DISPATCHED');
+ const msg=dispatched
+  ? 'Delete this sale?\n\nThis sale has already been DISPATCHED. Deleting it will remove the linked fulfilment order and restore the stock quantity/status. Use this only to correct a test, cancellation or voided transaction.'
+  : 'Delete this sale?\n\nThis will also remove its linked fulfilment order and restore the stock quantity/status.';
+ if(!confirm(msg))return;
+
+ const pid=sale.pid;
+ db.sales=db.sales.filter(s=>s.id!==x);
+ db.orders=db.orders.filter(o=>o.saleId!==x);
+
+ const p=db.purchases.find(p=>p.id===pid);
+ if(p){
+   const remainingOrders=db.orders.filter(o=>o.pid===pid && o.status!=='DISPATCHED');
+   if(remainingOrders.some(o=>o.status==='PACKED')) p.inventoryStatus='PACKED';
+   else if(remainingOrders.some(o=>o.status==='PICKED')) p.inventoryStatus='PICKED';
+   else if(remainingOrders.some(o=>o.status==='PICK_REQUIRED')) p.inventoryStatus='PICK_REQUIRED';
+   else p.inventoryStatus=left(p)>0?'IN_STOCK':'SOLD';
+ }
+ save();
+};
 window.de=x=>{if(confirm('Delete expense?')){db.expenses=db.expenses.filter(e=>e.id!==x);save()}};
 window.df=x=>{if(confirm('Delete funding?')){db.funding=db.funding.filter(f=>f.id!==x);save()}};
 window.ddel=x=>{if(confirm('Delete dividend?')){db.dividends=db.dividends.filter(d=>d.id!==x);save()}};
