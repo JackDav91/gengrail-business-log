@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>eBay Connection Declined — Gengrail TCG</title>
+<style>
+:root{
+  --bg:#050505;
+  --panel:#111;
+  --gold:#f2c84b;
+  --gold2:#d89b00;
+  --text:#f4f1ea;
+  --muted:#a9a39a;
+  --green:#78d89a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#050505;color:var(--text);font-family:Arial,Helvetica,sans-serif}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 10% 10%,rgba(242,200,75,.08),transparent 28%),
+    radial-gradient(circle at 90% 25%,rgba(216,155,0,.05),transparent 25%),
+    #050505;
+}
+.wrap{max-width:760px;margin:0 auto;padding:28px 20px 60px}
+.brand{
+  border:1px solid rgba(242,200,75,.25);
+  border-radius:20px;
+  padding:24px;
+  background:linear-gradient(145deg,#161616,#090909);
+  box-shadow:0 14px 36px rgba(0,0,0,.45),0 0 24px rgba(242,200,75,.06);
+  margin-bottom:22px;
+}
+.logo{font-size:34px;font-weight:900;letter-spacing:.05em}
+.logo .gold{color:var(--gold)}
+.tag{margin-top:8px;color:var(--muted);font-weight:700}
+.card{
+  border:1px solid #343434;
+  border-radius:18px;
+  background:rgba(17,17,17,.96);
+  padding:24px;
+  margin-top:18px;
+}
+h1,h2{margin-top:0}
+h1{font-size:32px}
+h2{font-size:20px;color:var(--gold)}
+p,li{line-height:1.6;color:#ddd}
+a{color:var(--gold)}
+.badge{
+  display:inline-block;padding:8px 12px;border-radius:999px;
+  border:1px solid rgba(242,200,75,.4);color:var(--gold);font-weight:800;font-size:13px
+}
+.good{color:var(--green);font-weight:800}
+.muted{color:var(--muted)}
+.codebox{
+  margin-top:16px;padding:14px;border-radius:12px;background:#080808;border:1px solid #2d2d2d;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all;color:#cfcfcf
+}
+.small{font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="logo"><span class="gold">GENGRAIL</span> TCG</div>
+    <div class="tag">eBay connection</div>
+  </div>
+
+  <div class="card">
+    <span class="badge">CONNECTION NOT COMPLETED</span>
+    <h1>eBay authorisation was declined</h1>
+    <p>No changes were made to your Gengrail or eBay account.</p>
+    <p class="muted">You can return to Gengrail and try connecting again whenever you're ready.</p>
+  </div>
+</div>
+</body>
+</html>
