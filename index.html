@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-title" content="Gengrail TCG">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png"><title>Gengrail TCG Business Log</title>
-<meta name="gengrail-build" content="warehouse-v1.2-orphan-order-cleanup">
+<meta name="gengrail-build" content="locations-v1-standard-boxes">
   
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
@@ -725,6 +725,20 @@ body.inner-page #gengrail-ebay-channel .ge-badge{
 /* ---------- GENGRAIL WAREHOUSE v1 ---------- */
 .wh-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.wh-card{background:#090909;border:1px solid #333;border-radius:11px;padding:11px}.wh-card small{color:#8f8b84;font-size:10px;font-weight:900}.wh-card b{display:block;margin-top:4px;font-size:19px}.wh-actions{display:flex;gap:8px;flex-wrap:wrap}.wh-actions .btn{flex:1 1 140px}.status-pill{display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid #555;font-size:9px;font-weight:900;letter-spacing:.03em}.status-pill.stock{color:#82dda0;border-color:#3d8751}.status-pill.pick{color:#ffd36f;border-color:#8a6c25}.status-pill.done{color:#bbb}.scan-box{border:1px solid #5a4514;background:#120f08;border-radius:12px;padding:12px}.scan-result{margin-top:8px;padding:10px;background:#080808;border-radius:8px;color:#ddd;font-size:12px;min-height:38px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.label-preview{border:1px dashed #6a5318;background:#fff;color:#000;padding:12px;border-radius:8px;text-align:center;margin-top:10px}.label-preview b{font-size:20px}.label-preview small{display:block;margin-top:5px}.compact-select{min-width:160px}@media(max-width:700px){.wh-grid{grid-template-columns:1fr 1fr}}
 
+/* ---------- GENGRAIL LOCATIONS v1 ---------- */
+.loc-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.loc-filter{appearance:none;background:#111;color:#bbb;border:1px solid #3b3b3b;border-radius:999px;padding:9px 13px;font-weight:900;font-size:11px}
+.loc-filter.on{background:linear-gradient(180deg,var(--crown-hi),var(--crown));color:#0b0b0b;border-color:var(--crown-deep)}
+.loc-box{margin-top:16px}.loc-box:first-child{margin-top:0}.loc-box-head{display:flex;justify-content:space-between;gap:10px;align-items:end;margin-bottom:8px}.loc-box-head b{color:var(--crown-hi);font-size:13px}.loc-box-head span{color:#89857f;font-size:10px;font-weight:800}
+.loc-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.loc-tile{appearance:none;position:relative;text-align:left;background:linear-gradient(160deg,#121212,#090909);border:1px solid #4a3a12;border-radius:10px;padding:11px 9px;min-height:68px;color:#f4f1ea;cursor:pointer}
+.loc-tile.inuse{border-color:#9c760f;box-shadow:inset 0 0 14px rgba(224,173,22,.035)}
+.loc-tile .code{display:block;font-size:17px;font-weight:950}.loc-tile .count{display:block;color:#96928c;font-size:10px;font-weight:800;margin-top:6px}.loc-tile.inuse:after{content:"";position:absolute;right:8px;top:8px;width:6px;height:6px;border-radius:50%;background:#55b878;box-shadow:0 0 6px rgba(85,184,120,.4)}
+.loc-detail{display:none;margin-top:12px}.loc-detail.on{display:block}.loc-detail-head{display:flex;justify-content:space-between;gap:10px;align-items:start}.loc-code-big{font:42px Impact,sans-serif;letter-spacing:.04em}.loc-meta{color:#96928c;font-size:11px;margin-top:3px}.loc-items{display:grid;gap:7px;margin-top:12px}.loc-item{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:#0a0a0a;border:1px solid #303030;border-radius:9px;padding:10px}.loc-item b{display:block}.loc-item small{display:block;color:#8f8b84;margin-top:3px}.loc-empty{color:#777;border:1px dashed #333;border-radius:9px;padding:16px;text-align:center}
+.loc-label-preview{width:min(100%,360px);aspect-ratio:5/3;margin:12px auto;background:#fff;color:#000;border-radius:10px;padding:14px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}.loc-label-preview .brandline{font-size:10px;font-weight:900}.loc-label-preview .big{font:52px Impact,sans-serif;line-height:1;margin:5px 0}.loc-label-preview .sub{font-size:10px}.loc-label-preview .qr-placeholder{margin-top:7px;border:2px solid #000;padding:3px 6px;font:8px ui-monospace,monospace;letter-spacing:.02em}
+.loc-create-standard{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}.loc-create-standard .btn{margin:0}
+@media(max-width:520px){.loc-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.loc-tile{padding:10px 7px;min-height:64px}.loc-tile .code{font-size:15px}.loc-create-standard{grid-template-columns:1fr}}
+
 </style>
 <link rel="stylesheet" href="gengrail-theme.css">
 <link rel="stylesheet" href="gengrail-gold-tabs.css"> 
@@ -760,7 +774,7 @@ body.inner-page #gengrail-ebay-channel .ge-badge{
       <span class="home-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="12" r="7"/><circle cx="11" cy="12" r="3"/><path d="M16 7l5-5"/><path d="M17 2h4v4"/><path d="M16 7l-3 3"/></svg></span><span class="home-label">Opportunity Finder</span><span class="home-sub">Source winning cards</span>
     </button>
     <button type="button" data-go="storage">
-      <span class="home-icon">⌁</span><span class="home-label">Storage</span><span class="home-sub">Locations &amp; put away</span>
+      <span class="home-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v14H4z"/><path d="M8 6V4h8v2"/><path d="M4 11h16"/><path d="M9 11v9"/><path d="M15 11v9"/></svg></span><span class="home-label">Locations</span><span class="home-sub">Manage warehouse storage</span>
     </button>
     <button type="button" data-go="orders">
       <span class="home-icon">✓</span><span class="home-label">Orders</span><span class="home-sub">Pick, pack &amp; dispatch</span>
@@ -804,13 +818,25 @@ body.inner-page #gengrail-ebay-channel .ge-badge{
 
 
 <section id="storage" class="sec">
-<div class="panel"><div class="title">WAREHOUSE OVERVIEW</div><div class="wh-grid">
-<div class="wh-card"><small>STORAGE LOCATIONS</small><b id="whLocCount">0</b></div><div class="wh-card"><small>ALLOCATED STOCK</small><b id="whAllocated">0</b></div><div class="wh-card"><small>UNALLOCATED</small><b id="whUnallocated">0</b></div><div class="wh-card"><small>PICKS WAITING</small><b id="whPickCount">0</b></div>
+<div class="panel"><div class="title">LOCATION OVERVIEW</div><div class="wh-grid">
+<div class="wh-card"><small>LOCATIONS</small><b id="whLocCount">0</b></div><div class="wh-card"><small>IN USE</small><b id="whAllocated">0</b></div><div class="wh-card"><small>UNALLOCATED STOCK</small><b id="whUnallocated">0</b></div><div class="wh-card"><small>PICKS WAITING</small><b id="whPickCount">0</b></div>
 </div></div>
-<div class="panel"><div class="title">CREATE LOCATION</div><div class="grid"><div><label>Location code</label><input id="newLocCode" placeholder="A01"></div><div><label>Capacity / guide quantity</label><input id="newLocCap" type="number" value="30" min="1"></div><div class="full"><label>Description</label><input id="newLocDesc" placeholder="Box A · Divider 01"></div></div><button class="btn" id="addLocation">CREATE LOCATION</button><div class="note">Use short physical codes such as A01, A02 and B01. The location label data is stored as <span class="mono">GENGRAIL:LOC:A01</span>.</div></div>
+
+<div class="panel"><div class="title">WAREHOUSE LOCATIONS</div>
+<div class="loc-toolbar"><button type="button" class="loc-filter on" data-loc-filter="ALL">ALL</button><button type="button" class="loc-filter" data-loc-filter="IN_USE">IN USE</button><button type="button" class="loc-filter" data-loc-filter="EMPTY">EMPTY</button></div>
+<div id="locationBrowser"></div>
+<div id="locationDetail" class="loc-detail"></div>
+</div>
+
+<div class="panel"><div class="title">ADD STANDARD BOX</div>
+<div class="loc-create-standard"><div><label>Box letter</label><input id="standardBoxLetter" maxlength="1" placeholder="A"></div><button class="btn" id="addStandardBox" type="button">CREATE 24 LOCATIONS</button></div>
+<div class="note">A standard 3-row Gengrail box creates 24 locations automatically: row 1 = 01–08, row 2 = 09–16, row 3 = 17–24. Example: Box A creates A01–A24.</div></div>
+
+<div class="panel"><div class="title">CUSTOM LOCATION</div><div class="grid"><div><label>Location code</label><input id="newLocCode" placeholder="Q01"></div><div class="full"><label>Description</label><input id="newLocDesc" placeholder="Quarantine / grading / special storage"></div></div><button class="btn" id="addLocation">CREATE LOCATION</button><div class="note">Use custom locations only when the standard A01–A24 box structure does not fit the physical storage.</div></div>
+
 <div class="panel"><div class="title">PUT AWAY / MOVE STOCK</div><div class="grid"><div class="full"><label>Stock item</label><select id="moveSku"></select></div><div><label>New location</label><select id="moveLocation"></select></div><div><label>New status</label><select id="moveStatus"><option value="IN_STOCK">In stock</option><option value="TO_CATALOGUE">To catalogue</option><option value="LISTED">Listed</option></select></div></div><button class="btn" id="moveStock">SAVE LOCATION</button></div>
+
 <div class="panel"><div class="title">SCAN / LOOKUP</div><div class="scan-box"><label>SKU or scan data</label><input id="scanInput" class="mono" placeholder="GEN000001 or GENGRAIL:SKU:GEN000001"><button class="btn" id="scanLookup">LOOK UP ITEM</button><div id="scanResult" class="scan-result">Ready.</div></div></div>
-<div class="panel"><div class="title">LOCATIONS</div><div class="table"><table><thead><tr><th>Code</th><th>Description</th><th>Capacity</th><th>Stock records</th><th>Label data</th><th></th></tr></thead><tbody id="locBody"></tbody></table></div></div>
 </section>
 
 <section id="orders" class="sec">
@@ -1027,6 +1053,8 @@ function normaliseDB(input){
   funding:Array.isArray(x.funding)?x.funding:[],
   dividends:Array.isArray(x.dividends)?x.dividends:[],
   opportunities:Array.isArray(x.opportunities)?x.opportunities:[],
+  locations:Array.isArray(x.locations)?x.locations:[],
+  orders:Array.isArray(x.orders)?x.orders:[],
   settings:{...freshDB().settings,...(x.settings&&typeof x.settings==='object'?x.settings:{})}
  };
 }
@@ -1283,17 +1311,17 @@ function render(){
 
  // Warehouse module
  migrateWarehouse();
- const locs=[{code:'UNALLOCATED',description:'Not yet put away',capacity:0},...db.locations];
+ const locs=[{code:'UNALLOCATED',description:'Not yet put away'},...db.locations].sort((a,b)=>String(a.code).localeCompare(String(b.code),undefined,{numeric:true}));
  const stockAvail=db.purchases.filter(p=>left(p)>0);
- if($('plocation')){$('plocation').innerHTML=locs.map(l=>`<option value="${esc(l.code)}">${esc(l.code)}${l.description?' — '+esc(l.description):''}</option>`).join('')}
- if($('moveLocation'))$('moveLocation').innerHTML=locs.map(l=>`<option value="${esc(l.code)}">${esc(l.code)}</option>`).join('');
- if($('moveSku'))$('moveSku').innerHTML=stockAvail.map(p=>`<option value="${p.id}">${esc(p.sku)} — ${esc(p.name)} — ${esc(p.location||'UNALLOCATED')}</option>`).join('');
+ if($('plocation')){const prior=$('plocation').value;$('plocation').innerHTML=locs.map(l=>`<option value="${esc(l.code)}">${esc(l.code)}${l.description?' — '+esc(l.description):''}</option>`).join('');if([...$('plocation').options].some(o=>o.value===prior))$('plocation').value=prior}
+ if($('moveLocation')){const prior=$('moveLocation').value;$('moveLocation').innerHTML=locs.map(l=>`<option value="${esc(l.code)}">${esc(l.code)}${l.description?' — '+esc(l.description):''}</option>`).join('');if([...$('moveLocation').options].some(o=>o.value===prior))$('moveLocation').value=prior}
+ if($('moveSku')){const prior=$('moveSku').value;$('moveSku').innerHTML=stockAvail.map(p=>`<option value="${p.id}">${esc(p.sku)} — ${esc(p.name)} — ${esc(p.location||'UNALLOCATED')}</option>`).join('');if([...$('moveSku').options].some(o=>o.value===prior))$('moveSku').value=prior}
  if($('whLocCount'))$('whLocCount').textContent=db.locations.length;
- if($('whAllocated'))$('whAllocated').textContent=stockAvail.filter(p=>(p.location||'UNALLOCATED')!=='UNALLOCATED').length;
+ if($('whAllocated'))$('whAllocated').textContent=db.locations.filter(l=>stockAvail.some(p=>(p.location||'UNALLOCATED')===l.code)).length;
  if($('whUnallocated'))$('whUnallocated').textContent=stockAvail.filter(p=>(p.location||'UNALLOCATED')==='UNALLOCATED').length;
  if($('whPickCount'))$('whPickCount').textContent=db.orders.filter(o=>o.status==='PICK_REQUIRED').length;
- if($('locBody'))$('locBody').innerHTML=locs.map(l=>{const c=stockAvail.filter(p=>(p.location||'UNALLOCATED')===l.code).length;return `<tr><td><b>${esc(l.code)}</b></td><td>${esc(l.description||'')}</td><td>${l.capacity||'—'}</td><td>${c}</td><td class="mono">GENGRAIL:LOC:${esc(l.code)}</td><td>${l.code==='UNALLOCATED'?'':`<button onclick="printLocationLabel('${esc(l.code)}')">LABEL</button>`}</td></tr>`}).join('');
- if($('orderBody'))$('orderBody').innerHTML=[...db.orders].reverse().map(o=>{const p=db.purchases.find(x=>x.id===o.pid);const next=o.status==='PICK_REQUIRED'?'PICK':o.status==='PICKED'?'PACK':o.status==='PACKED'?'DISPATCH':'DONE';return `<tr><td class="mono">${esc(o.orderNo)}</td><td>${esc(p?p.name:o.itemName||'')}</td><td class="mono">${esc(p?p.sku:o.sku||'')}</td><td><b>${esc(p?p.location:o.location||'UNALLOCATED')}</b></td><td>${esc(o.channel||'MANUAL')}</td><td><span class="status-pill ${o.status==='PICK_REQUIRED'?'pick':o.status==='DISPATCHED'?'done':'stock'}">${esc(o.status.replaceAll('_',' '))}</span></td><td>${next==='DONE'?'—':`<button onclick="advanceOrder('${o.id}')">${next}</button>`}</td></tr>`}).join('');
+ renderLocationBrowser();
+ if($('orderBody'))$('orderBody').innerHTML=[...db.orders].reverse().map(o=>{const p=db.purchases.find(x=>x.id===o.pid);const next=o.status==='PICK_REQUIRED'?'PICK':o.status==='PICKED'?'PACK':o.status==='PACKED'?'DISPATCH':'DONE';const loc=p?p.location:o.location||'UNALLOCATED';return `<tr><td class="mono">${esc(o.orderNo)}</td><td>${esc(p?p.name:o.itemName||'')}</td><td class="mono">${esc(p?p.sku:o.sku||'')}</td><td><button class="loc-pick-btn" onclick="openLocationDetail('${esc(loc)}')" style="background:#171107;color:#f2c84b;border:1px solid #6b5112;border-radius:8px;padding:7px 10px;font-weight:950">${esc(loc)}</button></td><td>${esc(o.channel||'MANUAL')}</td><td><span class="status-pill ${o.status==='PICK_REQUIRED'?'pick':o.status==='DISPATCHED'?'done':'stock'}">${esc(o.status.replaceAll('_',' '))}</span></td><td>${next==='DONE'?'—':`<button onclick="advanceOrder('${o.id}')">${next}</button>`}</td></tr>`}).join('');
  if($('orderPick'))$('orderPick').textContent=db.orders.filter(o=>o.status==='PICK_REQUIRED').length;
  if($('orderPicked'))$('orderPicked').textContent=db.orders.filter(o=>o.status==='PICKED').length;
  if($('orderPacked'))$('orderPacked').textContent=db.orders.filter(o=>o.status==='PACKED').length;
@@ -1320,13 +1348,13 @@ function render(){
 }
 
 const PAGE_TITLES={
- dash:'Dashboard',stock:'Stock',storage:'Storage',orders:'Orders',sales:'Sales',exp:'Expenses',
+ dash:'Dashboard',stock:'Stock',storage:'Locations',orders:'Orders',sales:'Sales',exp:'Expenses',
  owner:'Owner & Funding',tax:'Tax',pricing:'Pricing Calculator',opps:'Opportunity Finder'
 };
 const PAGE_SUBTITLES={
  dash:'Business overview',
  stock:'Manage inventory',
- storage:'Locations & put away',
+ storage:'Manage warehouse storage',
  orders:'Pick, pack & dispatch',
  sales:'Track performance',
  exp:'Log business costs',
@@ -1444,7 +1472,28 @@ window.ddel=x=>{if(confirm('Delete dividend?')){db.dividends=db.dividends.filter
 
 // ========================== WAREHOUSE ACTIONS ==========================
 function normaliseLoc(v){return String(v||'').trim().toUpperCase().replace(/\s+/g,'')}
-if($('addLocation'))$('addLocation').onclick=()=>{const code=normaliseLoc($('newLocCode').value);if(!code)return alert('Enter a location code, for example A01.');if(code==='UNALLOCATED'||db.locations.some(l=>l.code===code))return alert('That location already exists.');db.locations.push({id:id(),code,capacity:Math.max(1,Math.floor(Number($('newLocCap').value)||30)),description:$('newLocDesc').value.trim(),qrData:'GENGRAIL:LOC:'+code});$('newLocCode').value='';$('newLocDesc').value='';save()};
+let locationFilter='ALL', selectedLocationCode='';
+function boxMeta(code){const m=String(code||'').match(/^([A-Z])(\d{2})$/);if(!m)return null;const n=Number(m[2]);if(n<1||n>24)return null;return {box:m[1],num:n,row:n<=8?1:n<=16?2:3,pos:n<=8?n:n<=16?n-8:n-16}}
+function locationItems(code){return db.purchases.filter(p=>left(p)>0&&(p.location||'UNALLOCATED')===code)}
+function renderLocationBrowser(){
+ const host=$('locationBrowser');if(!host)return;
+ const locs=[...db.locations].sort((a,b)=>String(a.code).localeCompare(String(b.code),undefined,{numeric:true}));
+ const visible=locs.filter(l=>{const used=locationItems(l.code).length>0;return locationFilter==='ALL'||(locationFilter==='IN_USE'&&used)||(locationFilter==='EMPTY'&&!used)});
+ if(!visible.length){host.innerHTML='<div class="loc-empty">No locations match this filter.</div>';return}
+ const groups={};visible.forEach(l=>{const meta=boxMeta(l.code);const key=meta?meta.box:'OTHER';(groups[key]||(groups[key]=[])).push(l)});
+ host.innerHTML=Object.entries(groups).map(([box,rows])=>`<div class="loc-box"><div class="loc-box-head"><b>${box==='OTHER'?'CUSTOM LOCATIONS':'BOX '+esc(box)}</b><span>${rows.length} location${rows.length===1?'':'s'} shown</span></div><div class="loc-grid">${rows.map(l=>{const c=locationItems(l.code).length;return `<button type="button" class="loc-tile ${c?'inuse':''}" onclick="openLocationDetail('${esc(l.code)}')"><span class="code">${esc(l.code)}</span><span class="count">${c?c+' item'+(c===1?'':'s'):'Empty'}</span></button>`}).join('')}</div></div>`).join('');
+}
+window.openLocationDetail=code=>{
+ selectedLocationCode=code;const d=$('locationDetail');if(!d)return;
+ const l=db.locations.find(x=>x.code===code)||{code,description:''},items=locationItems(code),meta=boxMeta(code),total=items.reduce((a,p)=>a+left(p),0),value=items.reduce((a,p)=>a+left(p)*uc(p),0);
+ d.classList.add('on');
+ d.innerHTML=`<div class="loc-detail-head"><div><div class="loc-code-big">${esc(code)}</div><div class="loc-meta">${meta?`Box ${meta.box} · Row ${meta.row} · Position ${meta.pos}`:esc(l.description||'Custom location')}</div></div><span class="status-pill ${items.length?'stock':'done'}">${items.length?'IN USE':'EMPTY'}</span></div><div class="wh-grid" style="margin-top:12px"><div class="wh-card"><small>STOCK RECORDS</small><b>${items.length}</b></div><div class="wh-card"><small>UNITS</small><b>${total}</b></div><div class="wh-card"><small>STOCK AT COST</small><b>${m(value)}</b></div><div class="wh-card"><small>LABEL</small><b>50×30</b></div></div><div class="loc-items">${items.length?items.map(p=>`<div class="loc-item"><div><b>${esc(p.name)}</b><small>${esc(p.sku)} · ${left(p)} left · ${m(uc(p))} unit cost</small></div><button type="button" onclick="quickMove('${p.id}')">MOVE</button></div>`).join(''):'<div class="loc-empty">No stock currently assigned to this location.</div>'}</div><div class="loc-label-preview"><div class="brandline">♛ GENGRAIL TCG</div><div class="big">${esc(code)}</div><div class="sub">${meta?`Box ${meta.box} · Row ${meta.row} · Pos ${meta.pos}`:'Storage location'}</div><div class="qr-placeholder">GENGRAIL:LOC:${esc(code)}</div></div><div class="actions"><button class="btn" type="button" onclick="printLocationLabel('${esc(code)}')">PRINT 50×30 LABEL</button><button class="btn alt" type="button" onclick="closeLocationDetail()">CLOSE</button></div>`;
+ d.scrollIntoView({behavior:'smooth',block:'start'});
+};
+window.closeLocationDetail=()=>{const d=$('locationDetail');if(d)d.classList.remove('on');selectedLocationCode=''};
+document.querySelectorAll('[data-loc-filter]').forEach(b=>b.onclick=()=>{locationFilter=b.dataset.locFilter;document.querySelectorAll('[data-loc-filter]').forEach(x=>x.classList.toggle('on',x===b));renderLocationBrowser()});
+if($('addStandardBox'))$('addStandardBox').onclick=()=>{const box=String($('standardBoxLetter').value||'').trim().toUpperCase();if(!/^[A-Z]$/.test(box))return alert('Enter one box letter, for example A.');const existing=new Set(db.locations.map(l=>l.code));const added=[];for(let i=1;i<=24;i++){const code=box+String(i).padStart(2,'0');if(!existing.has(code)){const row=i<=8?1:i<=16?2:3,pos=i<=8?i:i<=16?i-8:i-16;db.locations.push({id:id(),code,description:`Box ${box} · Row ${row} · Position ${pos}`,qrData:'GENGRAIL:LOC:'+code});added.push(code)}}if(!added.length)return alert(`Box ${box} already exists.`);$('standardBoxLetter').value='';save();alert(`Created ${added.length} locations for Box ${box}.`)};
+if($('addLocation'))$('addLocation').onclick=()=>{const code=normaliseLoc($('newLocCode').value);if(!code)return alert('Enter a location code, for example Q01.');if(code==='UNALLOCATED'||db.locations.some(l=>l.code===code))return alert('That location already exists.');db.locations.push({id:id(),code,description:$('newLocDesc').value.trim(),qrData:'GENGRAIL:LOC:'+code});$('newLocCode').value='';$('newLocDesc').value='';save()};
 if($('moveStock'))$('moveStock').onclick=()=>{const p=db.purchases.find(x=>x.id===$('moveSku').value);if(!p)return alert('Select stock.');p.location=$('moveLocation').value||'UNALLOCATED';p.inventoryStatus=$('moveStatus').value||'IN_STOCK';save();alert(`${p.sku} moved to ${p.location}.`)};
 window.quickMove=pid=>{setActiveTab('storage',true);setTimeout(()=>{if($('moveSku'))$('moveSku').value=pid},50)};
 window.cleanOrphanOrders=()=>{
@@ -1475,7 +1524,7 @@ window.cleanOrphanOrders=()=>{
 window.advanceOrder=oid=>{const o=db.orders.find(x=>x.id===oid);if(!o)return;const p=db.purchases.find(x=>x.id===o.pid);const flow={PICK_REQUIRED:'PICKED',PICKED:'PACKED',PACKED:'DISPATCHED'};o.status=flow[o.status]||o.status;if(p){p.inventoryStatus=o.status==='DISPATCHED'?(left(p)>0?'IN_STOCK':'SOLD'):o.status}save()};
 function labelWindow(title,code,sub){const w=window.open('','_blank','width=420,height=300');if(!w)return alert('Allow pop-ups to print labels.');w.document.write(`<html><head><title>${esc(title)}</title><style>body{font-family:Arial;text-align:center;padding:24px}.sku{font-size:30px;font-weight:900}.data{font-family:monospace;margin-top:12px;font-size:13px}</style></head><body><div>GENGRAIL TCG</div><div class="sku">${esc(code)}</div><div>${esc(sub||'')}</div><div class="data">${esc(title)}</div><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()}
 window.printStockLabel=pid=>{const p=db.purchases.find(x=>x.id===pid);if(p)labelWindow(p.qrData||('GENGRAIL:SKU:'+p.sku),p.sku,p.name)};
-window.printLocationLabel=code=>labelWindow('GENGRAIL:LOC:'+code,code,'STORAGE LOCATION');
+window.printLocationLabel=code=>{const meta=boxMeta(code),w=window.open('','_blank','width=500,height=360');if(!w)return alert('Allow pop-ups to print labels.');const sub=meta?`Box ${meta.box} · Row ${meta.row} · Pos ${meta.pos}`:'Storage location';w.document.write(`<html><head><title>${esc(code)} location label</title><style>@page{size:50mm 30mm;margin:0}html,body{margin:0;padding:0;width:50mm;height:30mm}body{font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center}.label{width:50mm;height:30mm;box-sizing:border-box;padding:2.5mm;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}.brand{font-size:2.4mm;font-weight:900}.code{font-size:11mm;font-weight:1000;line-height:1}.sub{font-size:2.3mm;margin-top:1mm}.data{font-family:monospace;font-size:1.8mm;margin-top:1mm}</style></head><body><div class="label"><div class="brand">♛ GENGRAIL TCG</div><div class="code">${esc(code)}</div><div class="sub">${esc(sub)}</div><div class="data">GENGRAIL:LOC:${esc(code)}</div></div><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()};
 if($('scanLookup'))$('scanLookup').onclick=()=>{let v=String($('scanInput').value||'').trim().toUpperCase();v=v.replace('GENGRAIL:SKU:','');const p=db.purchases.find(x=>String(x.sku||'').toUpperCase()===v);$('scanResult').innerHTML=p?`<b>${esc(p.name)}</b><br>SKU <span class="mono">${esc(p.sku)}</span> · Location <b>${esc(p.location||'UNALLOCATED')}</b> · Status ${esc((p.inventoryStatus||'IN_STOCK').replaceAll('_',' '))}`:'No matching SKU found.'};
 
 /* ==========================
