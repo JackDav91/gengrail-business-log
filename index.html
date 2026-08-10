@@ -8,7 +8,7 @@
 <meta content="Gengrail TCG" name="apple-mobile-web-app-title"/>
 <link href="manifest.json" rel="manifest"/>
 <link href="icon-512.png" rel="apple-touch-icon" sizes="512x512"/><title>Gengrail TCG Business Log</title>
-<meta content="v19.1.1-icons-fixed" name="gengrail-build"/>
+<meta content="v19.2-branded-background" name="gengrail-build"/>
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
 
@@ -1714,9 +1714,99 @@ window.advanceOrderAnimated=oid=>{
  setTimeout(()=>window.advanceOrder(oid),150);
 };
 
-function labelWindow(title,code,sub){const w=window.open('','_blank','width=420,height=300');if(!w)return alert('Allow pop-ups to print labels.');w.document.write(`<html><head><title>${esc(title)}</title><style>body{font-family:Arial;text-align:center;padding:24px}.sku{font-size:30px;font-weight:900}.data{font-family:monospace;margin-top:12px;font-size:13px}</style></head><body><div>GENGRAIL TCG</div><div class="sku">${esc(code)}</div><div>${esc(sub||'')}</div><div class="data">${esc(title)}</div><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()}
+function labelWindow(title,code,sub){const w=window.open('','_blank','width=420,height=300');if(!w)return alert('Allow pop-ups to print labels.');w.document.write(`<html><head><title>${esc(title)}</title><style>body{font-family:Arial;text-align:center;padding:24px}.sku{font-size:30px;font-weight:900}.data{font-family:monospace;margin-top:12px;font-size:13px}</style></head><body><div>GENGRAIL TCG</div><div class="sku">${esc(code)}</div><div>${esc(sub||'')}</div><div class="data">${esc(title)}</div><script>window.onload=()=>window.print()<\/script>
+<script>
+(function(){
+  function applyGengrailBackdrop(){
+    const banner=document.querySelector('.brand img');
+    if(banner&&banner.src){
+      document.documentElement.style.setProperty('--gengrail-art',`url("${banner.src}")`);
+    }
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',applyGengrailBackdrop,{once:true});
+  }else{
+    applyGengrailBackdrop();
+  }
+})();
+</script>
+
+</body></html>`);w.document.close()}
 window.printStockLabel=pid=>{const p=db.purchases.find(x=>x.id===pid);if(p)labelWindow(p.qrData||('GENGRAIL:SKU:'+p.sku),p.sku,p.name)};
-window.printLocationLabel=code=>{const meta=boxMeta(code),w=window.open('','_blank','width=500,height=360');if(!w)return alert('Allow pop-ups to print labels.');const sub=meta?`Box ${meta.box} · Row ${meta.row} · Pos ${meta.pos}`:'Storage location';w.document.write(`<html><head><title>${esc(code)} location label</title><style>@page{size:50mm 30mm;margin:0}html,body{margin:0;padding:0;width:50mm;height:30mm}body{font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center}.label{width:50mm;height:30mm;box-sizing:border-box;padding:2.5mm;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}.brand{font-size:2.4mm;font-weight:900}.code{font-size:11mm;font-weight:1000;line-height:1}.sub{font-size:2.3mm;margin-top:1mm}.data{font-family:monospace;font-size:1.8mm;margin-top:1mm}</style></head><body><div class="label"><div class="brand">♛ GENGRAIL TCG</div><div class="code">${esc(code)}</div><div class="sub">${esc(sub)}</div><div class="data">GENGRAIL:LOC:${esc(code)}</div></div><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()};
+window.printLocationLabel=code=>{const meta=boxMeta(code),w=window.open('','_blank','width=500,height=360');if(!w)return alert('Allow pop-ups to print labels.');const sub=meta?`Box ${meta.box} · Row ${meta.row} · Pos ${meta.pos}`:'Storage location';w.document.write(`<html><head><title>${esc(code)} location label</title><style>@page{size:50mm 30mm;margin:0}html,body{margin:0;padding:0;width:50mm;height:30mm}body{font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center}.label{width:50mm;height:30mm;box-sizing:border-box;padding:2.5mm;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}.brand{font-size:2.4mm;font-weight:900}.code{font-size:11mm;font-weight:1000;line-height:1}.sub{font-size:2.3mm;margin-top:1mm}.data{font-family:monospace;font-size:1.8mm;margin-top:1mm}
+/* ---------- GENGRAIL v19.2 BRANDED BACKGROUND SYSTEM ---------- */
+html{background:#050505}
+body{position:relative;isolation:isolate;background:#050505!important}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-3;pointer-events:none;
+  background-image:
+    linear-gradient(180deg,rgba(3,3,3,.30),rgba(3,3,3,.66) 32%,rgba(3,3,3,.76)),
+    var(--gengrail-art,none);
+  background-size:cover;background-position:center top;background-repeat:no-repeat;
+  opacity:.34;filter:saturate(.88) contrast(1.08) brightness(.72);transform:scale(1.035)
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(circle at 4% 13%,rgba(230,169,12,.16) 0 1px,transparent 2px),
+    radial-gradient(circle at 8% 18%,rgba(230,169,12,.11) 0 1.4px,transparent 2.4px),
+    radial-gradient(circle at 93% 16%,rgba(230,169,12,.15) 0 1.2px,transparent 2.2px),
+    radial-gradient(circle at 96% 42%,rgba(230,169,12,.10) 0 1.2px,transparent 2.4px),
+    radial-gradient(circle at 7% 72%,rgba(230,169,12,.12) 0 1.2px,transparent 2.3px),
+    radial-gradient(circle at 91% 78%,rgba(230,169,12,.13) 0 1.1px,transparent 2.1px),
+    radial-gradient(ellipse at 0% 50%,rgba(217,149,0,.065),transparent 33%),
+    radial-gradient(ellipse at 100% 58%,rgba(217,149,0,.06),transparent 32%),
+    linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.26));
+  background-size:41px 43px,57px 61px,49px 53px,67px 71px,73px 79px,59px 63px,100% 100%,100% 100%,100% 100%;
+  mix-blend-mode:screen;opacity:.58
+}
+.brand{
+  position:relative;z-index:1;border-color:rgba(224,173,22,.20)!important;
+  box-shadow:0 12px 34px rgba(0,0,0,.68),0 0 18px rgba(224,173,22,.10)!important
+}
+.brand::after{
+  content:"";position:absolute;inset:auto 0 -26px 0;height:42px;pointer-events:none;
+  background:linear-gradient(180deg,rgba(5,5,5,0),rgba(5,5,5,.86))
+}
+body.home-page .home-menu button,
+.command-group .group-menu button,
+.business-snapshot,
+body.inner-page .panel{
+  background:
+    radial-gradient(circle at 50% 0%,rgba(224,173,22,.035),transparent 58%),
+    linear-gradient(160deg,rgba(21,21,21,.94),rgba(7,7,7,.95))!important;
+  -webkit-backdrop-filter:blur(2.5px);backdrop-filter:blur(2.5px)
+}
+.business-snapshot,body.inner-page .panel{border-color:rgba(84,78,66,.72)!important}
+.command-group .group-menu button{border-color:rgba(74,69,60,.78)}
+.command-group .group-menu button:active,
+body.home-page .home-menu button:active{border-color:var(--crown-hi,#f2c84b)}
+body.home-page::after{opacity:.74}
+body.inner-page::before{opacity:.24}
+body.inner-page::after{opacity:.42}
+body.inner-page .table,
+body.inner-page input,
+body.inner-page select,
+body.inner-page textarea,
+body.inner-page .kpi,
+.order-card,
+.loc-tile{background-color:rgba(7,7,7,.94)!important}
+.app::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+  box-shadow:inset 18px 0 35px -28px rgba(224,173,22,.22),inset -18px 0 35px -28px rgba(224,173,22,.22)
+}
+@media(max-width:520px){
+  body::before{background-position:center 7%;opacity:.30}
+  body.home-page::after{opacity:.66}
+}
+@media(prefers-reduced-transparency:reduce){
+  body::before{opacity:.12} body::after{display:none}
+  body.home-page .home-menu button,.command-group .group-menu button,.business-snapshot,body.inner-page .panel{
+    -webkit-backdrop-filter:none;backdrop-filter:none
+  }
+}
+
+</style></head><body><div class="label"><div class="brand">♛ GENGRAIL TCG</div><div class="code">${esc(code)}</div><div class="sub">${esc(sub)}</div><div class="data">GENGRAIL:LOC:${esc(code)}</div></div><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()};
 if($('scanLookup'))$('scanLookup').onclick=()=>{let v=String($('scanInput').value||'').trim().toUpperCase();v=v.replace('GENGRAIL:SKU:','');const p=db.purchases.find(x=>String(x.sku||'').toUpperCase()===v);$('scanResult').innerHTML=p?`<b>${esc(p.name)}</b><br>SKU <span class="mono">${esc(p.sku)}</span> · Location <b>${esc(p.location||'UNALLOCATED')}</b> · Status ${esc((p.inventoryStatus||'IN_STOCK').replaceAll('_',' '))}`:'No matching SKU found.'};
 
 /* ==========================
