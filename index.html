@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-title" content="Gengrail TCG">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png"><title>Gengrail TCG Business Log</title>
-<meta name="gengrail-build" content="warehouse-v1.1-linked-sale-order-cleanup">
+<meta name="gengrail-build" content="warehouse-v1.2-orphan-order-cleanup">
   
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
@@ -815,7 +815,7 @@ body.inner-page #gengrail-ebay-channel .ge-badge{
 
 <section id="orders" class="sec">
 <div class="panel"><div class="title">FULFILMENT QUEUE</div><div class="kpis"><div class="kpi"><small>Pick required</small><b id="orderPick">0</b></div><div class="kpi"><small>Picked</small><b id="orderPicked">0</b></div><div class="kpi"><small>Packed</small><b id="orderPacked">0</b></div><div class="kpi"><small>Dispatched</small><b id="orderDispatched">0</b></div></div></div>
-<div class="panel"><div class="title">ORDERS</div><div class="table"><table><thead><tr><th>Order</th><th>Item</th><th>SKU</th><th>Location</th><th>Channel</th><th>Status</th><th>Next action</th></tr></thead><tbody id="orderBody"></tbody></table></div><div class="note">Manual sales create a fulfilment task automatically. Once the eBay API is live, eBay orders can feed this same queue.</div></div>
+<div class="panel"><div class="title">ORDERS</div><div class="table"><table><thead><tr><th>Order</th><th>Item</th><th>SKU</th><th>Location</th><th>Channel</th><th>Status</th><th>Next action</th></tr></thead><tbody id="orderBody"></tbody></table></div><div class="actions" style="margin-top:12px"><button class="btn alt" type="button" onclick="cleanOrphanOrders()">CLEAN ORPHANED ORDERS</button></div><div class="note">Manual sales create a fulfilment task automatically. Once the eBay API is live, eBay orders can feed this same queue. The cleanup tool only removes orders whose linked sale no longer exists.</div></div>
 </section>
 
 <section id="sales" class="sec">
@@ -1447,6 +1447,31 @@ function normaliseLoc(v){return String(v||'').trim().toUpperCase().replace(/\s+/
 if($('addLocation'))$('addLocation').onclick=()=>{const code=normaliseLoc($('newLocCode').value);if(!code)return alert('Enter a location code, for example A01.');if(code==='UNALLOCATED'||db.locations.some(l=>l.code===code))return alert('That location already exists.');db.locations.push({id:id(),code,capacity:Math.max(1,Math.floor(Number($('newLocCap').value)||30)),description:$('newLocDesc').value.trim(),qrData:'GENGRAIL:LOC:'+code});$('newLocCode').value='';$('newLocDesc').value='';save()};
 if($('moveStock'))$('moveStock').onclick=()=>{const p=db.purchases.find(x=>x.id===$('moveSku').value);if(!p)return alert('Select stock.');p.location=$('moveLocation').value||'UNALLOCATED';p.inventoryStatus=$('moveStatus').value||'IN_STOCK';save();alert(`${p.sku} moved to ${p.location}.`)};
 window.quickMove=pid=>{setActiveTab('storage',true);setTimeout(()=>{if($('moveSku'))$('moveSku').value=pid},50)};
+window.cleanOrphanOrders=()=>{
+ const validSaleIds=new Set(db.sales.map(s=>s.id));
+ const orphaned=db.orders.filter(o=>o.saleId && !validSaleIds.has(o.saleId));
+ if(!orphaned.length){
+   alert('No orphaned orders found.');
+   return;
+ }
+ const preview=orphaned.slice(0,5).map(o=>o.orderNo||o.id).join(', ');
+ const more=orphaned.length>5?` and ${orphaned.length-5} more`:'';
+ if(!confirm(`Remove ${orphaned.length} orphaned order${orphaned.length===1?'':'s'}?\n\n${preview}${more}\n\nOnly orders whose linked sale no longer exists will be removed.`))return;
+ const orphanIds=new Set(orphaned.map(o=>o.id));
+ db.orders=db.orders.filter(o=>!orphanIds.has(o.id));
+ db.purchases.forEach(p=>{
+   const related=db.orders.filter(o=>o.pid===p.id);
+   if(related.some(o=>o.status==='PACKED')) p.inventoryStatus='PACKED';
+   else if(related.some(o=>o.status==='PICKED')) p.inventoryStatus='PICKED';
+   else if(related.some(o=>o.status==='PICK_REQUIRED')) p.inventoryStatus='PICK_REQUIRED';
+   else if(p.inventoryStatus==='PICK_REQUIRED'||p.inventoryStatus==='PICKED'||p.inventoryStatus==='PACKED'||p.inventoryStatus==='DISPATCHED'){
+     p.inventoryStatus=left(p)>0?'IN_STOCK':'SOLD';
+   }
+ });
+ save();
+ alert(`Removed ${orphaned.length} orphaned order${orphaned.length===1?'':'s'}.`);
+};
+
 window.advanceOrder=oid=>{const o=db.orders.find(x=>x.id===oid);if(!o)return;const p=db.purchases.find(x=>x.id===o.pid);const flow={PICK_REQUIRED:'PICKED',PICKED:'PACKED',PACKED:'DISPATCHED'};o.status=flow[o.status]||o.status;if(p){p.inventoryStatus=o.status==='DISPATCHED'?(left(p)>0?'IN_STOCK':'SOLD'):o.status}save()};
 function labelWindow(title,code,sub){const w=window.open('','_blank','width=420,height=300');if(!w)return alert('Allow pop-ups to print labels.');w.document.write(`<html><head><title>${esc(title)}</title><style>body{font-family:Arial;text-align:center;padding:24px}.sku{font-size:30px;font-weight:900}.data{font-family:monospace;margin-top:12px;font-size:13px}</style></head><body><div>GENGRAIL TCG</div><div class="sku">${esc(code)}</div><div>${esc(sub||'')}</div><div class="data">${esc(title)}</div><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()}
 window.printStockLabel=pid=>{const p=db.purchases.find(x=>x.id===pid);if(p)labelWindow(p.qrData||('GENGRAIL:SKU:'+p.sku),p.sku,p.name)};
