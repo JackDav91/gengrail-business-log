@@ -1,5 +1,5 @@
 /*
- GENGRAIL TCG — eBay Channel v8.1 — IOS IMAGE BRIDGE
+ GENGRAIL TCG — eBay Channel v8.2 — IOS IMAGE BRIDGE BASE64
  Exact integration for the current Gengrail Business Log.
  ---------------------------------------------------------
  Main app storage key: gengrailBizV1
@@ -25,7 +25,7 @@
   const esc = (v='') => String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 
   const defaults = {
-    version: 8.1,
+    version: 8.2,
     connection: { status:'awaiting_authorisation', sellerName:'', lastSync:null, lastError:'' },
     listings: [],
     orders: [],
@@ -253,24 +253,29 @@
     if(!rows?.length) throw new Error('No Stock photos are attached to this item.');
 
     const urls=[];
+    const blobToBase64=blob=>new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onload=()=>{
+        const s=String(reader.result||'');
+        const i=s.indexOf(',');
+        resolve(i>=0?s.slice(i+1):s);
+      };
+      reader.onerror=()=>reject(reader.error||new Error('Could not read Stock photo.'));
+      reader.readAsDataURL(blob);
+    });
+
     for(const row of rows.slice(0,24)){
       const blob=row.blob;
-      const name=row.name||'gengrail-card.jpg';
-      const res=await fetch(LIVE_BACKEND+'/api/ebay/media/image',{
-        method:'POST',
-        cache:'no-store',
-        headers:{
-          Accept:'application/json',
-          'Content-Type':blob.type||'image/jpeg',
-          'X-Filename':encodeURIComponent(name)
-        },
-        body:blob
-      });
-      let d=null;
-      try{ d=await res.json(); }catch{}
-      if(!res.ok){
-        throw new Error(d?.message||(`Image upload failed (HTTP ${res.status})`));
+      if(!(blob instanceof Blob) || !blob.size){
+        throw new Error('A Stock photo is empty or unreadable on this device.');
       }
+      const name=row.name||'gengrail-card.jpg';
+      const dataBase64=await blobToBase64(blob);
+      const d=await livePost('/api/ebay/media/image',{
+        filename:name,
+        contentType:blob.type||row.type||'image/jpeg',
+        dataBase64
+      });
       if(d?.imageUrl) urls.push(String(d.imageUrl));
     }
     if(!urls.length) throw new Error('eBay did not return any usable image URLs.');
@@ -917,7 +922,7 @@
   }
 
   function exportData(){
-    return {module:'gengrail-ebay',version:8.1,exportedAt:nowISO(),data:clone(state)};
+    return {module:'gengrail-ebay',version:8.2,exportedAt:nowISO(),data:clone(state)};
   }
 
   function importData(payload){
