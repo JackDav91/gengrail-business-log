@@ -1,5 +1,5 @@
 /*
- GENGRAIL TCG — eBay Channel v8 — LIVE PUBLISHING
+ GENGRAIL TCG — eBay Channel v8.1 — IOS IMAGE BRIDGE
  Exact integration for the current Gengrail Business Log.
  ---------------------------------------------------------
  Main app storage key: gengrailBizV1
@@ -25,7 +25,7 @@
   const esc = (v='') => String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 
   const defaults = {
-    version: 8,
+    version: 8.1,
     connection: { status:'awaiting_authorisation', sellerName:'', lastSync:null, lastError:'' },
     listings: [],
     orders: [],
@@ -254,11 +254,23 @@
 
     const urls=[];
     for(const row of rows.slice(0,24)){
-      const form=new FormData();
       const blob=row.blob;
       const name=row.name||'gengrail-card.jpg';
-      form.set('image',blob,name);
-      const d=await livePost('/api/ebay/media/image',form,{form:true});
+      const res=await fetch(LIVE_BACKEND+'/api/ebay/media/image',{
+        method:'POST',
+        cache:'no-store',
+        headers:{
+          Accept:'application/json',
+          'Content-Type':blob.type||'image/jpeg',
+          'X-Filename':encodeURIComponent(name)
+        },
+        body:blob
+      });
+      let d=null;
+      try{ d=await res.json(); }catch{}
+      if(!res.ok){
+        throw new Error(d?.message||(`Image upload failed (HTTP ${res.status})`));
+      }
       if(d?.imageUrl) urls.push(String(d.imageUrl));
     }
     if(!urls.length) throw new Error('eBay did not return any usable image URLs.');
@@ -905,7 +917,7 @@
   }
 
   function exportData(){
-    return {module:'gengrail-ebay',version:8,exportedAt:nowISO(),data:clone(state)};
+    return {module:'gengrail-ebay',version:8.1,exportedAt:nowISO(),data:clone(state)};
   }
 
   function importData(payload){
