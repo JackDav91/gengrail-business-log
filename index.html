@@ -8,7 +8,7 @@
 <meta content="Gengrail TCG" name="apple-mobile-web-app-title"/>
 <link href="manifest.json" rel="manifest"/>
 <link href="icon-512.png" rel="apple-touch-icon" sizes="512x512"/><title>Gengrail TCG Business Log</title>
-<meta content="v19.4.0-settings-ebay-flow" name="gengrail-build"/>
+<meta content="v19.5.0-ebay-auto-sales" name="gengrail-build"/>
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
 
@@ -1528,7 +1528,8 @@ function left(p){return Math.max(0,p.q-sold(p.id))}
 function uc(p){return p.q?p.cost/p.q:0}
 function cogs(s){let p=db.purchases.find(x=>x.id===s.pid);return p?uc(p)*s.q:0}
 function saleContribution(s){return s.price-cogs(s)-s.fee-s.post-s.pack-s.other}
-function revenue(){return db.sales.reduce((a,s)=>a+s.price,0)}
+function revenue(){return db.sales.reduce((a,s)=>a+(Number(s.price)||0),0)}
+function postageCollected(){return db.sales.reduce((a,s)=>a+(Number(s.buyerPost)||0),0)}
 function totalCogs(){return db.sales.reduce((a,s)=>a+cogs(s),0)}
 function grossProfit(){return revenue()-totalCogs()}
 function sellFees(){return db.sales.reduce((a,s)=>a+s.fee,0)}
@@ -1537,14 +1538,14 @@ function packagingAlloc(){return db.sales.reduce((a,s)=>a+s.pack,0)}
 function exps(){return db.expenses.reduce((a,e)=>a+(Number(e.amount)||0),0)}
 function startupExps(){return db.expenses.filter(e=>e.startup===true||e.startup==='true').reduce((a,e)=>a+(Number(e.amount)||0),0)}
 function classExps(cls){return db.expenses.filter(e=>(e.class||'Service')===cls).reduce((a,e)=>a+(Number(e.amount)||0),0)}
-function accountingProfit(){return revenue()-totalCogs()-sellFees()-postageOther()-exps()}
+function accountingProfit(){return revenue()+postageCollected()-totalCogs()-sellFees()-postageOther()-exps()}
 function stock(){return db.purchases.reduce((a,p)=>a+left(p)*uc(p),0)}
 function buys(){return db.purchases.reduce((a,p)=>a+p.cost,0)}
 function funding(){return db.funding.reduce((a,f)=>a+f.amount,0)}
 function dividends(){return db.dividends.reduce((a,x)=>a+x.amount,0)}
 function directSaleCashCosts(){return db.sales.reduce((a,s)=>a+s.fee+s.post+s.other,0)}
 function corp(p){p=Math.max(0,p);if(p<=50000)return p*.19;if(p>=250000)return p*.25;return p*.25-(250000-p)*.015}
-function companyCash(){return funding()+revenue()-buys()-directSaleCashCosts()-exps()-dividends()}
+function companyCash(){return funding()+revenue()+postageCollected()-buys()-directSaleCashCosts()-exps()-dividends()}
 function divTaxEstimate(){
  const salary=Math.max(0,db.settings.salary||0), totalDiv=Math.max(0,dividends()), used=Math.max(0,db.settings.divUsedElsewhere||0);
  const allowance=Math.max(0,500-used), taxable=Math.max(0,totalDiv-allowance);
@@ -1776,7 +1777,7 @@ $('addp').onclick=async()=>{
  try{p.photoCount=await addPhotos(pid,files)}catch(e){console.error(e);alert('Stock was saved, but one or more photos could not be stored on this device.');}
  ['pn','pp','ps','psku','ppurchaseid','plist','pnotes'].forEach(x=>$(x).value='');$('pq').value=1;$('pcondition').value='Ungraded';$('pebaystatus').value='NOT_LISTED';$('pphotos').value='';$('ppreview').innerHTML='';save();
 };
-$('adds').onclick=()=>{let p=db.purchases.find(x=>x.id===$('si').value),q=Math.max(1,Math.floor(n('sq')));if(!p)return alert('Select stock.');if(q>left(p))return alert('Not enough stock.');if(n('sp')<=0)return alert('Enter sale price.');const saleId=id();db.sales.push({id:saleId,pid:p.id,date:$('sd').value,q,price:n('sp'),source:'MANUAL',pl:$('spl').value,fee:n('sf'),post:n('spo'),pack:n('spa'),other:n('so'),notes:$('snotes').value});const orderNo='ORD'+String(db.orders.length+1).padStart(6,'0');db.orders.push({id:id(),orderNo,saleId,pid:p.id,sku:p.sku,itemName:p.name,location:p.location||'UNALLOCATED',channel:$('spl').value,status:'PICK_REQUIRED',created:new Date().toISOString()});p.inventoryStatus='PICK_REQUIRED';['sp','sf','spo','spa','so'].forEach(x=>$(x).value='0');$('snotes').value='';save();if($('manualSaleForm'))$('manualSaleForm').hidden=true;if($('toggleManualSale'))$('toggleManualSale').textContent='+ ADD MANUAL SALE'};
+$('adds').onclick=()=>{let p=db.purchases.find(x=>x.id===$('si').value),q=Math.max(1,Math.floor(n('sq')));if(!p)return alert('Select stock.');if(q>left(p))return alert('Not enough stock.');if(n('sp')<=0)return alert('Enter sale price.');const saleId=id();db.sales.push({id:saleId,pid:p.id,date:$('sd').value,q,price:n('sp'),buyerPost:0,source:'MANUAL',pl:$('spl').value,fee:n('sf'),post:n('spo'),pack:n('spa'),other:n('so'),notes:$('snotes').value});const orderNo='ORD'+String(db.orders.length+1).padStart(6,'0');db.orders.push({id:id(),orderNo,saleId,pid:p.id,sku:p.sku,itemName:p.name,location:p.location||'UNALLOCATED',channel:$('spl').value,status:'PICK_REQUIRED',created:new Date().toISOString()});p.inventoryStatus='PICK_REQUIRED';['sp','sf','spo','spa','so'].forEach(x=>$(x).value='0');$('snotes').value='';save();if($('manualSaleForm'))$('manualSaleForm').hidden=true;if($('toggleManualSale'))$('toggleManualSale').textContent='+ ADD MANUAL SALE'};
 $('adde').onclick=()=>{if(!$('edes').value.trim())return alert('Enter expense details.');let amount=n('ea');if(amount===0)return alert('Enter an expense amount.');db.expenses.push({id:id(),date:$('ed').value,supplier:$('esupplier').value.trim(),cat:$('ec').value,class:$('eclass').value,desc:$('edes').value.trim(),qty:Math.max(1,Math.floor(n('eqty'))),amount,startup:$('estartup').value==='true',notes:$('en').value});$('esupplier').value='';$('edes').value='';$('eqty').value=1;$('ea').value='';$('estartup').value='false';$('en').value='';save()};
 $('addfund').onclick=()=>{if(n('fa')<=0)return alert('Enter funding amount.');db.funding.push({id:id(),date:$('fd').value,amount:n('fa'),note:$('fn').value});$('fa').value='';$('fn').value='';save()};
 $('adddiv').onclick=()=>{if(n('da')<=0)return alert('Enter dividend amount.');db.dividends.push({id:id(),date:$('dd').value,amount:n('da'),note:$('dn').value});$('da').value='';$('dn').value='';save()};

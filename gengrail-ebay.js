@@ -1,5 +1,5 @@
 /*
- GENGRAIL TCG — eBay Channel v8.2 — IOS IMAGE BRIDGE BASE64
+ GENGRAIL TCG — eBay Channel v8.3 — AUTO SALES + POSTAGE SPLIT
  Exact integration for the current Gengrail Business Log.
  ---------------------------------------------------------
  Main app storage key: gengrailBizV1
@@ -25,7 +25,7 @@
   const esc = (v='') => String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 
   const defaults = {
-    version: 8.2,
+    version: 8.3,
     connection: { status:'awaiting_authorisation', sellerName:'', lastSync:null, lastError:'' },
     listings: [],
     orders: [],
@@ -114,7 +114,7 @@
   }
 
   function netProfit(o){
-    return num(o.salePrice)-num(o.purchaseCost)-num(o.platformFees)-num(o.postageCost)-num(o.packagingCost)-num(o.otherCosts);
+    return num(o.salePrice)+num(o.buyerPostage)-num(o.purchaseCost)-num(o.platformFees)-num(o.postageCost)-num(o.packagingCost)-num(o.otherCosts);
   }
 
   function getSummary(){
@@ -472,9 +472,14 @@
         const sku=String(li.sku||'').trim();
         const listing=listingBySku(sku);
         const qty=Math.max(1,parseInt(li.quantity||1,10));
-        const totalValue=li?.total?.value ?? li?.lineItemCost?.value ?? (
-          li?.unitPrice?.value!=null ? num(li.unitPrice.value)*qty : 0
+        // Keep item revenue separate from buyer-paid postage. eBay's order total can
+        // include delivery, which must not inflate Gengrail's Sales Revenue KPI.
+        const itemValue=li?.lineItemCost?.value ?? (
+          li?.unitPrice?.value!=null ? num(li.unitPrice.value)*qty : (li?.total?.value ?? 0)
         );
+        const orderDelivery=num(o?.pricingSummary?.deliveryCost?.value ?? o?.pricingSummary?.shippingCost?.value ?? 0);
+        const lineCount=Math.max(1,lines.length);
+        const buyerPostage=orderDelivery/lineCount;
         const status=String(o.orderPaymentStatus||'').toUpperCase()==='PAID'
           ? (String(o.orderFulfillmentStatus||'').toUpperCase()==='FULFILLED'?'FULFILLED':'PAID')
           : (o.orderPaymentStatus||o.orderFulfillmentStatus||'ORDERED');
@@ -491,7 +496,8 @@
           buyerRef:o?.buyer?.username||o?.buyer?.buyerRegistrationAddress?.email||'',
           quantity:qty,
           purchaseCost:num(listing?.purchaseCost)*qty,
-          salePrice:num(totalValue),
+          salePrice:num(itemValue),
+          buyerPostage:num(buyerPostage),
           platformFees:0,
           postageCost:0,
           packagingCost:0,
@@ -533,6 +539,30 @@
       }
     });
     return {added,updated};
+  }
+
+  function autoFeedPaidOrders(){
+    let fed=0,failed=0;
+    state.orders.forEach(order=>{
+      if(order.mainLogSynced) return;
+      if(!['PAID','FULFILLED'].includes(String(order.status||'').toUpperCase())) return;
+      if(!order.inventoryId) return;
+      const result=exactFeedToMainSales(order);
+      order.mainLogSynced=!!result.ok;
+      order.mainLogMessage=result.message;
+      order.netProfit=netProfit(order);
+      if(result.ok){
+        fed++;
+        const listing=state.listings.find(x=>x.id===order.listingId || (order.sku && x.sku===order.sku));
+        if(listing){
+          const db=mainDB();
+          const stock=db?.purchases?.find(p=>String(p.id)===String(listing.inventoryId));
+          const remaining=stock && db ? Math.max(0,num(stock.q)-db.sales.filter(s=>s.pid===stock.id).reduce((a,s)=>a+num(s.q),0)) : 0;
+          if(remaining<=0){ listing.status='SOLD'; listing.updatedAt=nowISO(); syncListingToMainStock(listing); }
+        }
+      }else failed++;
+    });
+    return {fed,failed};
   }
 
   async function syncConnection(){
@@ -584,8 +614,9 @@
   async function syncOrders(){
     const d=await liveGet('/api/ebay/orders?limit=50');
     const merged=mergeLiveOrders(normaliseLiveOrders(d));
+    const auto=autoFeedPaidOrders();
     state.live.lastOrdersSync=nowISO();
-    return {...merged, raw:d};
+    return {...merged,...auto, raw:d};
   }
 
   async function syncLive({quiet=false}={}){
@@ -831,7 +862,28 @@
     const after=mainDB()?.sales?.length ?? -1;
 
     if(before>=0 && after===before+1){
-      return {ok:true,message:'Sale added to the main Gengrail Sales log.'};
+      // The existing form remains the single stock/order writer, then we enrich the
+      // newly-created records with eBay-specific accounting and traceability fields.
+      const db=mainDB();
+      if(db){
+        const sale=db.sales[db.sales.length-1];
+        if(sale){
+          sale.source='EBAY';
+          sale.pl='eBay';
+          sale.buyerPost=num(order.buyerPostage);
+          sale.ebayOrderId=order.ebayOrderId||'';
+          sale.ebayLineItemId=order.ebayLineItemId||'';
+        }
+        const fulfil=db.orders[db.orders.length-1];
+        if(fulfil && sale && fulfil.saleId===sale.id){
+          fulfil.channel='eBay';
+          fulfil.externalOrderId=order.ebayOrderId||'';
+          fulfil.buyerRef=order.buyerRef||'';
+        }
+        localStorage.setItem(MAIN_KEY,JSON.stringify(db));
+        window.dispatchEvent(new CustomEvent('gengrail:main-updated'));
+      }
+      return {ok:true,message:'Sale automatically added to Sales and fulfilment.'};
     }
     return {ok:false,message:'The existing Gengrail Sales form did not confirm a new sale. Nothing is assumed.'};
   }
@@ -850,6 +902,7 @@
       quantity:Math.max(1,parseInt(data.quantity||1,10)),
       purchaseCost:num(listing?.purchaseCost)*Math.max(1,parseInt(data.quantity||1,10)),
       salePrice:num(data.salePrice),
+      buyerPostage:num(data.buyerPostage),
       platformFees:num(data.platformFees),
       postageCost:num(data.postageCost),
       packagingCost:num(data.packagingCost),
@@ -1285,7 +1338,7 @@
     const linked=!!mainDB() && !!document.getElementById('adds');
     const status=state.connection.status==='connected'?'Connected':'Awaiting eBay API';
 
-    const listings=state.listings.slice(0,10).map(x=>`
+    const listings=state.listings.filter(x=>x.status!=='SOLD').slice(0,10).map(x=>`
       <div class="ge-card">
         <div class="ge-card-top"><div><div class="ge-card-title">${esc(x.title)}</div><div class="ge-card-sub">${esc(x.sku)} · linked to Stock</div></div><div class="ge-status">${esc(x.status)}</div></div>
         <div class="ge-row"><div><span>COST</span><b>${money(x.purchaseCost)}</b></div><div><span>LISTED</span><b>${money(x.listPrice)}</b></div><div><span>CHANNEL</span><b>eBay</b></div></div>
@@ -1303,7 +1356,7 @@
         <div class="ge-card-top"><div><div class="ge-card-title">${esc(x.title)}</div><div class="ge-card-sub">${esc(x.ebayOrderId||x.id)}${x.sku?` · SKU ${esc(x.sku)}`:''}</div></div><div class="ge-status">${x.mainLogSynced?'SALES ✓':esc(x.status||'EBAY')}</div></div>
         <div class="ge-row"><div><span>SALE</span><b>${money(x.salePrice)}</b></div><div><span>QTY</span><b>${Math.max(1,num(x.quantity))}</b></div><div><span>SOURCE</span><b>${x.source==='ebay_api'?'LIVE':'MANUAL'}</b></div></div>
         ${x.source==='ebay_api' && !x.mainLogSynced
-          ? `<div class="ge-actions"><button class="ge-btn ge-feed-order" data-id="${esc(x.id)}" ${x.inventoryId?'':'disabled'}>${x.inventoryId?'FEED TO SALES':'SKU NOT LINKED'}</button></div>`
+          ? `<div class="ge-note"><b>${x.inventoryId?'AUTO-FEED PENDING':'SKU NOT LINKED'}</b>${x.inventoryId?' — will retry automatically on sync.':' — match the SKU, then sync again.'}</div>`
           : ''}
         <button class="ge-btn danger ge-del-sale" data-id="${esc(x.id)}">DELETE EBAY SALE</button>
       </div>`).join('');
@@ -1325,7 +1378,6 @@
 
         <div class="ge-actions">
           <button class="ge-btn" id="ge-add-listing">+ ADD DRAFT</button>
-          <button class="ge-btn alt" id="ge-record-sale">RECORD SALE</button>
           <button class="ge-btn alt" id="ge-publishing-setup">PUBLISHING SETUP</button>
           <button class="ge-btn alt" id="ge-live-sync" ${state.live.syncing?'disabled':''}>${state.live.syncing?'SYNCING…':'SYNC EBAY'}</button>
         </div>
@@ -1339,7 +1391,7 @@
           : '<b>Seller publishing setup complete ✓</b>'}</div>
 
         <div class="ge-note">${linked
-          ? 'This eBay channel is linked to the existing Gengrail Stock and Sales system. A successful eBay sale will populate the existing Sales log, which then drives Dashboard and Tax figures.'
+          ? 'This eBay channel is linked to the existing Gengrail Stock and Sales system. Paid eBay orders are automatically written to Sales and the fulfilment queue. Buyer-paid postage is kept separate from item revenue, and sold single-stock listings leave Latest Listings automatically.'
           : 'The eBay panel is loaded, but the existing Gengrail business database or Sales form was not detected.'}</div>
 
         <div class="ge-section-title">LATEST LISTINGS</div>
@@ -1350,10 +1402,8 @@
     `;
 
     root.querySelector('#ge-add-listing').onclick=listingForm;
-    root.querySelector('#ge-record-sale').onclick=saleForm;
     root.querySelector('#ge-publishing-setup').onclick=publishingSetupForm;
     root.querySelector('#ge-live-sync').onclick=()=>syncLive();
-    root.querySelectorAll('.ge-feed-order').forEach(b=>b.onclick=()=>feedImportedOrder(b.dataset.id));
     root.querySelectorAll('.ge-edit-draft').forEach(b=>b.onclick=()=>editDraftForm(b.dataset.id));
     root.querySelectorAll('.ge-del-listing').forEach(b=>b.onclick=()=>deleteListing(b.dataset.id));
     root.querySelectorAll('.ge-del-sale').forEach(b=>b.onclick=()=>deleteEbaySale(b.dataset.id));
@@ -1398,9 +1448,17 @@
   document.addEventListener('visibilitychange',()=>{
     if(!document.hidden && state.connection.status==='connected'){
       const last=Date.parse(state.connection.lastSync||0)||0;
-      if(Date.now()-last>5*60*1000) syncLive({quiet:true});
+      if(Date.now()-last>2*60*1000) syncLive({quiet:true});
     }
   });
+
+  // While the app is open, quietly check eBay every two minutes. iOS may suspend
+  // background PWAs, so SYNC EBAY remains as a manual recovery control.
+  setInterval(()=>{
+    if(!document.hidden && state.connection.status==='connected' && !state.live.syncing){
+      syncLive({quiet:true});
+    }
+  },2*60*1000);
 
   document.readyState==='loading'
     ? document.addEventListener('DOMContentLoaded',boot)
