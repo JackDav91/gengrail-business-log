@@ -1110,7 +1110,7 @@ body.inner-page .kpi,
 </section>
 <section class="sec" id="settings">
 <div class="panel"><div class="title">BACKUP &amp; EXPORT</div><div class="actions"><button class="btn alt" id="csv">EXPORT CSV</button><button class="btn alt" id="json">BACKUP JSON</button><label class="btn alt">RESTORE JSON<input accept=".json" id="imp" style="display:none" type="file"/></label><button class="btn red" id="wipe">ERASE ALL</button></div><div class="note"><b>Protect the business data.</b> Core records are stored locally in this browser/device, so create a JSON backup before major app updates and regularly during normal use. Product photos remain in dedicated on-device photo storage and are not included in the JSON backup.</div></div>
-<div class="panel"><div class="title">APP DATA</div><div class="note">Export CSV creates a readable business-data export. Backup JSON is the restorable Gengrail backup and also includes supported app preferences and eBay module data. ERASE ALL is intentionally separated as a destructive action and still keeps the app's last-good local safety snapshot where available.</div></div>
+<div class="panel"><div class="title">APP DATA</div><div class="note">Export CSV creates a readable business-data export. Backup JSON is the portable, restorable Gengrail backup and also includes supported app preferences and eBay module data. <b>Automatic Safety Vault:</b> Gengrail now also maintains an independent last-good database copy in IndexedDB on this device. If an app update ever opens with its main local database missing, Gengrail checks this vault before allowing an empty database to become the new state. Product photos remain in their dedicated IndexedDB store. ERASE ALL remains a deliberate destructive action and does not overwrite the last-good safety vault.</div></div>
 <section class="sec" id="pricing">
 <div class="panel">
 <div class="title">PRICING CALCULATOR</div>
@@ -1257,14 +1257,21 @@ function readJSON(key){
 let db;
 const primary=readJSON(K);
 const safety=readJSON(SAFETY_K);
+let GENGRAIL_BOOT_SOURCE='fresh';
 
 if(validDB(primary)){
  db=normaliseDB(primary);
+ GENGRAIL_BOOT_SOURCE='primary';
 }else if(validDB(safety)){
  db=normaliseDB(safety);
+ GENGRAIL_BOOT_SOURCE='local-safety';
  try{localStorage.setItem(K,JSON.stringify(db))}catch{}
 }else{
+ // Do not permanently save this fresh shell until the IndexedDB safety vault
+ // has also been checked. This prevents an app update/storage hiccup from
+ // presenting or persisting an apparently empty business database.
  db=freshDB();
+ GENGRAIL_BOOT_SOURCE='vault-check-required';
 }
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
@@ -1284,13 +1291,61 @@ function migrateWarehouse(){
  });
 }
 migrateWarehouse();
-const PHOTO_DB='gengrailPhotosV1', PHOTO_STORE='photos';
+const PHOTO_DB='gengrailPhotosV1', PHOTO_STORE='photos', SAFETY_STORE='businessSafety', SAFETY_RECORD='lastGoodBusinessDB';
 function photoDB(){
  return new Promise((resolve,reject)=>{
-  const r=indexedDB.open(PHOTO_DB,1);
-  r.onupgradeneeded=()=>{const x=r.result;if(!x.objectStoreNames.contains(PHOTO_STORE)){const s=x.createObjectStore(PHOTO_STORE,{keyPath:'id'});s.createIndex('pid','pid',{unique:false});s.createIndex('pidOrder',['pid','order'],{unique:false})}};
+  const r=indexedDB.open(PHOTO_DB,2);
+  r.onupgradeneeded=()=>{
+   const x=r.result;
+   if(!x.objectStoreNames.contains(PHOTO_STORE)){
+    const s=x.createObjectStore(PHOTO_STORE,{keyPath:'id'});
+    s.createIndex('pid','pid',{unique:false});
+    s.createIndex('pidOrder',['pid','order'],{unique:false});
+   }
+   if(!x.objectStoreNames.contains(SAFETY_STORE)){
+    x.createObjectStore(SAFETY_STORE,{keyPath:'key'});
+   }
+  };
   r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);
  })
+}
+async function writeSafetyVault(snapshot){
+ if(!validDB(snapshot))return false;
+ try{
+  const dbp=await photoDB();
+  await new Promise((resolve,reject)=>{
+   const tx=dbp.transaction(SAFETY_STORE,'readwrite');
+   tx.objectStore(SAFETY_STORE).put({
+    key:SAFETY_RECORD,
+    db:normaliseDB(snapshot),
+    savedAt:new Date().toISOString(),
+    schemaVersion:SCHEMA_VERSION
+   });
+   tx.oncomplete=resolve;
+   tx.onerror=()=>reject(tx.error);
+  });
+  dbp.close();
+  return true;
+ }catch(err){
+  console.warn('Gengrail safety vault write failed',err);
+  return false;
+ }
+}
+async function readSafetyVault(){
+ try{
+  const dbp=await photoDB();
+  const record=await new Promise((resolve,reject)=>{
+   const tx=dbp.transaction(SAFETY_STORE,'readonly');
+   const r=tx.objectStore(SAFETY_STORE).get(SAFETY_RECORD);
+   r.onsuccess=()=>resolve(r.result||null);
+   r.onerror=()=>reject(r.error);
+  });
+  dbp.close();
+  return record&&validDB(record.db)?record:null;
+ }catch(err){
+  console.warn('Gengrail safety vault read failed',err);
+  return null;
+ }
 }
 async function addPhotos(pid,files){
  if(!files||!files.length)return 0;
@@ -1447,18 +1502,23 @@ function preloadAmazonStartup(){
 preloadAmazonStartup();
 
 ['pd','sd','ed','fd','dd'].forEach(x=>$(x).value=d());$('salary').value=db.settings.salary;$('divUsedElsewhere').value=db.settings.divUsedElsewhere;
-function persistDB({renderAfter=true}={}){
+function persistDB({renderAfter=true,writeVault=true}={}){
  db=normaliseDB(db);
  db.settings.salary=parseFloat($('salary').value)||0;
  db.settings.divUsedElsewhere=parseFloat($('divUsedElsewhere').value)||0;
+ let localSaved=false;
  try{
   const current=readJSON(K);
   if(validDB(current))localStorage.setItem(SAFETY_K,JSON.stringify(normaliseDB(current)));
   localStorage.setItem(K,JSON.stringify(db));
+  localSaved=true;
  }catch(err){
   console.error('Gengrail save failed',err);
   alert('Gengrail could not save data on this device. Export a JSON backup before continuing.');
  }
+ // Keep a second automatic last-good copy in IndexedDB, the same durable
+ // browser storage area that successfully retained Gengrail's product photos.
+ if(localSaved&&writeVault)writeSafetyVault(db);
  if(renderAfter)render();
 }
 const save=()=>persistDB({renderAfter:true}), id=uid, n=x=>parseFloat($(x).value)||0;
@@ -2125,11 +2185,37 @@ $('imp').onchange=e=>{
  };
  r.readAsText(f)
 };
-$('wipe').onclick=()=>{if(confirm('Erase all data? A last-good safety snapshot will be kept on this device.')){const before=readJSON(K);if(validDB(before))localStorage.setItem(SAFETY_K,JSON.stringify(normaliseDB(before)));db=freshDB();db.settings.startupAmazonLoaded=true;$('salary').value=57000;$('divUsedElsewhere').value=0;save()}};
+$('wipe').onclick=()=>{if(confirm('Erase all data? A last-good safety snapshot will be kept on this device.')){const before=readJSON(K);if(validDB(before))localStorage.setItem(SAFETY_K,JSON.stringify(normaliseDB(before)));db=freshDB();db.settings.startupAmazonLoaded=true;$('salary').value=57000;$('divUsedElsewhere').value=0;persistDB({renderAfter:true,writeVault:false})}};
 
-// Startup must never overwrite existing records merely because a new build loaded.
-if(!validDB(readJSON(K)))persistDB({renderAfter:false});
-render();
+// Hardened startup: localStorage remains the live database, but if it is
+// unexpectedly absent after an app update we check the independent IndexedDB
+// safety vault BEFORE committing or rendering an empty business database.
+(async function gengrailSafeBoot(){
+ try{
+  if(GENGRAIL_BOOT_SOURCE==='vault-check-required'){
+   const vault=await readSafetyVault();
+   if(vault&&validDB(vault.db)){
+    db=normaliseDB(vault.db);
+    try{
+     localStorage.setItem(K,JSON.stringify(db));
+     localStorage.setItem(SAFETY_K,JSON.stringify(db));
+    }catch{}
+    migrateWarehouse();
+    render();
+    alert('Gengrail automatically recovered your last-good business data after detecting an empty local database. No JSON restore was required.');
+   }else{
+    persistDB({renderAfter:true,writeVault:true});
+   }
+  }else{
+   // Refresh the independent vault from the known-good database on normal boot.
+   writeSafetyVault(db);
+   render();
+  }
+ }catch(err){
+  console.error('Gengrail safe boot failed',err);
+  render();
+ }
+})();
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 </script><script src="gengrail-ebay.js"></script>
