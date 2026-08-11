@@ -271,11 +271,30 @@
       }
       const name=row.name||'gengrail-card.jpg';
       const dataBase64=await blobToBase64(blob);
-      const d=await livePost('/api/ebay/media/image',{
+      // Image uploads deliberately bypass livePost(). iOS/PWA sends a plain-text
+      // JSON envelope; the Worker reads request.text() and reconstructs the file.
+      const imagePayload={
         filename:name,
         contentType:blob.type||row.type||'image/jpeg',
         dataBase64
+      };
+      const imageRes=await fetch(LIVE_BACKEND+'/api/ebay/media/image',{
+        method:'POST',
+        cache:'no-store',
+        headers:{
+          'Accept':'application/json',
+          'Content-Type':'text/plain;charset=UTF-8'
+        },
+        body:JSON.stringify(imagePayload)
       });
+      let d=null;
+      try{ d=await imageRes.json(); }catch{}
+      if(!imageRes.ok){
+        const detail=d?.data?.errors?.[0]?.message || d?.message || (`HTTP ${imageRes.status}`);
+        const err=new Error(detail);
+        err.payload=d;
+        throw err;
+      }
       if(d?.imageUrl) urls.push(String(d.imageUrl));
     }
     if(!urls.length) throw new Error('eBay did not return any usable image URLs.');
