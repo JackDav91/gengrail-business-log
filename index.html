@@ -8,7 +8,7 @@
 <meta content="Gengrail TCG" name="apple-mobile-web-app-title"/>
 <link href="manifest.json" rel="manifest"/>
 <link href="icon-512.png" rel="apple-touch-icon" sizes="512x512"/><title>Gengrail TCG Business Log</title>
-<meta content="v19.3.4-live-ebay-publish" name="gengrail-build"/>
+<meta content="v19.4.0-settings-ebay-flow" name="gengrail-build"/>
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
 
@@ -993,6 +993,7 @@ body.inner-page .kpi,
 <div class="group-menu">
 <button data-go="sales" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M8 8h-2a4 4 0 0 0 0 8h2"></path><path d="M16 8h2a4 4 0 0 1 0 8h-2"></path><path d="M8 12h8"></path></svg></span><span><span class="glabel">eBay Channel</span><span class="gsub">Drafts, publishing setup and eBay sales integration</span></span><span class="garrow">›</span></button>
 <button data-go="storage" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 8V4h4"></path><path d="M16 4h4v4"></path><path d="M20 16v4h-4"></path><path d="M8 20H4v-4"></path><path d="M8 9v6"></path><path d="M11 9v6"></path><path d="M14 9v6"></path><path d="M17 9v6"></path></svg></span><span><span class="glabel">Scan / Lookup</span><span class="gsub">Find stock quickly by SKU or scan data</span></span><span class="garrow">›</span></button>
+<button data-go="settings" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.14.36.35.7.6 1 .3.3.7.4 1.1.4h.1v4h-.1c-.4 0-.8.1-1.1.4-.25.3-.46.64-.6 1Z"></path></svg></span><span><span class="glabel">Settings</span><span class="gsub">Backup, export, restore and app data controls</span></span><span class="garrow">›</span></button>
 </div>
 </div>
 </section>
@@ -1105,8 +1106,11 @@ body.inner-page .kpi,
 <div class="kpi"><small>Company cash estimate</small><b id="cash">£0</b></div><div class="kpi"><small>CT reserve</small><b id="taxreserve">£0</b></div><div class="kpi"><small>Available buying capital</small><b id="avail">£0</b></div><div class="kpi"><small>Retained profit after dividends</small><b id="ret2">£0</b></div>
 </div><div class="note" id="capnote"></div></div>
 <div class="panel"><div class="title">VAT THRESHOLD MONITOR</div><p>Recorded turnover: <b id="vat">£0</b> / £90,000</p><div class="bar"><i id="vbar"></i></div><div class="note" id="vtxt"></div></div>
-<div class="panel"><div class="title">BACKUP &amp; EXPORT</div><div class="actions"><button class="btn alt" id="csv">EXPORT CSV</button><button class="btn alt" id="json">BACKUP JSON</button><label class="btn alt">RESTORE JSON<input accept=".json" id="imp" style="display:none" type="file"/></label><button class="btn red" id="wipe">ERASE ALL</button></div><div class="note">Data is stored locally in this browser/device. Back it up regularly. This is a management tool, not a substitute for statutory accounts, VAT returns, payroll, dividend vouchers/minutes, or professional advice.</div></div>
+
 </section>
+<section class="sec" id="settings">
+<div class="panel"><div class="title">BACKUP &amp; EXPORT</div><div class="actions"><button class="btn alt" id="csv">EXPORT CSV</button><button class="btn alt" id="json">BACKUP JSON</button><label class="btn alt">RESTORE JSON<input accept=".json" id="imp" style="display:none" type="file"/></label><button class="btn red" id="wipe">ERASE ALL</button></div><div class="note"><b>Protect the business data.</b> Core records are stored locally in this browser/device, so create a JSON backup before major app updates and regularly during normal use. Product photos remain in dedicated on-device photo storage and are not included in the JSON backup.</div></div>
+<div class="panel"><div class="title">APP DATA</div><div class="note">Export CSV creates a readable business-data export. Backup JSON is the restorable Gengrail backup and also includes supported app preferences and eBay module data. ERASE ALL is intentionally separated as a destructive action and still keeps the app's last-good local safety snapshot where available.</div></div>
 <section class="sec" id="pricing">
 <div class="panel">
 <div class="title">PRICING CALCULATOR</div>
@@ -1338,7 +1342,7 @@ window.prepareEbayFromStock=async pid=>{
      <div><div class="title" style="margin:0">EBAY LISTING PREVIEW</div><div style="font-size:11px;color:#888">${esc(p.name)} • ${esc(p.sku||'')}</div></div>
      <button type="button" class="close-ebay-draft">CLOSE</button>
    </div>
-   <div class="note">This draft is built from the Stock record. You are not re-entering the product. Photos remain attached to Stock and will be used by the live eBay upload flow once API publishing is enabled.</div>
+   <div class="note">This listing is built directly from the Stock record, so you are not re-entering the product. Review the details here, then continue straight to the live eBay publishing controls.</div>
    <div class="ebay-draft-photos"></div>
    <div class="ebay-draft-meta">
      <div><label>eBay title</label><input id="ed-title" maxlength="80" value="${esc(p.name)}"></div>
@@ -1350,7 +1354,7 @@ window.prepareEbayFromStock=async pid=>{
      <div class="full"><label>Listing description / notes</label><textarea id="ed-description">${esc(p.notes||'')}</textarea></div>
    </div>
    <div class="ebay-draft-actions">
-     <button class="btn" id="create-ebay-draft">CREATE / UPDATE EBAY DRAFT</button>
+     <button class="btn" id="create-ebay-draft">SAVE DRAFT &amp; CONTINUE TO EBAY</button>
    </div>
  </div>`;
  const grid=wrap.querySelector('.ebay-draft-photos');
@@ -1381,7 +1385,8 @@ window.prepareEbayFromStock=async pid=>{
    p.ebayListingRef=listing.id;
    save();
    wrap.remove();
-   alert('eBay draft created from Stock. No product data was re-entered.');
+   setActiveTab('sales',true);
+   setTimeout(()=>{if(typeof placeEbayChannelInSales==='function')placeEbayChannelInSales()},0);
  };
 };
 window.managePhotos=async pid=>{
@@ -1561,7 +1566,7 @@ function render(){
 
 const PAGE_TITLES={
  dash:'Dashboard',stock:'Stock',storage:'Locations',orders:'Orders',sales:'Sales',exp:'Expenses',
- owner:'Owner & Funding',tax:'Tax',pricing:'Pricing Calculator',opps:'Opportunity Finder'
+ owner:'Owner & Funding',tax:'Tax',settings:'Settings',pricing:'Pricing Calculator',opps:'Opportunity Finder'
 };
 const PAGE_SUBTITLES={
  dash:'Business overview',
@@ -1572,13 +1577,14 @@ const PAGE_SUBTITLES={
  exp:'Log business costs',
  owner:'Funding & dividends',
  tax:'Corporation tax tools',
+ settings:'Backup, export & app data',
  pricing:'Work out true value',
  opps:'Source winning cards'
 };
 const PAGE_GROUPS={
  stock:'operations',storage:'operations',orders:'operations',sales:'operations',
  dash:'finance',exp:'finance',owner:'finance',tax:'finance',
- pricing:'buying',opps:'buying'
+ settings:'tools',pricing:'buying',opps:'buying'
 };
 let currentCommandGroup='';
 
