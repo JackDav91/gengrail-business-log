@@ -8,7 +8,7 @@
 <meta content="Gengrail TCG" name="apple-mobile-web-app-title"/>
 <link href="manifest.json" rel="manifest"/>
 <link href="icon-512.png" rel="apple-touch-icon" sizes="512x512"/><title>Gengrail TCG Business Log</title>
-<meta content="v19.3-ebay-production-status" name="gengrail-build"/>
+<meta content="v19.3.1-ebay-status-fix" name="gengrail-build"/>
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
 
@@ -2134,7 +2134,7 @@ window.addEventListener('load',()=>{
 
   function setEbayBadge(state, detail){
     const nodes=[...document.querySelectorAll('.ge-badge,.badge')];
-    const badge=nodes.find(el=>/awaiting ebay api|ebay connected|ebay connection/i.test((el.textContent||'').trim()));
+    const badge=nodes.find(el=>/awaiting ebay api|checking ebay|ebay connected|ebay connection/i.test((el.textContent||'').trim()));
     if(!badge)return false;
     if(state==='connected'){
       badge.textContent='EBAY CONNECTED ✓';
