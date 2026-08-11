@@ -8,7 +8,7 @@
 <meta content="Gengrail TCG" name="apple-mobile-web-app-title"/>
 <link href="manifest.json" rel="manifest"/>
 <link href="icon-512.png" rel="apple-touch-icon" sizes="512x512"/><title>Gengrail TCG Business Log</title>
-<meta content="v19.3.2-production-test-prep" name="gengrail-build"/>
+<meta content="v19.3.4-live-ebay-publish" name="gengrail-build"/>
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
 
@@ -1307,6 +1307,8 @@ async function getPhotos(pid){
   r.onerror=()=>{dbp.close();reject(r.error)}
  });
 }
+window.GengrailPhotoBridge={getPhotos};
+
 async function deletePhoto(id){
  const dbp=await photoDB();
  await new Promise((resolve,reject)=>{const tx=dbp.transaction(PHOTO_STORE,'readwrite');tx.objectStore(PHOTO_STORE).delete(id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});

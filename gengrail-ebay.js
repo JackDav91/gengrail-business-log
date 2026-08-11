@@ -1,5 +1,5 @@
 /*
- GENGRAIL TCG — eBay Channel v7 — LISTING RESOLVER
+ GENGRAIL TCG — eBay Channel v8 — LIVE PUBLISHING
  Exact integration for the current Gengrail Business Log.
  ---------------------------------------------------------
  Main app storage key: gengrailBizV1
@@ -25,7 +25,7 @@
   const esc = (v='') => String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 
   const defaults = {
-    version: 7,
+    version: 8,
     connection: { status:'awaiting_authorisation', sellerName:'', lastSync:null, lastError:'' },
     listings: [],
     orders: [],
@@ -194,6 +194,156 @@
     return data;
   }
 
+  async function livePost(path,body,{form=false}={}){
+    const opts={method:'POST',cache:'no-store',headers:{Accept:'application/json'}};
+    if(form){
+      opts.body=body;
+    }else{
+      opts.headers['Content-Type']='application/json';
+      opts.body=JSON.stringify(body||{});
+    }
+    const res=await fetch(LIVE_BACKEND+path,opts);
+    let data=null;
+    try{ data=await res.json(); }catch{}
+    if(!res.ok){
+      const detail=data?.data?.errors?.[0]?.message || data?.message || (`HTTP ${res.status}`);
+      const err=new Error(detail);
+      err.payload=data;
+      throw err;
+    }
+    return data;
+  }
+
+  function smartCardParts(listing){
+    const title=String(listing?.title||'').trim();
+    const numberMatch=title.match(/\b(\d{1,4}\/\d{1,4})\b/);
+    const cardNumber=numberMatch?.[1]||'';
+    let cardName=title;
+    let set='';
+    if(numberMatch){
+      const i=title.indexOf(numberMatch[0]);
+      cardName=title.slice(0,i).trim();
+      set=title.slice(i+numberMatch[0].length).trim();
+    }
+    return {cardName,cardNumber,set};
+  }
+
+  function applySmartCardAspects(listing){
+    const parts=smartCardParts(listing);
+    const existing={...(listing.aspects||{})};
+    const put=(key,value)=>{
+      if(value && (!existing[key] || !existing[key].length)) existing[key]=[String(value)];
+    };
+    put('Game','Pokémon TCG');
+    put('Card Name',parts.cardName);
+    put('Set',parts.set);
+    put('Card Number',parts.cardNumber);
+    put('Language','English');
+    put('Graded', String(listing.condition||'').toLowerCase().includes('graded') &&
+                  !String(listing.condition||'').toLowerCase().includes('ungraded') ? 'Yes' : 'No');
+    listing.aspects=existing;
+    return existing;
+  }
+
+  async function uploadListingPhotos(listing){
+    if(!window.GengrailPhotoBridge?.getPhotos){
+      throw new Error('Gengrail photo bridge is unavailable. Refresh the app after the index update.');
+    }
+    const rows=await window.GengrailPhotoBridge.getPhotos(listing.inventoryId);
+    if(!rows?.length) throw new Error('No Stock photos are attached to this item.');
+
+    const urls=[];
+    for(const row of rows.slice(0,24)){
+      const form=new FormData();
+      const blob=row.blob;
+      const name=row.name||'gengrail-card.jpg';
+      form.set('image',blob,name);
+      const d=await livePost('/api/ebay/media/image',form,{form:true});
+      if(d?.imageUrl) urls.push(String(d.imageUrl));
+    }
+    if(!urls.length) throw new Error('eBay did not return any usable image URLs.');
+    listing.ebayImageUrls=urls;
+    listing.imagesUploadedAt=nowISO();
+    return urls;
+  }
+
+  function syncListingToMainStock(listing){
+    const db=mainDB();
+    if(!db)return;
+    const p=db.purchases.find(x=>String(x.id)===String(listing.inventoryId));
+    if(!p)return;
+    p.listPrice=num(listing.listPrice);
+    p.ebayStatus=listing.status==='LISTED'?'LISTED':
+      listing.status==='READY_TO_PUBLISH'?'READY_TO_PUBLISH':'DRAFT';
+    p.ebayListingRef=listing.id;
+    p.ebayOfferId=listing.offerId||'';
+    p.ebayItemId=listing.ebayItemId||'';
+    p.ebayUrl=listing.ebayUrl||'';
+    localStorage.setItem(MAIN_KEY,JSON.stringify(db));
+    window.dispatchEvent(new CustomEvent('gengrail:main-updated'));
+  }
+
+  async function prepareLiveListing(listing){
+    applySmartCardAspects(listing);
+
+    if(!listing.categoryId || !listing.conditionDescriptorName || !listing.conditionDescriptorValue){
+      await resolveListingFromEbay(listing);
+      applySmartCardAspects(listing);
+    }
+
+    const missing=localReadiness(listing).filter(x=>x!=='product photo');
+    if(missing.length){
+      throw new Error('Listing still needs: '+missing.join(', ')+'.');
+    }
+    const prereq=publishPrerequisites();
+    if(prereq.length) throw new Error('Publishing setup still needs: '+prereq.join(', ')+'.');
+
+    const imageUrls=listing.ebayImageUrls?.length
+      ? listing.ebayImageUrls
+      : await uploadListingPhotos(listing);
+
+    const d=await livePost('/api/ebay/listing/prepare',{
+      sku:listing.sku,
+      title:listing.title,
+      description:listing.description,
+      categoryId:listing.categoryId,
+      condition:listing.conditionApi||apiCondition(listing.condition),
+      conditionDescriptorName:listing.conditionDescriptorName||'',
+      conditionDescriptorValue:listing.conditionDescriptorValue||'',
+      quantity:num(listing.quantity),
+      price:num(listing.listPrice),
+      aspects:listing.aspects||{},
+      imageUrls,
+      offerId:listing.offerId||'',
+      settings:{...state.settings}
+    });
+
+    listing.offerId=String(d.offerId||listing.offerId||'');
+    listing.status='READY_TO_PUBLISH';
+    listing.preparedAt=nowISO();
+    listing.updatedAt=nowISO();
+    saveState();
+    syncListingToMainStock(listing);
+    render();
+    return d;
+  }
+
+  async function publishLiveListing(listing){
+    if(!listing.offerId) throw new Error('Prepare the live eBay listing first.');
+    const d=await livePost('/api/ebay/listing/publish',{offerId:listing.offerId});
+    const listingId=String(d?.listingId||'');
+    if(!listingId) throw new Error('eBay published the offer but did not return a listing ID.');
+    listing.ebayItemId=listingId;
+    listing.ebayUrl='https://www.ebay.co.uk/itm/'+encodeURIComponent(listingId);
+    listing.status='LISTED';
+    listing.publishedAt=nowISO();
+    listing.updatedAt=nowISO();
+    saveState();
+    syncListingToMainStock(listing);
+    render();
+    return d;
+  }
+
   function listingResolverQuery(listing){
     const a=listing?.aspects||{};
     const values=key=>{
@@ -236,6 +386,7 @@
     }
 
     listing.requiredEbayAspects=Array.isArray(d.requiredAspects)?d.requiredAspects:[];
+    applySmartCardAspects(listing);
     listing.resolverReady=!!d.ready;
     listing.resolvedAt=nowISO();
     listing.updatedAt=nowISO();
@@ -754,7 +905,7 @@
   }
 
   function exportData(){
-    return {module:'gengrail-ebay',version:7,exportedAt:nowISO(),data:clone(state)};
+    return {module:'gengrail-ebay',version:8,exportedAt:nowISO(),data:clone(state)};
   }
 
   function importData(payload){
@@ -908,6 +1059,13 @@
         <button class="ge-btn full" type="submit">SAVE EBAY DETAILS</button>
       </form>
       <button class="ge-btn alt" id="ge-view-payload" style="margin-top:8px">VIEW API PAYLOAD</button>
+      <button class="ge-btn full" id="ge-prepare-live" style="margin-top:8px">${x.status==='READY_TO_PUBLISH'?'REFRESH LIVE EBAY DRAFT':'PREPARE LIVE EBAY LISTING'}</button>
+      ${x.status==='READY_TO_PUBLISH' && x.offerId
+        ? '<button class="ge-btn full" id="ge-publish-live" style="margin-top:8px">PUBLISH TO EBAY</button>'
+        : ''}
+      ${x.status==='LISTED' && x.ebayUrl
+        ? `<a class="ge-btn full" href="${esc(x.ebayUrl)}" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;margin-top:8px">VIEW LIVE EBAY LISTING</a>`
+        : ''}
     `);
     const f=m.querySelector('form');
     f.onsubmit=e=>{
@@ -953,8 +1111,45 @@
     };
 
     m.querySelector('#ge-view-payload').onclick=()=>{
+      applySmartCardAspects(x);
       const payload=apiPayload(x);
-      const p=modal(`<h3>Inventory API payload preview</h3><div class="ge-note">Preview only — no eBay request is sent. Local device photos still need to be uploaded/hosted before the final imageUrls can be supplied.</div><pre style="white-space:pre-wrap;overflow:auto;background:#080808;border:1px solid #333;border-radius:8px;padding:10px;font-size:11px">${esc(JSON.stringify(payload,null,2))}</pre>`);
+      const p=modal(`<h3>Inventory API payload preview</h3><div class="ge-note">Preview only — no live eBay listing is created by viewing this payload.</div><pre style="white-space:pre-wrap;overflow:auto;background:#080808;border:1px solid #333;border-radius:8px;padding:10px;font-size:11px">${esc(JSON.stringify(payload,null,2))}</pre>`);
+    };
+
+    m.querySelector('#ge-prepare-live').onclick=async()=>{
+      const btn=m.querySelector('#ge-prepare-live');
+      btn.disabled=true;btn.textContent='PREPARING WITH EBAY…';
+      try{
+        const d=Object.fromEntries(new FormData(f).entries());
+        x.title=d.title.trim();x.sku=d.sku.trim();x.listPrice=num(d.listPrice);
+        x.quantity=Math.max(1,parseInt(d.quantity||1,10));
+        x.categoryId=d.categoryId.trim();x.conditionApi=d.conditionApi;
+        x.conditionDescriptorName=d.conditionDescriptorName.trim();
+        x.conditionDescriptorValue=d.conditionDescriptorValue.trim();
+        x.aspects=parseAspects(d.aspects);x.description=d.description.trim();
+
+        const result=await prepareLiveListing(x);
+        m.remove();editDraftForm(id);
+        alert('eBay accepted the inventory item and offer.\n\nOffer ID: '+result.offerId+'\n\nNothing is live yet. Review it, then use PUBLISH TO EBAY.');
+      }catch(err){
+        btn.disabled=false;btn.textContent='PREPARE LIVE EBAY LISTING';
+        alert('Live listing preparation failed:\n\n'+String(err?.message||err));
+      }
+    };
+
+    const publishBtn=m.querySelector('#ge-publish-live');
+    if(publishBtn) publishBtn.onclick=async()=>{
+      const check='This will make "'+x.title+'" LIVE on eBay at '+money(x.listPrice)+'.\n\nPublish now?';
+      if(!confirm(check))return;
+      publishBtn.disabled=true;publishBtn.textContent='PUBLISHING TO EBAY…';
+      try{
+        const result=await publishLiveListing(x);
+        m.remove();
+        alert('LIVE ON EBAY ✓\n\nListing ID: '+result.listingId);
+      }catch(err){
+        publishBtn.disabled=false;publishBtn.textContent='PUBLISH TO EBAY';
+        alert('eBay publish failed:\n\n'+String(err?.message||err));
+      }
     };
   }
 
@@ -1135,6 +1330,9 @@
     syncOrders,
     syncPolicies,
     feedImportedOrder,
+    prepareLiveListing,
+    publishLiveListing,
+    applySmartCardAspects,
     render,
     storageKey:EBAY_KEY
   };
