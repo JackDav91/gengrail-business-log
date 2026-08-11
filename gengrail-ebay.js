@@ -1,12 +1,12 @@
 /*
- GENGRAIL TCG — eBay Channel v4
+ GENGRAIL TCG — eBay Channel v5 — LIVE PRODUCTION SYNC
  Exact integration for the current Gengrail Business Log.
  ---------------------------------------------------------
  Main app storage key: gengrailBizV1
  Existing Sales form IDs:
  si, sd, sq, sp, spl, sf, spo, spa, so, snotes, adds
 
- This module remains pre-live-API: no eBay credentials are stored here.
+ Live production API bridge. No eBay credentials are stored here; all privileged calls go through the Cloudflare Worker.
 */
 
 (() => {
@@ -25,10 +25,18 @@
   const esc = (v='') => String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 
   const defaults = {
-    version: 5,
-    connection: { status:'awaiting_authorisation', sellerName:'', lastSync:null },
+    version: 6,
+    connection: { status:'awaiting_authorisation', sellerName:'', lastSync:null, lastError:'' },
     listings: [],
     orders: [],
+    live: {
+      syncing:false,
+      lastOrdersSync:null,
+      lastPoliciesSync:null,
+      paymentPolicies:[],
+      fulfillmentPolicies:[],
+      returnPolicies:[]
+    },
     settings: {
       autoMarkSold:true,
       feedMainLog:true,
@@ -57,6 +65,7 @@
       return {
         ...clone(defaults), ...p,
         connection:{...defaults.connection,...(p.connection||{})},
+        live:{...defaults.live,...(p.live||{})},
         settings:{...defaults.settings,...(p.settings||{})}
       };
     }catch{
@@ -166,6 +175,191 @@
 
   function aspectsText(aspects={}){
     return Object.entries(aspects||{}).map(([k,v])=>`${k}: ${Array.isArray(v)?v.join(', '):v}`).join('\n');
+  }
+
+
+  const LIVE_BACKEND = 'https://gengrail-ebay-backend.gengrailtcg.workers.dev';
+
+  async function liveGet(path){
+    const res=await fetch(LIVE_BACKEND+path,{
+      method:'GET',
+      cache:'no-store',
+      headers:{Accept:'application/json'}
+    });
+    let data=null;
+    try{ data=await res.json(); }catch{}
+    if(!res.ok) throw new Error((data&&data.message)||(`HTTP ${res.status}`));
+    return data;
+  }
+
+  function policyArrays(payload){
+    const p=payload?.payment?.data||{};
+    const f=payload?.fulfillment?.data||{};
+    const r=payload?.returns?.data||{};
+    return {
+      paymentPolicies:Array.isArray(p.paymentPolicies)?p.paymentPolicies:[],
+      fulfillmentPolicies:Array.isArray(f.fulfillmentPolicies)?f.fulfillmentPolicies:[],
+      returnPolicies:Array.isArray(r.returnPolicies)?r.returnPolicies:[]
+    };
+  }
+
+  function listingBySku(sku=''){
+    const needle=String(sku||'').trim();
+    if(!needle)return null;
+    return state.listings.find(x=>String(x.sku||'').trim()===needle) || null;
+  }
+
+  function normaliseLiveOrders(payload){
+    const orders=Array.isArray(payload?.data?.orders)?payload.data.orders:[];
+    const out=[];
+    orders.forEach(o=>{
+      const lines=Array.isArray(o.lineItems)&&o.lineItems.length?o.lineItems:[{}];
+      lines.forEach((li,idx)=>{
+        const sku=String(li.sku||'').trim();
+        const listing=listingBySku(sku);
+        const qty=Math.max(1,parseInt(li.quantity||1,10));
+        const totalValue=li?.total?.value ?? li?.lineItemCost?.value ?? (
+          li?.unitPrice?.value!=null ? num(li.unitPrice.value)*qty : 0
+        );
+        const status=String(o.orderPaymentStatus||'').toUpperCase()==='PAID'
+          ? (String(o.orderFulfillmentStatus||'').toUpperCase()==='FULFILLED'?'FULFILLED':'PAID')
+          : (o.orderPaymentStatus||o.orderFulfillmentStatus||'ORDERED');
+
+        out.push({
+          id:`EBAY-${o.orderId||'ORDER'}-${li.lineItemId||idx}`,
+          listingId:listing?.id||'',
+          inventoryId:listing?.inventoryId||'',
+          sku:sku||listing?.sku||'',
+          title:li.title||listing?.title||'eBay order',
+          ebayItemId:li.legacyItemId||listing?.ebayItemId||'',
+          ebayOrderId:o.orderId||'',
+          ebayLineItemId:li.lineItemId||'',
+          buyerRef:o?.buyer?.username||o?.buyer?.buyerRegistrationAddress?.email||'',
+          quantity:qty,
+          purchaseCost:num(listing?.purchaseCost)*qty,
+          salePrice:num(totalValue),
+          platformFees:0,
+          postageCost:0,
+          packagingCost:0,
+          otherCosts:0,
+          soldAt:o.creationDate||o.lastModifiedDate||nowISO(),
+          status,
+          source:'ebay_api',
+          mainLogSynced:false,
+          mainLogMessage: listing
+            ? 'Imported from eBay. Ready to feed into the main Sales log.'
+            : 'Imported from eBay, but no matching Gengrail SKU was found.',
+          liveUpdatedAt:nowISO()
+        });
+      });
+    });
+    return out;
+  }
+
+  function mergeLiveOrders(rows){
+    let added=0,updated=0;
+    rows.forEach(incoming=>{
+      const existing=state.orders.find(x=>
+        (incoming.ebayOrderId && x.ebayOrderId===incoming.ebayOrderId &&
+          String(x.ebayLineItemId||'')===String(incoming.ebayLineItemId||'')) ||
+        x.id===incoming.id
+      );
+      if(existing){
+        const keepSynced=existing.mainLogSynced;
+        const keepMessage=existing.mainLogMessage;
+        Object.assign(existing,incoming);
+        existing.mainLogSynced=keepSynced;
+        if(keepSynced) existing.mainLogMessage=keepMessage;
+        existing.netProfit=netProfit(existing);
+        updated++;
+      }else{
+        incoming.netProfit=netProfit(incoming);
+        state.orders.unshift(incoming);
+        added++;
+      }
+    });
+    return {added,updated};
+  }
+
+  async function syncConnection(){
+    const d=await liveGet('/api/ebay/status');
+    const connected=!!(d?.ok && d.environment==='production' && d.connected);
+    state.connection.status=connected?'connected':'awaiting_authorisation';
+    state.connection.lastError=connected?'':'Production eBay connection is not available.';
+    return d;
+  }
+
+  async function syncPolicies(){
+    const d=await liveGet('/api/ebay/policies');
+    const a=policyArrays(d);
+    state.live.paymentPolicies=a.paymentPolicies;
+    state.live.fulfillmentPolicies=a.fulfillmentPolicies;
+    state.live.returnPolicies=a.returnPolicies;
+    state.live.lastPoliciesSync=nowISO();
+
+    // Safe convenience: only auto-select when eBay returns exactly one choice.
+    if(!state.settings.paymentPolicyId && a.paymentPolicies.length===1)
+      state.settings.paymentPolicyId=String(a.paymentPolicies[0].paymentPolicyId||'');
+    if(!state.settings.fulfillmentPolicyId && a.fulfillmentPolicies.length===1)
+      state.settings.fulfillmentPolicyId=String(a.fulfillmentPolicies[0].fulfillmentPolicyId||'');
+    if(!state.settings.returnPolicyId && a.returnPolicies.length===1)
+      state.settings.returnPolicyId=String(a.returnPolicies[0].returnPolicyId||'');
+    return d;
+  }
+
+  async function syncOrders(){
+    const d=await liveGet('/api/ebay/orders?limit=50');
+    const merged=mergeLiveOrders(normaliseLiveOrders(d));
+    state.live.lastOrdersSync=nowISO();
+    return {...merged, raw:d};
+  }
+
+  async function syncLive({quiet=false}={}){
+    if(state.live.syncing)return;
+    state.live.syncing=true;
+    state.connection.lastError='';
+    render();
+    try{
+      await syncConnection();
+      if(state.connection.status==='connected'){
+        // Policies and orders are independent: keep any successful result even
+        // if the other endpoint fails.
+        const results=await Promise.allSettled([syncPolicies(),syncOrders()]);
+        const failures=results.filter(x=>x.status==='rejected');
+        if(failures.length){
+          state.connection.lastError=failures.map(x=>String(x.reason?.message||x.reason)).join(' | ');
+        }
+        state.connection.lastSync=nowISO();
+      }
+      saveState();
+      if(!quiet){
+        const e=state.connection.lastError;
+        alert(e ? 'eBay sync completed with a warning:\n\n'+e : 'eBay sync complete.');
+      }
+    }catch(err){
+      state.connection.status='error';
+      state.connection.lastError=String(err?.message||err);
+      saveState();
+      if(!quiet) alert('eBay sync failed:\n\n'+state.connection.lastError);
+    }finally{
+      state.live.syncing=false;
+      saveState();
+      render();
+    }
+  }
+
+  function feedImportedOrder(id){
+    const order=state.orders.find(x=>x.id===id);
+    if(!order)return;
+    if(order.mainLogSynced)return alert('This eBay line item is already in the main Sales log.');
+    if(!order.inventoryId)return alert('This eBay order could not be linked to Gengrail Stock. Match the SKU first, then sync again.');
+    const result=exactFeedToMainSales(order);
+    order.mainLogSynced=result.ok;
+    order.mainLogMessage=result.message;
+    order.netProfit=netProfit(order);
+    saveState();
+    render();
+    alert(result.message);
   }
 
   function localReadiness(listing){
@@ -352,6 +546,7 @@
     const noteParts=[
       'eBay',
       order.ebayOrderId ? `Order ${order.ebayOrderId}` : '',
+      order.ebayLineItemId ? `Line ${order.ebayLineItemId}` : '',
       order.ebayItemId ? `Item ${order.ebayItemId}` : '',
       order.buyerRef ? `Buyer ref ${order.buyerRef}` : ''
     ].filter(Boolean);
@@ -481,7 +676,7 @@
   }
 
   function exportData(){
-    return {module:'gengrail-ebay',version:4,exportedAt:nowISO(),data:clone(state)};
+    return {module:'gengrail-ebay',version:5,exportedAt:nowISO(),data:clone(state)};
   }
 
   function importData(payload){
@@ -491,6 +686,7 @@
     state={
       ...clone(defaults),...incoming,
       connection:{...defaults.connection,...(incoming.connection||{})},
+      live:{...defaults.live,...(incoming.live||{})},
       settings:{...defaults.settings,...(incoming.settings||{})}
     };
     saveState();render();return true;
@@ -555,26 +751,41 @@
 
   function publishingSetupForm(){
     const s=state.settings;
+    const payment=state.live.paymentPolicies||[];
+    const fulfillment=state.live.fulfillmentPolicies||[];
+    const returns=state.live.returnPolicies||[];
+    const opt=(rows,idKey,nameKey,current)=>[
+      '<option value="">Choose…</option>',
+      ...rows.map(x=>`<option value="${esc(x[idKey]||'')}" ${String(x[idKey]||'')===String(current||'')?'selected':''}>${esc(x[nameKey]||x[idKey]||'Unnamed policy')}</option>`)
+    ].join('');
     const m=modal(`
       <h3>eBay publishing setup</h3>
-      <div class="ge-note">These are the seller-level values the eBay Inventory API will require before a draft can be published. Leave policy IDs blank until eBay authorisation is available.</div>
+      <div class="ge-note">${state.live.lastPoliciesSync
+        ? `Live eBay policies last synced <b>${esc(new Date(state.live.lastPoliciesSync).toLocaleString('en-GB'))}</b>.`
+        : 'No live eBay policy sync has been completed yet.'}</div>
       <form class="ge-form" id="ge-publish-settings">
         <div><label>Marketplace</label><select name="marketplaceId"><option value="EBAY_GB">eBay UK (EBAY_GB)</option></select></div>
         <div><label>Currency</label><input name="currency" value="${esc(s.currency||'GBP')}"></div>
         <div><label>Format</label><select name="format"><option value="FIXED_PRICE">Fixed price</option></select></div>
         <div><label>Duration</label><select name="listingDuration"><option value="GTC">Good 'Til Cancelled (GTC)</option></select></div>
-        <div class="full"><label>Merchant location key</label><input name="merchantLocationKey" value="${esc(s.merchantLocationKey||'')}" placeholder="Created through eBay Inventory Location API"></div>
-        <div><label>Payment policy ID</label><input name="paymentPolicyId" value="${esc(s.paymentPolicyId||'')}"></div>
-        <div><label>Fulfilment policy ID</label><input name="fulfillmentPolicyId" value="${esc(s.fulfillmentPolicyId||'')}"></div>
-        <div><label>Return policy ID</label><input name="returnPolicyId" value="${esc(s.returnPolicyId||'')}"></div>
+        <div class="full"><label>Merchant location key</label><input name="merchantLocationKey" value="${esc(s.merchantLocationKey||'')}" placeholder="Still needs an Inventory Location API endpoint"></div>
+        <div><label>Payment policy</label><select name="paymentPolicyId">${opt(payment,'paymentPolicyId','name',s.paymentPolicyId)}</select></div>
+        <div><label>Fulfilment policy</label><select name="fulfillmentPolicyId">${opt(fulfillment,'fulfillmentPolicyId','name',s.fulfillmentPolicyId)}</select></div>
+        <div><label>Return policy</label><select name="returnPolicyId">${opt(returns,'returnPolicyId','name',s.returnPolicyId)}</select></div>
         <button class="ge-btn full" type="submit">SAVE PUBLISHING SETUP</button>
       </form>
+      <button class="ge-btn alt" id="ge-sync-policies" style="margin-top:8px">SYNC LIVE EBAY POLICIES</button>
     `);
     const f=m.querySelector('form');
     f.onsubmit=e=>{
       e.preventDefault();
       Object.assign(state.settings,Object.fromEntries(new FormData(f).entries()));
       saveState();render();m.remove();
+    };
+    m.querySelector('#ge-sync-policies').onclick=async()=>{
+      m.remove();
+      await syncLive();
+      publishingSetupForm();
     };
   }
 
@@ -719,8 +930,11 @@
 
     const sales=state.orders.slice(0,10).map(x=>`
       <div class="ge-card">
-        <div class="ge-card-top"><div><div class="ge-card-title">${esc(x.title)}</div><div class="ge-card-sub">${esc(x.ebayOrderId||x.id)}</div></div><div class="ge-status">${x.mainLogSynced?'SALES ✓':'EBAY ONLY'}</div></div>
-        <div class="ge-row"><div><span>SALE</span><b>${money(x.salePrice)}</b></div><div><span>FEES</span><b>${money(x.platformFees)}</b></div><div><span>NET PROFIT</span><b>${money(x.netProfit)}</b></div></div>
+        <div class="ge-card-top"><div><div class="ge-card-title">${esc(x.title)}</div><div class="ge-card-sub">${esc(x.ebayOrderId||x.id)}${x.sku?` · SKU ${esc(x.sku)}`:''}</div></div><div class="ge-status">${x.mainLogSynced?'SALES ✓':esc(x.status||'EBAY')}</div></div>
+        <div class="ge-row"><div><span>SALE</span><b>${money(x.salePrice)}</b></div><div><span>QTY</span><b>${Math.max(1,num(x.quantity))}</b></div><div><span>SOURCE</span><b>${x.source==='ebay_api'?'LIVE':'MANUAL'}</b></div></div>
+        ${x.source==='ebay_api' && !x.mainLogSynced
+          ? `<div class="ge-actions"><button class="ge-btn ge-feed-order" data-id="${esc(x.id)}" ${x.inventoryId?'':'disabled'}>${x.inventoryId?'FEED TO SALES':'SKU NOT LINKED'}</button></div>`
+          : ''}
         <button class="ge-btn danger ge-del-sale" data-id="${esc(x.id)}">DELETE EBAY SALE</button>
       </div>`).join('');
 
@@ -743,7 +957,13 @@
           <button class="ge-btn" id="ge-add-listing">+ ADD DRAFT</button>
           <button class="ge-btn alt" id="ge-record-sale">RECORD SALE</button>
           <button class="ge-btn alt" id="ge-publishing-setup">PUBLISHING SETUP</button>
+          <button class="ge-btn alt" id="ge-live-sync" ${state.live.syncing?'disabled':''}>${state.live.syncing?'SYNCING…':'SYNC EBAY'}</button>
         </div>
+        <div class="ge-note">${state.connection.lastError
+          ? `<b>Live sync warning:</b> ${esc(state.connection.lastError)}`
+          : state.connection.lastSync
+            ? `Live eBay sync: <b>${esc(new Date(state.connection.lastSync).toLocaleString('en-GB'))}</b>.`
+            : 'Live eBay sync has not run yet.'}</div>
         <div class="ge-note">${publishPrerequisites().length
           ? `Live publishing setup still needs: <b>${esc(publishPrerequisites().join(', '))}</b>.`
           : '<b>Seller publishing setup complete ✓</b>'}</div>
@@ -762,6 +982,8 @@
     root.querySelector('#ge-add-listing').onclick=listingForm;
     root.querySelector('#ge-record-sale').onclick=saleForm;
     root.querySelector('#ge-publishing-setup').onclick=publishingSetupForm;
+    root.querySelector('#ge-live-sync').onclick=()=>syncLive();
+    root.querySelectorAll('.ge-feed-order').forEach(b=>b.onclick=()=>feedImportedOrder(b.dataset.id));
     root.querySelectorAll('.ge-edit-draft').forEach(b=>b.onclick=()=>editDraftForm(b.dataset.id));
     root.querySelectorAll('.ge-del-listing').forEach(b=>b.onclick=()=>deleteListing(b.dataset.id));
     root.querySelectorAll('.ge-del-sale').forEach(b=>b.onclick=()=>deleteEbaySale(b.dataset.id));
@@ -784,6 +1006,10 @@
     apiPayload,
     localReadiness,
     publishPrerequisites,
+    syncLive,
+    syncOrders,
+    syncPolicies,
+    feedImportedOrder,
     render,
     storageKey:EBAY_KEY
   };
@@ -791,7 +1017,15 @@
   function boot(){
     recoverDraftsFromMainStock();
     render();
+    setTimeout(()=>syncLive({quiet:true}),700);
   }
+
+  document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden && state.connection.status==='connected'){
+      const last=Date.parse(state.connection.lastSync||0)||0;
+      if(Date.now()-last>5*60*1000) syncLive({quiet:true});
+    }
+  });
 
   document.readyState==='loading'
     ? document.addEventListener('DOMContentLoaded',boot)
