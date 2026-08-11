@@ -1,5 +1,5 @@
 /*
- GENGRAIL TCG — eBay Channel v5 — LIVE PRODUCTION SYNC
+ GENGRAIL TCG — eBay Channel v6 — LIVE PRODUCTION SYNC
  Exact integration for the current Gengrail Business Log.
  ---------------------------------------------------------
  Main app storage key: gengrailBizV1
@@ -35,7 +35,9 @@
       lastPoliciesSync:null,
       paymentPolicies:[],
       fulfillmentPolicies:[],
-      returnPolicies:[]
+      returnPolicies:[],
+      inventoryLocations:[],
+      lastLocationsSync:null
     },
     settings: {
       autoMarkSold:true,
@@ -203,6 +205,12 @@
     };
   }
 
+
+  function inventoryLocationsArray(payload){
+    const data=payload?.data||{};
+    return Array.isArray(data.locations)?data.locations:[];
+  }
+
   function listingBySku(sku=''){
     const needle=String(sku||'').trim();
     if(!needle)return null;
@@ -307,6 +315,26 @@
     return d;
   }
 
+
+  async function syncInventoryLocations(){
+    const d=await liveGet('/api/ebay/inventory-locations');
+    const locations=inventoryLocationsArray(d);
+    state.live.inventoryLocations=locations;
+    state.live.lastLocationsSync=nowISO();
+
+    const currentKey=String(state.settings.merchantLocationKey||'').trim();
+    const enabled=locations.filter(x=>String(x?.merchantLocationStatus||'').toUpperCase()==='ENABLED');
+    const currentStillValid=currentKey && enabled.some(x=>String(x?.merchantLocationKey||'')===currentKey);
+    if(!currentStillValid){
+      const preferred=enabled.find(x=>String(x?.merchantLocationKey||'')==='gengrail-hq')
+        || (enabled.length===1 ? enabled[0] : null);
+      if(preferred?.merchantLocationKey){
+        state.settings.merchantLocationKey=String(preferred.merchantLocationKey);
+      }
+    }
+    return d;
+  }
+
   async function syncOrders(){
     const d=await liveGet('/api/ebay/orders?limit=50');
     const merged=mergeLiveOrders(normaliseLiveOrders(d));
@@ -322,9 +350,9 @@
     try{
       await syncConnection();
       if(state.connection.status==='connected'){
-        // Policies and orders are independent: keep any successful result even
-        // if the other endpoint fails.
-        const results=await Promise.allSettled([syncPolicies(),syncOrders()]);
+        // Policies, inventory locations and orders are independent: keep any successful
+        // result even if one endpoint fails.
+        const results=await Promise.allSettled([syncPolicies(),syncInventoryLocations(),syncOrders()]);
         const failures=results.filter(x=>x.status==='rejected');
         if(failures.length){
           state.connection.lastError=failures.map(x=>String(x.reason?.message||x.reason)).join(' | ');
@@ -676,7 +704,7 @@
   }
 
   function exportData(){
-    return {module:'gengrail-ebay',version:5,exportedAt:nowISO(),data:clone(state)};
+    return {module:'gengrail-ebay',version:6,exportedAt:nowISO(),data:clone(state)};
   }
 
   function importData(payload){
@@ -754,21 +782,31 @@
     const payment=state.live.paymentPolicies||[];
     const fulfillment=state.live.fulfillmentPolicies||[];
     const returns=state.live.returnPolicies||[];
+    const locations=state.live.inventoryLocations||[];
     const opt=(rows,idKey,nameKey,current)=>[
       '<option value="">Choose…</option>',
       ...rows.map(x=>`<option value="${esc(x[idKey]||'')}" ${String(x[idKey]||'')===String(current||'')?'selected':''}>${esc(x[nameKey]||x[idKey]||'Unnamed policy')}</option>`)
     ].join('');
+    const locationOpt=[
+      '<option value="">Choose…</option>',
+      ...locations.map(x=>{
+        const key=String(x?.merchantLocationKey||'');
+        const name=String(x?.name||key||'Unnamed location');
+        const status=String(x?.merchantLocationStatus||'');
+        return `<option value="${esc(key)}" ${key===String(s.merchantLocationKey||'')?'selected':''}>${esc(name)} — ${esc(key)}${status?` (${esc(status)})`:''}</option>`;
+      })
+    ].join('');
     const m=modal(`
       <h3>eBay publishing setup</h3>
       <div class="ge-note">${state.live.lastPoliciesSync
-        ? `Live eBay policies last synced <b>${esc(new Date(state.live.lastPoliciesSync).toLocaleString('en-GB'))}</b>.`
+        ? `Live eBay policies last synced <b>${esc(new Date(state.live.lastPoliciesSync).toLocaleString('en-GB'))}</b>.${state.live.lastLocationsSync?` Inventory locations last synced <b>${esc(new Date(state.live.lastLocationsSync).toLocaleString('en-GB'))}</b>.`:''}`
         : 'No live eBay policy sync has been completed yet.'}</div>
       <form class="ge-form" id="ge-publish-settings">
         <div><label>Marketplace</label><select name="marketplaceId"><option value="EBAY_GB">eBay UK (EBAY_GB)</option></select></div>
         <div><label>Currency</label><input name="currency" value="${esc(s.currency||'GBP')}"></div>
         <div><label>Format</label><select name="format"><option value="FIXED_PRICE">Fixed price</option></select></div>
         <div><label>Duration</label><select name="listingDuration"><option value="GTC">Good 'Til Cancelled (GTC)</option></select></div>
-        <div class="full"><label>Merchant location key</label><input name="merchantLocationKey" value="${esc(s.merchantLocationKey||'')}" placeholder="Still needs an Inventory Location API endpoint"></div>
+        <div class="full"><label>Merchant location</label><select name="merchantLocationKey">${locationOpt}</select></div>
         <div><label>Payment policy</label><select name="paymentPolicyId">${opt(payment,'paymentPolicyId','name',s.paymentPolicyId)}</select></div>
         <div><label>Fulfilment policy</label><select name="fulfillmentPolicyId">${opt(fulfillment,'fulfillmentPolicyId','name',s.fulfillmentPolicyId)}</select></div>
         <div><label>Return policy</label><select name="returnPolicyId">${opt(returns,'returnPolicyId','name',s.returnPolicyId)}</select></div>
