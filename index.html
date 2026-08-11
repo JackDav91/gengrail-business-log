@@ -1342,7 +1342,7 @@ window.prepareEbayFromStock=async pid=>{
      <div><div class="title" style="margin:0">EBAY LISTING PREVIEW</div><div style="font-size:11px;color:#888">${esc(p.name)} • ${esc(p.sku||'')}</div></div>
      <button type="button" class="close-ebay-draft">CLOSE</button>
    </div>
-   <div class="note">This listing is built directly from the Stock record, so you are not re-entering the product. Review the details here, then continue straight to the live eBay publishing controls.</div>
+   <div class="note">This listing is built directly from the Stock record. Review the customer-facing details, then Gengrail will automatically resolve the eBay category and card-condition metadata before taking you to publishing.</div>
    <div class="ebay-draft-photos"></div>
    <div class="ebay-draft-meta">
      <div><label>eBay title</label><input id="ed-title" maxlength="80" value="${esc(p.name)}"></div>
@@ -1363,10 +1363,15 @@ window.prepareEbayFromStock=async pid=>{
  wrap.querySelector('.close-ebay-draft').onclick=()=>wrap.remove();
  wrap.onclick=e=>{if(e.target===wrap)wrap.remove()};
  document.body.appendChild(wrap);
- wrap.querySelector('#create-ebay-draft').onclick=()=>{
+ wrap.querySelector('#create-ebay-draft').onclick=async()=>{
+   const btn=wrap.querySelector('#create-ebay-draft');
    const listPrice=Number(wrap.querySelector('#ed-price').value||0);
    if(listPrice<=0)return alert('Enter a valid eBay list price.');
    const qty=Math.max(1,Math.min(qtyAvail,parseInt(wrap.querySelector('#ed-qty').value||1,10)));
+
+   btn.disabled=true;
+   btn.textContent='CHECKING EBAY…';
+
    const listing=window.GengrailEbay.upsertFromStock({
      inventoryId:p.id,
      sku:p.sku,
@@ -1380,13 +1385,30 @@ window.prepareEbayFromStock=async pid=>{
      description:wrap.querySelector('#ed-description').value,
      status:'DRAFT'
    });
+
    p.listPrice=listPrice;
    p.ebayStatus='DRAFT';
    p.ebayListingRef=listing.id;
    save();
+
+   let resolveWarning='';
+   try{
+     if(window.GengrailEbay.resolveListingById){
+       await window.GengrailEbay.resolveListingById(listing.id);
+     }
+   }catch(err){
+     resolveWarning=String(err?.message||err);
+   }
+
    wrap.remove();
    setActiveTab('sales',true);
-   setTimeout(()=>{if(typeof placeEbayChannelInSales==='function')placeEbayChannelInSales()},0);
+   setTimeout(()=>{
+     if(typeof placeEbayChannelInSales==='function')placeEbayChannelInSales();
+     setTimeout(()=>{
+       if(window.GengrailEbay?.openDraft)window.GengrailEbay.openDraft(listing.id);
+       if(resolveWarning)alert('Draft saved. eBay metadata will retry when you prepare the listing.\n\n'+resolveWarning);
+     },80);
+   },0);
  };
 };
 window.managePhotos=async pid=>{

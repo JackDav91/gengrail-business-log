@@ -431,6 +431,15 @@
     return d;
   }
 
+
+  async function resolveListingById(id){
+    const listing=state.listings.find(x=>String(x.id)===String(id));
+    if(!listing) throw new Error('eBay draft not found.');
+    applySmartCardAspects(listing);
+    return await resolveListingFromEbay(listing);
+  }
+
+
   function policyArrays(payload){
     const p=payload?.payment?.data||{};
     const f=payload?.fulfillment?.data||{};
@@ -1071,7 +1080,7 @@
     const m=modal(`
       <h3>eBay draft details</h3>
       <div class="ge-note">${missing.length
-        ? `Local draft still needs: <b>${esc(missing.join(', '))}</b>.`
+        ? `Gengrail is still waiting for: <b>${esc(missing.join(', '))}</b>.`
         : '<b>Local listing data complete.</b> Seller policies/location and image upload will be attached by the API bridge.'}
         ${x.resolvedCategoryName?`<br><b>Resolved category:</b> ${esc(x.resolvedCategoryName)} (${esc(x.categoryId||'')})`:''}
         ${x.resolvedConditionName?`<br><b>Resolved condition:</b> ${esc(x.resolvedConditionName)} — ${esc(x.resolvedConditionValue||'')}`:''}
@@ -1081,17 +1090,22 @@
         <div><label>SKU</label><input name="sku" value="${esc(x.sku||'')}"></div>
         <div><label>List price (£)</label><input name="listPrice" type="number" min="0" step=".01" value="${num(x.listPrice).toFixed(2)}"></div>
         <div><label>Quantity</label><input name="quantity" type="number" min="1" value="${Math.max(1,num(x.quantity))}"></div>
-        <div><label>eBay leaf Category ID</label><input name="categoryId" inputmode="numeric" value="${esc(x.categoryId||'')}" placeholder="Resolved by Taxonomy API"></div>
-        <div><label>API condition</label><select name="conditionApi">
-          <option value="USED_VERY_GOOD" ${x.conditionApi==='USED_VERY_GOOD'?'selected':''}>Ungraded — USED_VERY_GOOD</option>
-          <option value="LIKE_NEW" ${x.conditionApi==='LIKE_NEW'?'selected':''}>Graded — LIKE_NEW</option>
-          <option value="NEW" ${x.conditionApi==='NEW'?'selected':''}>New — NEW</option>
+        <div class="full"><label>Condition</label><select name="conditionApi">
+          <option value="USED_VERY_GOOD" ${x.conditionApi==='USED_VERY_GOOD'?'selected':''}>Ungraded — Very Good</option>
+          <option value="LIKE_NEW" ${x.conditionApi==='LIKE_NEW'?'selected':''}>Graded</option>
+          <option value="NEW" ${x.conditionApi==='NEW'?'selected':''}>New</option>
         </select></div>
-        <div><label>Condition descriptor ID</label><input name="conditionDescriptorName" value="${esc(x.conditionDescriptorName||'')}" placeholder="e.g. Card Condition descriptor ID"></div>
-        <div><label>Descriptor value ID</label><input name="conditionDescriptorValue" value="${esc(x.conditionDescriptorValue||'')}" placeholder="Resolved by Metadata API"></div>
+        <details class="full" style="border:1px solid #333;border-radius:10px;padding:10px;background:#0b0b0b">
+          <summary style="cursor:pointer;font-weight:800">eBay technical metadata ${x.categoryId && (x.conditionApi==='NEW' || (x.conditionDescriptorName && x.conditionDescriptorValue)) ? '✓' : ''}</summary>
+          <div class="ge-form" style="margin-top:10px">
+            <div><label>Leaf category ID</label><input name="categoryId" inputmode="numeric" value="${esc(x.categoryId||'')}" readonly></div>
+            <div><label>Condition descriptor ID</label><input name="conditionDescriptorName" value="${esc(x.conditionDescriptorName||'')}" readonly></div>
+            <div><label>Descriptor value ID</label><input name="conditionDescriptorValue" value="${esc(x.conditionDescriptorValue||'')}" readonly></div>
+          </div>
+        </details>
         <div class="full"><label>Item specifics</label><textarea name="aspects" placeholder="One per line, for example&#10;Game: Pokémon TCG&#10;Card Name: Pikachu&#10;Set: Base Set">${esc(aspectsText(x.aspects||{}))}</textarea></div>
         <div class="full"><label>Description</label><textarea name="description">${esc(x.description||'')}</textarea></div>
-        <button class="ge-btn full" type="button" id="ge-resolve-ebay">AUTO-RESOLVE EBAY FIELDS</button>
+        <button class="ge-btn alt full" type="button" id="ge-resolve-ebay">REFRESH EBAY METADATA</button>
         <button class="ge-btn full" type="submit">SAVE EBAY DETAILS</button>
       </form>
       <button class="ge-btn alt" id="ge-view-payload" style="margin-top:8px">VIEW API PAYLOAD</button>
@@ -1141,7 +1155,7 @@
         alert('eBay listing resolver complete.\n\n'+summary);
       }catch(err){
         btn.disabled=false;
-        btn.textContent='AUTO-RESOLVE EBAY FIELDS';
+        btn.textContent='REFRESH EBAY METADATA';
         alert('Listing resolver failed:\n\n'+String(err?.message||err));
       }
     };
@@ -1368,6 +1382,8 @@
     feedImportedOrder,
     prepareLiveListing,
     publishLiveListing,
+    resolveListingById,
+    openDraft:editDraftForm,
     applySmartCardAspects,
     render,
     storageKey:EBAY_KEY
