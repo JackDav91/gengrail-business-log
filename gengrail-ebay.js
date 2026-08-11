@@ -1,5 +1,5 @@
 /*
- GENGRAIL TCG — eBay Channel v6 — LIVE PRODUCTION SYNC
+ GENGRAIL TCG — eBay Channel v7 — LISTING RESOLVER
  Exact integration for the current Gengrail Business Log.
  ---------------------------------------------------------
  Main app storage key: gengrailBizV1
@@ -25,7 +25,7 @@
   const esc = (v='') => String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 
   const defaults = {
-    version: 6,
+    version: 7,
     connection: { status:'awaiting_authorisation', sellerName:'', lastSync:null, lastError:'' },
     listings: [],
     orders: [],
@@ -192,6 +192,56 @@
     try{ data=await res.json(); }catch{}
     if(!res.ok) throw new Error((data&&data.message)||(`HTTP ${res.status}`));
     return data;
+  }
+
+  function listingResolverQuery(listing){
+    const a=listing?.aspects||{};
+    const values=key=>{
+      const v=a[key];
+      return Array.isArray(v)?v.join(' '):String(v||'');
+    };
+    return [
+      values('Game') || 'Pokémon TCG',
+      listing?.title||'',
+      values('Set'),
+      values('Card Name'),
+      'trading card single'
+    ].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+  }
+
+  async function resolveListingFromEbay(listing){
+    if(!listing) throw new Error('Listing not found.');
+    const q=listingResolverQuery(listing);
+    const path='/api/ebay/resolve-listing?marketplace_id='+
+      encodeURIComponent(state.settings.marketplaceId||'EBAY_GB')+
+      '&condition_api='+encodeURIComponent(listing.conditionApi||apiCondition(listing.condition))+
+      '&q='+encodeURIComponent(q);
+
+    const d=await liveGet(path);
+    if(!d?.ok) throw new Error(d?.message||'eBay listing resolver failed.');
+
+    if(d?.category?.categoryId){
+      listing.categoryId=String(d.category.categoryId);
+      listing.resolvedCategoryName=String(d.category.categoryName||'');
+    }
+
+    if(d?.condition){
+      const c=d.condition;
+      if(c.conditionApi) listing.conditionApi=String(c.conditionApi);
+      if(c.descriptorNameId) listing.conditionDescriptorName=String(c.descriptorNameId);
+      if(c.descriptorValueId) listing.conditionDescriptorValue=String(c.descriptorValueId);
+      listing.resolvedConditionName=String(c.descriptorName||'');
+      listing.resolvedConditionValue=String(c.descriptorValue||'');
+      listing.resolverMessage=String(c.message||'');
+    }
+
+    listing.requiredEbayAspects=Array.isArray(d.requiredAspects)?d.requiredAspects:[];
+    listing.resolverReady=!!d.ready;
+    listing.resolvedAt=nowISO();
+    listing.updatedAt=nowISO();
+    saveState();
+    render();
+    return d;
   }
 
   function policyArrays(payload){
@@ -704,7 +754,7 @@
   }
 
   function exportData(){
-    return {module:'gengrail-ebay',version:6,exportedAt:nowISO(),data:clone(state)};
+    return {module:'gengrail-ebay',version:7,exportedAt:nowISO(),data:clone(state)};
   }
 
   function importData(payload){
@@ -835,7 +885,10 @@
       <h3>eBay draft details</h3>
       <div class="ge-note">${missing.length
         ? `Local draft still needs: <b>${esc(missing.join(', '))}</b>.`
-        : '<b>Local listing data complete.</b> Seller policies/location and image upload will be attached by the API bridge.'}</div>
+        : '<b>Local listing data complete.</b> Seller policies/location and image upload will be attached by the API bridge.'}
+        ${x.resolvedCategoryName?`<br><b>Resolved category:</b> ${esc(x.resolvedCategoryName)} (${esc(x.categoryId||'')})`:''}
+        ${x.resolvedConditionName?`<br><b>Resolved condition:</b> ${esc(x.resolvedConditionName)} — ${esc(x.resolvedConditionValue||'')}`:''}
+      </div>
       <form class="ge-form" id="ge-edit-draft">
         <div class="full"><label>eBay title</label><input name="title" value="${esc(x.title||'')}" maxlength="80"></div>
         <div><label>SKU</label><input name="sku" value="${esc(x.sku||'')}"></div>
@@ -851,6 +904,7 @@
         <div><label>Descriptor value ID</label><input name="conditionDescriptorValue" value="${esc(x.conditionDescriptorValue||'')}" placeholder="Resolved by Metadata API"></div>
         <div class="full"><label>Item specifics</label><textarea name="aspects" placeholder="One per line, for example&#10;Game: Pokémon TCG&#10;Card Name: Pikachu&#10;Set: Base Set">${esc(aspectsText(x.aspects||{}))}</textarea></div>
         <div class="full"><label>Description</label><textarea name="description">${esc(x.description||'')}</textarea></div>
+        <button class="ge-btn full" type="button" id="ge-resolve-ebay">AUTO-RESOLVE EBAY FIELDS</button>
         <button class="ge-btn full" type="submit">SAVE EBAY DETAILS</button>
       </form>
       <button class="ge-btn alt" id="ge-view-payload" style="margin-top:8px">VIEW API PAYLOAD</button>
@@ -865,6 +919,39 @@
       x.aspects=parseAspects(d.aspects);x.description=d.description.trim();x.updatedAt=nowISO();
       saveState();render();m.remove();
     };
+
+    m.querySelector('#ge-resolve-ebay').onclick=async()=>{
+      const btn=m.querySelector('#ge-resolve-ebay');
+      btn.disabled=true;
+      btn.textContent='RESOLVING WITH EBAY…';
+      try{
+        // Preserve any edits currently visible in the form before resolving.
+        const d=Object.fromEntries(new FormData(f).entries());
+        x.title=d.title.trim();x.sku=d.sku.trim();x.listPrice=num(d.listPrice);
+        x.quantity=Math.max(1,parseInt(d.quantity||1,10));
+        x.conditionApi=d.conditionApi;
+        x.aspects=parseAspects(d.aspects);
+        x.description=d.description.trim();
+
+        const result=await resolveListingFromEbay(x);
+        m.remove();
+        editDraftForm(id);
+
+        const summary=[
+          result?.category?.categoryName ? 'Category: '+result.category.categoryName : '',
+          result?.condition?.descriptorName && result?.condition?.descriptorValue
+            ? result.condition.descriptorName+': '+result.condition.descriptorValue : '',
+          result?.ready ? 'API resolver ready ✓' : (result?.condition?.message||'More listing data is required.')
+        ].filter(Boolean).join('\n');
+
+        alert('eBay listing resolver complete.\n\n'+summary);
+      }catch(err){
+        btn.disabled=false;
+        btn.textContent='AUTO-RESOLVE EBAY FIELDS';
+        alert('Listing resolver failed:\n\n'+String(err?.message||err));
+      }
+    };
+
     m.querySelector('#ge-view-payload').onclick=()=>{
       const payload=apiPayload(x);
       const p=modal(`<h3>Inventory API payload preview</h3><div class="ge-note">Preview only — no eBay request is sent. Local device photos still need to be uploaded/hosted before the final imageUrls can be supplied.</div><pre style="white-space:pre-wrap;overflow:auto;background:#080808;border:1px solid #333;border-radius:8px;padding:10px;font-size:11px">${esc(JSON.stringify(payload,null,2))}</pre>`);
