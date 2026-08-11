@@ -8,7 +8,7 @@
 <meta content="Gengrail TCG" name="apple-mobile-web-app-title"/>
 <link href="manifest.json" rel="manifest"/>
 <link href="icon-512.png" rel="apple-touch-icon" sizes="512x512"/><title>Gengrail TCG Business Log</title>
-<meta content="v19.2.1-background-fixed" name="gengrail-build"/>
+<meta content="v19.3-ebay-production-status" name="gengrail-build"/>
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
 
@@ -2124,6 +2124,75 @@ window.addEventListener('load',()=>{
   }else{
     applyGengrailBackdrop();
   }
+})();
+</script>
+
+<script id="gengrailEbayProductionBridge">
+(function(){
+  const EBAY_BACKEND='https://gengrail-ebay-backend.gengrailtcg.workers.dev';
+  const STATUS_URL=EBAY_BACKEND+'/api/ebay/status';
+
+  function setEbayBadge(state, detail){
+    const nodes=[...document.querySelectorAll('.ge-badge,.badge')];
+    const badge=nodes.find(el=>/awaiting ebay api|ebay connected|ebay connection/i.test((el.textContent||'').trim()));
+    if(!badge)return false;
+    if(state==='connected'){
+      badge.textContent='EBAY CONNECTED ✓';
+      badge.style.color='#82dda0';
+      badge.style.borderColor='#3d8751';
+      badge.style.background='#0d1a11';
+      badge.title=detail||'Production eBay account connected';
+    }else if(state==='checking'){
+      badge.textContent='CHECKING EBAY…';
+      badge.style.color='#ffd36f';
+      badge.style.borderColor='#8a6c25';
+      badge.style.background='#171107';
+    }else{
+      badge.textContent='EBAY CONNECTION ISSUE';
+      badge.style.color='#ff8c8c';
+      badge.style.borderColor='#7c3a3a';
+      badge.style.background='#1b0d0d';
+      badge.title=detail||'Could not confirm the production eBay connection';
+    }
+    return true;
+  }
+
+  async function refreshEbayConnection(){
+    setEbayBadge('checking');
+    try{
+      const res=await fetch(STATUS_URL,{method:'GET',cache:'no-store',headers:{Accept:'application/json'}});
+      if(!res.ok)throw new Error('HTTP '+res.status);
+      const data=await res.json();
+      const live=data && data.ok===true && data.environment==='production' && data.connected===true && data.accessTokenUsable===true;
+      if(live){
+        const expiry=data.accessExpiresAt ? 'Access token expires '+data.accessExpiresAt : 'Production eBay account connected';
+        setEbayBadge('connected',expiry);
+        document.documentElement.dataset.ebayConnected='true';
+      }else{
+        setEbayBadge('error','Backend responded but the production token is not usable.');
+        document.documentElement.dataset.ebayConnected='false';
+      }
+      window.GengrailEbayConnectionStatus=data;
+      return data;
+    }catch(err){
+      console.warn('Gengrail eBay status check failed:',err);
+      setEbayBadge('error',String(err&&err.message||err));
+      document.documentElement.dataset.ebayConnected='false';
+      return null;
+    }
+  }
+
+  window.GengrailEbayBackend={baseUrl:EBAY_BACKEND,status:refreshEbayConnection};
+
+  const observer=new MutationObserver(()=>{
+    if(document.querySelector('.ge-badge')){
+      observer.disconnect();
+      refreshEbayConnection();
+    }
+  });
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+  window.addEventListener('load',()=>setTimeout(refreshEbayConnection,500));
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshEbayConnection();});
 })();
 </script>
 
