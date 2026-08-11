@@ -8,7 +8,7 @@
 <meta content="Gengrail TCG" name="apple-mobile-web-app-title"/>
 <link href="manifest.json" rel="manifest"/>
 <link href="icon-512.png" rel="apple-touch-icon" sizes="512x512"/><title>Gengrail TCG Business Log</title>
-<meta content="v19.5.0-ebay-auto-sales" name="gengrail-build"/>
+<meta content="v19.5.1-orders-attention" name="gengrail-build"/>
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
 
@@ -799,6 +799,20 @@ body.inner-page #gengrail-ebay-channel .ge-badge{
 .group-menu button .gsub{display:block;color:#9d9992;font-size:10px;font-weight:700;margin-top:4px;line-height:1.3}
 .group-menu button .garrow{color:#e8aa10;font-size:31px;font-weight:900;text-align:right}
 
+/* Orders attention state — action required */
+.group-menu button.orders-attention{
+  border-color:#4b9a63 !important;
+  box-shadow:
+    0 0 12px rgba(82,198,119,.34),
+    0 0 28px rgba(82,198,119,.13),
+    inset 0 0 18px rgba(82,198,119,.035) !important;
+}
+.group-menu button.orders-attention .gicon svg{
+  stroke:#78d795 !important;
+  filter:drop-shadow(0 0 5px rgba(82,198,119,.32));
+}
+.group-menu button.orders-attention .gsub{color:#78d795}
+
 /* mobile order cards */
 .order-cards{display:none}
 .order-card{
@@ -968,7 +982,7 @@ body.inner-page .kpi,
 <div class="group-menu">
 <button data-go="stock" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><rect height="18" rx="2" width="14" x="5" y="3"></rect><path d="M8 7h8"></path><path d="M8 11h8"></path><path d="M8 15h5"></path></svg></span><span><span class="glabel">Stock</span><span class="gsub">Catalogue, view and manage inventory</span></span><span class="garrow">›</span></button>
 <button data-go="storage" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z"></path><circle cx="12" cy="10" r="2"></circle></svg></span><span><span class="glabel">Locations</span><span class="gsub">Warehouse storage and stock placement</span></span><span class="garrow">›</span></button>
-<button data-go="orders" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M6 4h12l2 4-8 4-8-4 2-4Z"></path><path d="M4 8v9l8 4 8-4V8"></path><path d="m9 15 2 2 4-4"></path></svg></span><span><span class="glabel">Orders</span><span class="gsub">Pick, pack and dispatch customer orders</span></span><span class="garrow">›</span></button>
+<button data-go="orders" id="operationsOrdersTile" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M6 4h12l2 4-8 4-8-4 2-4Z"></path><path d="M4 8v9l8 4 8-4V8"></path><path d="m9 15 2 2 4-4"></path></svg></span><span><span class="glabel">Orders</span><span class="gsub" id="operationsOrdersSub">Pick, pack and dispatch customer orders</span></span><span class="garrow">›</span></button>
 <button data-go="sales" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M5 19 10 14l3 3 6-7"></path><path d="M15 10h4v4"></path><path d="M6 4h5"></path><path d="M8.5 4v8"></path><path d="M6.5 7.5h3.7"></path></svg></span><span><span class="glabel">Sales</span><span class="gsub">Sales history and manual sales</span></span><span class="garrow">›</span></button>
 </div>
 </div>
@@ -1289,6 +1303,13 @@ function migrateWarehouse(){
   if(!p.inventoryStatus)p.inventoryStatus=left(p)>0?'IN_STOCK':'SOLD';
   p.qrData='GENGRAIL:SKU:'+p.sku;
  });
+ // eBay-fed sales use the same fulfilment queue as manual sales. Correct the
+ // order channel from the linked sale so existing and future eBay orders are
+ // presented accurately throughout Operations.
+ db.orders.forEach(o=>{
+  const sale=db.sales.find(s=>s.id===o.saleId);
+  if(sale&&sale.source==='EBAY')o.channel='eBay';
+ });
 }
 migrateWarehouse();
 const PHOTO_DB='gengrailPhotosV1', PHOTO_STORE='photos', SAFETY_STORE='businessSafety', SAFETY_RECORD='lastGoodBusinessDB';
@@ -1575,6 +1596,11 @@ function render(){
    const waiting=db.orders.filter(o=>o.status!=='DISPATCHED').length;
    $('homeSnapOrderSub').textContent=waiting?`${waiting} active`:(db.orders.length?'All dispatched':'No active picks');
  }
+ const actionableOrders=db.orders.filter(o=>o.status!=='DISPATCHED').length;
+ if($('operationsOrdersTile'))$('operationsOrdersTile').classList.toggle('orders-attention',actionableOrders>0);
+ if($('operationsOrdersSub'))$('operationsOrdersSub').textContent=actionableOrders
+   ? `${actionableOrders} order${actionableOrders===1?'':'s'} ready for fulfilment`
+   : 'Pick, pack and dispatch customer orders';
  $('cashnote').innerHTML=`Confirmed startup expenses currently recorded: <b>${m(startupExps())}</b>. Estimated company cash: <b>${m(cash)}</b>. After reserving <b>${m(ct)}</b> for Corporation Tax, estimated buying capital is <b>${m(avail)}</b>. Packaging allocations recorded against individual sales total <b>${m(packagingAlloc())}</b> but are not deducted again from accounting profit because actual packaging purchases are recorded in Expenses.`;
 
  $('pbody').innerHTML=db.purchases.filter(p=>left(p)>0).map(p=>`<tr><td>${esc(p.name)}</td><td class="mono">${esc(p.sku||'')}</td><td class="mono">${esc(p.purchaseId||'')}</td><td><b>${esc(p.location||'UNALLOCATED')}</b></td><td><span class="status-pill ${p.inventoryStatus==='IN_STOCK'?'stock':p.inventoryStatus==='PICK_REQUIRED'?'pick':'done'}">${esc((p.inventoryStatus||'IN_STOCK').replaceAll('_',' '))}</span></td><td>${esc(p.condition||'Ungraded')}</td><td>${left(p)}</td><td>${m(uc(p))}</td><td>${p.listPrice?m(p.listPrice):'—'}</td><td><div class="stock-badges"><span class="badge ebay">${esc((p.ebayStatus||'NOT_LISTED').replace('_',' '))}</span><button class="stock-ebay-btn ${p.ebayStatus==='DRAFT'?'alt':''}" onclick="prepareEbayFromStock('${p.id}')">${p.ebayStatus==='DRAFT'?'EDIT DRAFT':'LIST ON EBAY'}</button></div></td><td><button onclick="managePhotos('${p.id}')">${p.photoCount||0} photo${(p.photoCount||0)===1?'':'s'}</button></td><td>${esc(p.source)}</td><td><button onclick="quickMove('${p.id}')">MOVE</button> <button onclick="printStockLabel('${p.id}')">LABEL</button> <button onclick="dp('${p.id}')">DELETE</button></td></tr>`).join('');
