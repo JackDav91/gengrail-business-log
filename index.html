@@ -8,7 +8,7 @@
 <meta content="Gengrail TCG" name="apple-mobile-web-app-title"/>
 <link href="manifest.json" rel="manifest"/>
 <link href="icon-512.png" rel="apple-touch-icon" sizes="512x512"/><title>Gengrail TCG Business Log</title>
-<meta content="v19.3.1-ebay-status-fix" name="gengrail-build"/>
+<meta content="v19.3.2-ebay-inventory-location" name="gengrail-build"/>
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
 
@@ -1781,7 +1781,154 @@ window.advanceOrderAnimated=oid=>{
  setTimeout(()=>window.advanceOrder(oid),150);
 };
 
-function labelWindow(title,code,sub){const w=window.open('','_blank','width=420,height=300');if(!w)return alert('Allow pop-ups to print labels.');w.document.write(`<html><head><title>${esc(title)}</title><style>body{font-family:Arial;text-align:center;padding:24px}.sku{font-size:30px;font-weight:900}.data{font-family:monospace;margin-top:12px;font-size:13px}</style></head><body><div>GENGRAIL TCG</div><div class="sku">${esc(code)}</div><div>${esc(sub||'')}</div><div class="data">${esc(title)}</div><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()}
+function labelWindow(title,code,sub){const w=window.open('','_blank','width=420,height=300');if(!w)return alert('Allow pop-ups to print labels.');w.document.write(`<html><head><title>${esc(title)}</title><style>body{font-family:Arial;text-align:center;padding:24px}.sku{font-size:30px;font-weight:900}.data{font-family:monospace;margin-top:12px;font-size:13px}</style></head><body><div>GENGRAIL TCG</div><div class="sku">${esc(code)}</div><div>${esc(sub||'')}</div><div class="data">${esc(title)}</div><script>window.onload=()=>window.print()<\/script>
+<script id="gengrailEbayInventoryLocationBridge">
+(function(){
+  const BACKEND='https://gengrail-ebay-backend.gengrailtcg.workers.dev';
+  const LOCATION_KEY='GENGRAIL_UK';
+
+  function findMerchantInput(){
+    return [...document.querySelectorAll('input')].find(el=>{
+      const ph=(el.getAttribute('placeholder')||'').toLowerCase();
+      const value=String(el.value||'').toLowerCase();
+      const aria=(el.getAttribute('aria-label')||'').toLowerCase();
+      return ph.includes('inventory location') ||
+             ph.includes('merchant location') ||
+             value.includes('still needs an inventory location') ||
+             aria.includes('merchant location');
+    }) || null;
+  }
+
+  function findMerchantBlock(input){
+    if(!input)return null;
+    let node=input.parentElement;
+    for(let i=0;i<4 && node;i++,node=node.parentElement){
+      if((node.textContent||'').toLowerCase().includes('merchant location'))return node;
+    }
+    return input.parentElement;
+  }
+
+  function setMerchantKey(input,key){
+    input.disabled=false;
+    input.readOnly=false;
+    input.value=key;
+    input.setAttribute('value',key);
+    input.dispatchEvent(new Event('input',{bubbles:true}));
+    input.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+
+  async function readLocations(){
+    const res=await fetch(BACKEND+'/api/ebay/inventory-locations',{
+      method:'GET',cache:'no-store',headers:{Accept:'application/json'}
+    });
+    const data=await res.json().catch(()=>null);
+    if(!res.ok || !data?.ok)throw new Error(data?.message||('HTTP '+res.status));
+    return Array.isArray(data?.data?.locations)?data.data.locations:[];
+  }
+
+  async function ensureLocation(input,button,status){
+    button.disabled=true;
+    const original=button.textContent;
+    button.textContent='CHECKING EBAY…';
+    status.textContent='';
+    try{
+      const existing=await readLocations();
+      if(existing.some(x=>String(x?.merchantLocationKey||'').toUpperCase()===LOCATION_KEY)){
+        setMerchantKey(input,LOCATION_KEY);
+        status.textContent='✓ Gengrail UK inventory location already exists.';
+        status.style.color='#82dda0';
+        button.textContent='LOCATION READY ✓';
+        return;
+      }
+
+      if(!confirm('Create GENGRAIL_UK as the live eBay inventory location for Gengrail TCG?')){
+        button.disabled=false;
+        button.textContent=original;
+        return;
+      }
+
+      button.textContent='CREATING LOCATION…';
+      const res=await fetch(BACKEND+'/api/ebay/inventory-location',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body:JSON.stringify({
+          merchantLocationKey:LOCATION_KEY,
+          name:'Gengrail TCG UK',
+          locationTypes:['WAREHOUSE'],
+          merchantLocationStatus:'ENABLED',
+          location:{address:{postalCode:'SO53 4LS',country:'GB'}}
+        })
+      });
+      const data=await res.json().catch(()=>null);
+      if(!res.ok || !data?.ok){
+        throw new Error(
+          data?.data?.errors?.[0]?.longMessage ||
+          data?.data?.errors?.[0]?.message ||
+          data?.message ||
+          ('HTTP '+res.status)
+        );
+      }
+
+      setMerchantKey(input,LOCATION_KEY);
+      status.textContent='✓ Inventory location created. Merchant location key: '+LOCATION_KEY;
+      status.style.color='#82dda0';
+      button.textContent='LOCATION CREATED ✓';
+    }catch(err){
+      console.error('Gengrail inventory location setup failed:',err);
+      status.textContent='Could not create location: '+String(err?.message||err);
+      status.style.color='#ff8c8c';
+      button.disabled=false;
+      button.textContent=original;
+    }
+  }
+
+  function enhancePublishingSetup(){
+    const input=findMerchantInput();
+    if(!input)return;
+    const block=findMerchantBlock(input);
+    if(!block || block.querySelector('[data-gengrail-location-setup]'))return;
+
+    const wrap=document.createElement('div');
+    wrap.setAttribute('data-gengrail-location-setup','true');
+    wrap.style.marginTop='10px';
+
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='ge-btn';
+    btn.textContent='CREATE GENGRAIL UK LOCATION';
+    btn.style.width='100%';
+    btn.style.minHeight='48px';
+    btn.style.borderRadius='12px';
+
+    const status=document.createElement('div');
+    status.style.marginTop='8px';
+    status.style.fontSize='11px';
+    status.style.fontWeight='800';
+    status.style.lineHeight='1.4';
+    status.style.color='#aaa';
+
+    btn.onclick=()=>ensureLocation(input,btn,status);
+    wrap.append(btn,status);
+    block.appendChild(wrap);
+
+    readLocations().then(locations=>{
+      if(locations.some(x=>String(x?.merchantLocationKey||'').toUpperCase()===LOCATION_KEY)){
+        setMerchantKey(input,LOCATION_KEY);
+        status.textContent='✓ Gengrail UK inventory location detected.';
+        status.style.color='#82dda0';
+        btn.textContent='LOCATION READY ✓';
+        btn.disabled=true;
+      }
+    }).catch(()=>{});
+  }
+
+  const observer=new MutationObserver(enhancePublishingSetup);
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+  window.addEventListener('load',()=>setTimeout(enhancePublishingSetup,700));
+})();
+</script>
+
+</body></html>`);w.document.close()}
 window.printStockLabel=pid=>{const p=db.purchases.find(x=>x.id===pid);if(p)labelWindow(p.qrData||('GENGRAIL:SKU:'+p.sku),p.sku,p.name)};
 window.printLocationLabel=code=>{const meta=boxMeta(code),w=window.open('','_blank','width=500,height=360');if(!w)return alert('Allow pop-ups to print labels.');const sub=meta?`Box ${meta.box} · Row ${meta.row} · Pos ${meta.pos}`:'Storage location';w.document.write(`<html><head><title>${esc(code)} location label</title><style>@page{size:50mm 30mm;margin:0}html,body{margin:0;padding:0;width:50mm;height:30mm}body{font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center}.label{width:50mm;height:30mm;box-sizing:border-box;padding:2.5mm;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}.brand{font-size:2.4mm;font-weight:900}.code{font-size:11mm;font-weight:1000;line-height:1}.sub{font-size:2.3mm;margin-top:1mm}.data{font-family:monospace;font-size:1.8mm;margin-top:1mm}</style></head><body><div class="label"><div class="brand">♛ GENGRAIL TCG</div><div class="code">${esc(code)}</div><div class="sub">${esc(sub)}</div><div class="data">GENGRAIL:LOC:${esc(code)}</div></div><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()};
 if($('scanLookup'))$('scanLookup').onclick=()=>{let v=String($('scanInput').value||'').trim().toUpperCase();v=v.replace('GENGRAIL:SKU:','');const p=db.purchases.find(x=>String(x.sku||'').toUpperCase()===v);$('scanResult').innerHTML=p?`<b>${esc(p.name)}</b><br>SKU <span class="mono">${esc(p.sku)}</span> · Location <b>${esc(p.location||'UNALLOCATED')}</b> · Status ${esc((p.inventoryStatus||'IN_STOCK').replaceAll('_',' '))}`:'No matching SKU found.'};
