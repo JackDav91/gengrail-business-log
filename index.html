@@ -8,7 +8,7 @@
 <meta content="Gengrail TCG" name="apple-mobile-web-app-title"/>
 <link href="manifest.json" rel="manifest"/>
 <link href="icon-512.png" rel="apple-touch-icon" sizes="512x512"/><title>Gengrail TCG Business Log</title>
-<meta content="v19.8.0-ai-raw-single-recognition" name="gengrail-build"/>
+<meta content="v19.8.1-ai-raw-single-recognition" name="gengrail-build"/>
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
 
@@ -1075,11 +1075,11 @@ body.inner-page .kpi,
 <div class="note" style="margin-top:0">Choose how you want to start. Camera and photo intake are the foundation for Gengrail recognition; you can review every field before anything is added to Stock.</div>
 <div class="product-intake-grid">
 <button class="intake-action" id="startCameraIntake" type="button"><span class="intake-icon">⌁</span><b>SCAN CARD</b><small>Use the iPhone camera</small></button>
-<button class="intake-action" id="startPhotoIntake" type="button"><span class="intake-icon">▧</span><b>IMPORT PHOTO</b><small>Photo Library / Files</small></button>
+<button class="intake-action" id="startPhotoIntake" type="button"><span class="intake-icon">▧</span><b>IMPORT PHOTO</b><small>Choose an existing card image</small></button>
 <button class="intake-action" id="startManualIntake" type="button"><span class="intake-icon">＋</span><b>ENTER MANUALLY</b><small>Open the full stock sheet</small></button>
 </div>
 <input accept="image/*" capture="environment" id="pcamera" style="display:none" type="file"/>
-<div class="recognition-ready"><span>AI PRODUCT ENGINE</span><b>Raw single recognition ready</b><small>Scan or import the front of a Pokémon card. Gengrail will identify the card, verify the match where possible and pre-fill the Stock sheet for your approval.</small></div>
+<div class="recognition-ready"><span>AI PRODUCT ENGINE</span><b>English + Japanese raw single recognition ready</b><small>Scan or import the front of a Pokémon card. Gengrail will identify the card, detect language, verify English matches where possible and pre-fill the Stock sheet for your approval.</small></div>
 <div class="ai-recognition-panel" id="aiRecognitionPanel" hidden></div>
 </div>
 <div class="panel" hidden id="stockEntryPanel"><div class="title">LOG A PURCHASE</div><div class="grid">
@@ -1485,6 +1485,8 @@ if($('pcamera'))$('pcamera').onchange=()=>{
  pendingCameraFiles=[...($('pcamera').files||[])];
  previewPickedPhotos();
  openStockEntry('camera');
+ const file=pendingCameraFiles[0];
+ if(file)recogniseCardFile(file);
 };
 
 window.prepareEbayFromStock=async pid=>{
@@ -1968,6 +1970,19 @@ function clearAiRecognition(clearFields=true){
    if($('pc'))$('pc').value='Raw Single';
  }
 }
+function resetRecognitionForNewIntake(){
+ recognitionSessionId++;
+ recognitionBusy=false;
+ currentRecognition=null;
+ setAiRecognitionPanel('idle');
+ if($('pn'))$('pn').value='';
+ if($('pc'))$('pc').value='Raw Single';
+ if($('pcondition'))$('pcondition').value='Ungraded';
+ if($('pphotos'))$('pphotos').value='';
+ if($('pcamera'))$('pcamera').value='';
+ pendingCameraFiles=[];
+ if($('ppreview'))$('ppreview').innerHTML='';
+}
 function titleFromRecognition(r){
  return [r?.cardName,r?.cardNumber,r?.setName].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
 }
@@ -2001,8 +2016,11 @@ async function fileToRecognitionDataURL(file){
 async function recogniseCardFile(file){
  if(!file || recognitionBusy)return;
  const mySession=++recognitionSessionId;
- recognitionBusy=true;
+ currentRecognition=null;
+ if($('pn'))$('pn').value='';
+ if($('pc'))$('pc').value='Raw Single';
  setAiRecognitionPanel('loading');
+ recognitionBusy=true;
  try{
    const image=await fileToRecognitionDataURL(file);
    const controller=new AbortController();
@@ -2109,8 +2127,8 @@ async function startDirectCamera(){
    },'image/jpeg',0.92);
  };
 }
-if($('startCameraIntake'))$('startCameraIntake').onclick=startDirectCamera;
-if($('startPhotoIntake'))$('startPhotoIntake').onclick=()=>{currentIntakeMode='photo';openStockEntry('photo');setTimeout(()=>$('pphotos')?.click(),50)};
+if($('startCameraIntake'))$('startCameraIntake').onclick=()=>{resetRecognitionForNewIntake();startDirectCamera()};
+if($('startPhotoIntake'))$('startPhotoIntake').onclick=()=>{resetRecognitionForNewIntake();currentIntakeMode='photo';openStockEntry('photo');setTimeout(()=>$('pphotos')?.click(),50)};
 if($('pphotos'))$('pphotos').onchange=()=>{
  previewPickedPhotos();
  const files=[...($('pphotos').files||[])];
@@ -2123,7 +2141,7 @@ $('addp').onclick=async()=>{
  const pid=id(), files=currentIntakeFiles();
  const sku=$('psku').value.trim()||nextSku();
  const purchaseId=$('ppurchaseid').value.trim()||nextPurchaseId();
- const p={id:pid,name:$('pn').value.trim(),cat:$('pc').value,date:$('pd').value,q:Math.max(1,Math.floor(n('pq'))),cost:n('pp'),source:$('ps').value.trim(),condition:$('pcondition').value,sku,purchaseId,location:$('plocation').value||'UNALLOCATED',inventoryStatus:$('pstatus').value||'IN_STOCK',qrData:'GENGRAIL:SKU:'+sku,listPrice:n('plist'),ebayStatus:$('pebaystatus').value,ebayItemId:'',ebayUrl:'',photoCount:0,notes:$('pnotes').value,productMeta:currentRecognition?{game:currentRecognition.game||'Pokémon TCG',cardName:currentRecognition.cardName||'',cardNumber:currentRecognition.cardNumber||'',setName:currentRecognition.setName||'',language:currentRecognition.language||'English',recognitionConfidence:Number(currentRecognition.confidence||0),recognitionVerified:!!currentRecognition.verified,recognitionSource:'workers_ai'}:null};
+ const p={id:pid,name:$('pn').value.trim(),cat:$('pc').value,date:$('pd').value,q:Math.max(1,Math.floor(n('pq'))),cost:n('pp'),source:$('ps').value.trim(),condition:$('pcondition').value,sku,purchaseId,location:$('plocation').value||'UNALLOCATED',inventoryStatus:$('pstatus').value||'IN_STOCK',qrData:'GENGRAIL:SKU:'+sku,listPrice:n('plist'),ebayStatus:$('pebaystatus').value,ebayItemId:'',ebayUrl:'',photoCount:0,notes:$('pnotes').value,productMeta:currentRecognition?{game:currentRecognition.game||'Pokémon TCG',cardName:currentRecognition.cardName||'',cardNumber:currentRecognition.cardNumber||'',setName:currentRecognition.setName||'',language:currentRecognition.language||'',recognitionConfidence:Number(currentRecognition.confidence||0),recognitionVerified:!!currentRecognition.verified,recognitionSource:'workers_ai'}:null};
  db.purchases.push(p);
  try{p.photoCount=await addPhotos(pid,files)}catch(e){console.error(e);alert('Stock was saved, but one or more photos could not be stored on this device.');}
  ['pn','pp','ps','psku','ppurchaseid','plist','pnotes'].forEach(x=>$(x).value='');$('pq').value=1;$('pcondition').value='Ungraded';$('pebaystatus').value='NOT_LISTED';$('pphotos').value='';if($('pcamera'))$('pcamera').value='';pendingCameraFiles=[];currentRecognition=null;$('ppreview').innerHTML='';save();closeStockEntry();
