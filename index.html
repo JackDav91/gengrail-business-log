@@ -8,7 +8,7 @@
 <meta content="Gengrail TCG" name="apple-mobile-web-app-title"/>
 <link href="manifest.json" rel="manifest"/>
 <link href="icon-512.png" rel="apple-touch-icon" sizes="512x512"/><title>Gengrail TCG Business Log</title>
-<meta content="v19.7.0-product-engine-foundation" name="gengrail-build"/>
+<meta content="v19.7.1-product-engine-polish" name="gengrail-build"/>
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
 
@@ -980,6 +980,43 @@ body.inner-page .kpi,
 .product-location-callout{margin-top:12px;border-left:4px solid var(--crown);padding:10px 12px;background:#0a0a0a;color:#bbb}
 @media(max-width:620px){.product-intake-grid{grid-template-columns:1fr}.intake-action{min-height:84px}.product-detail-grid{grid-template-columns:1fr 1fr}.product-result-photos{grid-template-columns:repeat(3,1fr)}}
 
+
+/* ---------- PRODUCT ENGINE v19.7.1 POLISH ---------- */
+.camera-capture-modal{
+  position:fixed;inset:0;z-index:100500;background:#000;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:max(16px,env(safe-area-inset-top)) 16px max(20px,env(safe-area-inset-bottom));
+}
+.camera-capture-shell{
+  width:min(720px,100%);display:flex;flex-direction:column;gap:12px;
+}
+.camera-capture-video{
+  width:100%;max-height:72vh;object-fit:contain;background:#050505;
+  border:1px solid #3a3a3a;border-radius:18px;
+}
+.camera-capture-help{
+  color:#aaa;text-align:center;font-size:12px;font-weight:700;
+}
+.camera-capture-actions{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+}
+.camera-capture-actions button{
+  min-height:54px;border-radius:14px;font-weight:950;font-size:15px;
+}
+.camera-capture-actions .capture{
+  background:linear-gradient(180deg,var(--crown-hi),var(--crown));
+  color:#0b0b0b;border:1px solid var(--crown-hi);
+}
+.camera-capture-actions .cancel{
+  background:#222;color:#fff;border:1px solid #555;
+}
+.product-result-status.sold{
+  color:var(--r)!important;border-color:#7c3a3a!important;
+}
+.product-sold-callout{
+  border-left-color:#7c3a3a!important;
+}
+
 </style>
 <link href="gengrail-theme.css" rel="stylesheet"/>
 <link href="gengrail-gold-tabs.css" rel="stylesheet"/>
@@ -1725,6 +1762,29 @@ const PAGE_GROUPS={
  settings:'',pricing:'buying',opps:'buying',lookup:'tools'
 };
 let currentCommandGroup='';
+let lookupReturnSku='';
+
+function resetProductLookup(){
+ const input=$('productLookupInput');
+ const host=$('productLookupResult');
+ if(input)input.value='';
+ if(host)host.innerHTML='<div class="panel product-empty-state"><div class="product-empty-icon">⌕</div><b>Ready to find stock</b><span>Enter or scan a SKU above.</span></div>';
+}
+
+function returnToProductLookup(){
+ const sku=lookupReturnSku;
+ lookupReturnSku='';
+ currentCommandGroup='tools';
+ setActiveTab('lookup',true);
+ if(sku){
+   setTimeout(()=>{
+     const input=$('productLookupInput');
+     if(input)input.value=sku;
+     const p=findStockByScan(sku);
+     renderProductLookup(p);
+   },80);
+ }
+}
 
 function motionIn(el,back=false){
  if(!el)return;
@@ -1741,7 +1801,10 @@ function ensurePageHeaders(){
   head.className='page-head';
   head.innerHTML=`<button type="button" class="page-back" aria-label="Back">←</button><div class="page-head-copy"><div class="page-head-title">${PAGE_TITLES[sec.id]||'Gengrail'}</div><div class="page-head-sub">${PAGE_SUBTITLES[sec.id]||''}</div></div>`;
   sec.prepend(head);
-  head.querySelector('.page-back').onclick=()=>showGroup(currentCommandGroup||PAGE_GROUPS[sec.id]||'',true,true);
+  head.querySelector('.page-back').onclick=()=>{
+   if(sec.id==='storage' && lookupReturnSku){ returnToProductLookup(); return; }
+   showGroup(currentCommandGroup||PAGE_GROUPS[sec.id]||'',true,true);
+  };
  });
 }
 
@@ -1796,6 +1859,10 @@ document.querySelectorAll('.home-menu [data-go],.group-menu [data-go]').forEach(
  b.onclick=()=>{
   const groupScreen=b.closest('[data-group-screen]');
   currentCommandGroup=groupScreen?.dataset.groupScreen||'';
+  if(b.dataset.go==='lookup' && currentCommandGroup==='tools'){
+    lookupReturnSku='';
+    resetProductLookup();
+  }
   setActiveTab(b.dataset.go,true);
   const focusId=b.dataset.focus;
   if(focusId){setTimeout(()=>{const el=$(focusId);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});try{el.focus({preventScroll:true})}catch{el.focus()}}},120)}
@@ -1848,7 +1915,62 @@ function closeStockEntry(){
  if($('ppreview'))$('ppreview').innerHTML='';
 }
 if($('startManualIntake'))$('startManualIntake').onclick=()=>openStockEntry('manual');
-if($('startCameraIntake'))$('startCameraIntake').onclick=()=>{if($('pcamera'))$('pcamera').click()};
+async function startDirectCamera(){
+ if(!navigator.mediaDevices?.getUserMedia){
+   $('pcamera')?.click();
+   return;
+ }
+ let stream=null;
+ const wrap=document.createElement('div');
+ wrap.className='camera-capture-modal';
+ wrap.innerHTML=`<div class="camera-capture-shell">
+   <video class="camera-capture-video" playsinline autoplay muted></video>
+   <div class="camera-capture-help">Centre the card in frame, then capture.</div>
+   <div class="camera-capture-actions">
+     <button class="cancel" type="button">CANCEL</button>
+     <button class="capture" type="button" disabled>CAPTURE CARD</button>
+   </div>
+ </div>`;
+ document.body.appendChild(wrap);
+ const video=wrap.querySelector('video');
+ const capture=wrap.querySelector('.capture');
+ const cleanup=()=>{
+   try{stream?.getTracks()?.forEach(t=>t.stop())}catch{}
+   wrap.remove();
+ };
+ wrap.querySelector('.cancel').onclick=cleanup;
+ try{
+   stream=await navigator.mediaDevices.getUserMedia({
+     video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},
+     audio:false
+   });
+   video.srcObject=stream;
+   await video.play();
+   if(video.videoWidth)capture.disabled=false;
+   video.onloadedmetadata=()=>{capture.disabled=false};
+ }catch(err){
+   cleanup();
+   console.warn('Direct camera unavailable; falling back to iOS capture picker.',err);
+   $('pcamera')?.click();
+   return;
+ }
+ capture.onclick=()=>{
+   if(!video.videoWidth || !video.videoHeight)return;
+   const canvas=document.createElement('canvas');
+   canvas.width=video.videoWidth; canvas.height=video.videoHeight;
+   const ctx=canvas.getContext('2d');
+   ctx.drawImage(video,0,0,canvas.width,canvas.height);
+   canvas.toBlob(blob=>{
+     if(!blob)return alert('The photo could not be captured. Please try again.');
+     const file=new File([blob],`gengrail-scan-${Date.now()}.jpg`,{type:'image/jpeg',lastModified:Date.now()});
+     pendingCameraFiles=[...pendingCameraFiles,file];
+     cleanup();
+     previewPickedPhotos();
+     openStockEntry('camera');
+   },'image/jpeg',0.92);
+ };
+}
+if($('startCameraIntake'))$('startCameraIntake').onclick=startDirectCamera;
 if($('startPhotoIntake'))$('startPhotoIntake').onclick=()=>{openStockEntry('photo');setTimeout(()=>$('pphotos')?.click(),50)};
 if($('cancelStockEntry'))$('cancelStockEntry').onclick=()=>closeStockEntry();
 
@@ -1965,17 +2087,33 @@ function findStockByScan(v=''){const needle=normaliseSkuScan(v);return db.purcha
 async function renderProductLookup(p){
  const host=$('productLookupResult'); if(!host)return;
  if(!p){host.innerHTML='<div class="panel product-empty-state"><div class="product-empty-icon">×</div><b>No matching stock item</b><span>Check the SKU and try again.</span></div>';return}
- const qty=left(p), loc=p.location||'UNALLOCATED', status=(p.inventoryStatus||'IN_STOCK').replaceAll('_',' ');
+ const qty=left(p), loc=p.location||'UNALLOCATED';
+ const sold=qty<=0 || String(p.inventoryStatus||'').toUpperCase()==='SOLD';
+ const status=sold?'SOLD':(p.inventoryStatus||'IN_STOCK').replaceAll('_',' ');
  let photos=[];try{photos=await getPhotos(p.id)}catch{}
  const photoHtml=photos.slice(0,8).map(x=>`<img alt="${esc(p.name)}" src="${URL.createObjectURL(x.blob)}"/>`).join('');
- const locationAction=loc==='UNALLOCATED'
-   ? `<button class="btn" type="button" onclick="allocateLookupItem('${p.id}')">ALLOCATE LOCATION</button>`
-   : `<button class="btn" type="button" onclick="goToLookupLocation('${p.id}','${esc(loc)}')">GO TO ${esc(loc)}</button>`;
- const listingAction=p.ebayStatus==='LISTED'
-   ? `<button class="btn alt" type="button" onclick="prepareEbayFromStock('${p.id}')">VIEW / EDIT EBAY</button>`
-   : `<button class="btn alt" type="button" onclick="prepareEbayFromStock('${p.id}')">LIST / DRAFT</button>`;
+
+ let callout='';
+ let actions='';
+ if(sold){
+   callout='<b>Sold / out of stock.</b> There is no physical inventory remaining for this SKU. Warehouse, listing and label actions are disabled.';
+   actions=`<button class="btn alt" type="button" onclick="viewLookupHistory('${p.id}')">VIEW SALES HISTORY</button>
+            <button class="btn alt" type="button" onclick="viewLookupOrders('${p.id}')">VIEW ORDERS</button>
+            <button class="btn" type="button" onclick="restockLookupItem('${p.id}')">RESTOCK / ADD ANOTHER COPY</button>`;
+ }else{
+   const locationAction=loc==='UNALLOCATED'
+     ? `<button class="btn" type="button" onclick="allocateLookupItem('${p.id}')">ALLOCATE LOCATION</button>`
+     : `<button class="btn" type="button" onclick="goToLookupLocation('${p.id}','${esc(loc)}')">GO TO ${esc(loc)}</button>`;
+   const listingAction=p.ebayStatus==='LISTED'
+     ? `<button class="btn alt" type="button" onclick="prepareEbayFromStock('${p.id}')">VIEW / EDIT EBAY</button>`
+     : `<button class="btn alt" type="button" onclick="prepareEbayFromStock('${p.id}')">LIST / DRAFT</button>`;
+   callout=loc==='UNALLOCATED'
+     ? 'This item has not been put away yet. Allocate it when you are ready.'
+     : `Stored at <b>${esc(loc)}</b>. Open the warehouse location for physical stock actions.`;
+   actions=`${locationAction}<button class="btn alt" type="button" onclick="viewLookupStock('${p.id}')">VIEW STOCK RECORD</button>${listingAction}<button class="btn alt" type="button" onclick="printStockLabel('${p.id}')">PRINT LABEL</button>`;
+ }
  host.innerHTML=`<div class="panel product-result-card">
-   <div class="product-result-head"><div><div class="product-result-name">${esc(p.name)}</div><div class="product-result-sku">${esc(p.sku||'NO SKU')}</div></div><span class="product-result-status">${esc(status)}</span></div>
+   <div class="product-result-head"><div><div class="product-result-name">${esc(p.name)}</div><div class="product-result-sku">${esc(p.sku||'NO SKU')}</div></div><span class="product-result-status ${sold?'sold':''}">${esc(status)}</span></div>
    ${photoHtml?`<div class="product-result-photos">${photoHtml}</div>`:''}
    <div class="product-detail-grid">
     <div class="product-detail-cell"><small>QUANTITY LEFT</small><b>${qty}</b></div>
@@ -1985,8 +2123,8 @@ async function renderProductLookup(p){
     <div class="product-detail-cell"><small>TARGET LIST</small><b>${p.listPrice?m(p.listPrice):'—'}</b></div>
     <div class="product-detail-cell"><small>EBAY</small><b>${esc((p.ebayStatus||'NOT_LISTED').replaceAll('_',' '))}</b></div>
    </div>
-   <div class="product-location-callout">${loc==='UNALLOCATED'?'This item has not been put away yet. Allocate it when you are ready.':`Stored at <b>${esc(loc)}</b>. Open the warehouse location for physical stock actions.`}</div>
-   <div class="product-result-actions">${locationAction}<button class="btn alt" type="button" onclick="viewLookupStock('${p.id}')">VIEW STOCK RECORD</button>${listingAction}<button class="btn alt" type="button" onclick="printStockLabel('${p.id}')">PRINT LABEL</button></div>
+   <div class="product-location-callout ${sold?'product-sold-callout':''}">${callout}</div>
+   <div class="product-result-actions">${actions}</div>
  </div>`;
 }
 function runProductLookup(){
@@ -1995,9 +2133,49 @@ function runProductLookup(){
 }
 if($('productLookupBtn'))$('productLookupBtn').onclick=runProductLookup;
 if($('productLookupInput'))$('productLookupInput').addEventListener('keydown',e=>{if(e.key==='Enter')runProductLookup()});
-window.allocateLookupItem=pid=>{currentCommandGroup='operations';setActiveTab('storage',true);setTimeout(()=>{if($('moveSku'))$('moveSku').value=pid;$('moveSku')?.scrollIntoView({behavior:'smooth',block:'center'})},100)};
-window.goToLookupLocation=(pid,loc)=>{currentCommandGroup='operations';setActiveTab('storage',true);setTimeout(()=>{if(typeof openLocationDetail==='function')openLocationDetail(loc)},120)};
-window.viewLookupStock=pid=>{currentCommandGroup='operations';setActiveTab('stock',true);setTimeout(()=>{const p=db.purchases.find(x=>x.id===pid);if(p){const tbody=$('pbody');tbody?.scrollIntoView({behavior:'smooth',block:'start'})}},120)};
+
+window.allocateLookupItem=pid=>{
+ const p=db.purchases.find(x=>x.id===pid); if(!p || left(p)<=0)return alert('This SKU has no stock available to allocate.');
+ lookupReturnSku=p.sku||'';
+ currentCommandGroup='operations';
+ setActiveTab('storage',true);
+ setTimeout(()=>{if($('moveSku'))$('moveSku').value=pid;$('moveSku')?.scrollIntoView({behavior:'smooth',block:'center'})},100);
+};
+window.goToLookupLocation=(pid,loc)=>{
+ const p=db.purchases.find(x=>x.id===pid); if(!p || left(p)<=0)return alert('This SKU has no physical stock remaining.');
+ lookupReturnSku=p.sku||'';
+ currentCommandGroup='operations';
+ setActiveTab('storage',true);
+ setTimeout(()=>{if(typeof openLocationDetail==='function')openLocationDetail(loc)},120);
+};
+window.viewLookupStock=pid=>{
+ lookupReturnSku='';
+ currentCommandGroup='operations';setActiveTab('stock',true);
+ setTimeout(()=>{const p=db.purchases.find(x=>x.id===pid);if(p){const tbody=$('pbody');tbody?.scrollIntoView({behavior:'smooth',block:'start'})}},120);
+};
+window.viewLookupHistory=pid=>{
+ lookupReturnSku='';
+ currentCommandGroup='sales';setActiveTab('sales',true);
+ setTimeout(()=>{$('sbody')?.scrollIntoView({behavior:'smooth',block:'center'})},120);
+};
+window.viewLookupOrders=pid=>{
+ lookupReturnSku='';
+ currentCommandGroup='operations';setActiveTab('orders',true);
+ setTimeout(()=>{document.querySelector('[data-orders-list],#ordersList,.orders-list')?.scrollIntoView({behavior:'smooth',block:'start'})},120);
+};
+window.restockLookupItem=pid=>{
+ const p=db.purchases.find(x=>x.id===pid); if(!p)return;
+ lookupReturnSku='';
+ currentCommandGroup='operations';setActiveTab('stock',true);
+ setTimeout(()=>{
+   openStockEntry('manual');
+   if($('pn'))$('pn').value=p.name||'';
+   if($('pc') && [...$('pc').options].some(o=>o.value===p.cat))$('pc').value=p.cat;
+   if($('pcondition') && [...$('pcondition').options].some(o=>o.value===p.condition))$('pcondition').value=p.condition;
+   if($('plist'))$('plist').value=p.listPrice||'';
+   if($('pnotes') && !$('pnotes').value.trim())$('pnotes').value=`Restock / additional copy of ${p.sku||'previous SKU'}.`;
+ },100);
+};
 if($('scanLookup'))$('scanLookup').onclick=()=>{const p=findStockByScan($('scanInput').value);$('scanResult').innerHTML=p?`<b>${esc(p.name)}</b><br>SKU <span class="mono">${esc(p.sku)}</span> · Location <b>${esc(p.location||'UNALLOCATED')}</b> · Status ${esc((p.inventoryStatus||'IN_STOCK').replaceAll('_',' '))}`:'No matching SKU found.'};
 
 /* ==========================
