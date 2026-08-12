@@ -8,7 +8,7 @@
 <meta content="Gengrail TCG" name="apple-mobile-web-app-title"/>
 <link href="manifest.json" rel="manifest"/>
 <link href="icon-512.png" rel="apple-touch-icon" sizes="512x512"/><title>Gengrail TCG Business Log</title>
-<meta content="v19.6.0-workflow-architecture" name="gengrail-build"/>
+<meta content="v19.7.0-product-engine-foundation" name="gengrail-build"/>
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
 
@@ -946,6 +946,40 @@ body.inner-page .kpi,
 
 /* ---------- GENGRAIL v19.6 WORKFLOW ARCHITECTURE ---------- */
 .channel-hub-card{background:linear-gradient(155deg,#121212,#090909);border:1px solid #4c421f;border-radius:13px;padding:14px}.channel-hub-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.channel-hub-head b{display:block;font-size:19px;color:#f4f1ea}.channel-hub-head small{display:block;margin-top:4px;color:#96928c;font-size:10px;font-weight:800}.channel-status-live{display:inline-block;border:1px solid #3d8751;background:#0d1a11;color:#82dda0;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:950;letter-spacing:.05em}.channel-hub-card p{color:#aaa7a1;font-size:11px;line-height:1.5;margin:13px 0 4px}
+
+/* ---------- PRODUCT ENGINE FOUNDATION v1 ---------- */
+.product-intake-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}
+.intake-action{appearance:none;background:linear-gradient(145deg,#151515,#090909);color:#f4f1ea;border:1.5px solid #7d5b11;border-radius:12px;padding:14px 8px;min-height:112px;text-align:center;box-shadow:3px 4px 9px #000}
+.intake-action:active{transform:scale(.98)}
+.intake-action .intake-icon{display:block;color:var(--crown-hi);font-size:29px;line-height:1;margin-bottom:9px}
+.intake-action b{display:block;font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;font-size:17px;letter-spacing:.035em}
+.intake-action small{display:block;color:#999;margin-top:5px;font-size:10px;line-height:1.25}
+.recognition-ready{margin-top:12px;border-left:4px solid #3d8751;background:#0a0d0b;padding:11px 12px}
+.recognition-ready span{display:block;color:var(--g);font-size:9px;font-weight:950;letter-spacing:.14em}
+.recognition-ready b{display:block;margin-top:3px}
+.recognition-ready small{display:block;color:#929292;margin-top:4px;line-height:1.35}
+.product-lookup-box{margin-top:12px}
+.product-empty-state{text-align:center;padding:28px 16px;color:#888}
+.product-empty-state b,.product-empty-state span{display:block}
+.product-empty-state b{color:#ddd;font-size:17px}
+.product-empty-state span{font-size:12px;margin-top:5px}
+.product-empty-icon{font-size:34px;color:var(--crown);margin-bottom:8px}
+.product-result-card{overflow:hidden}
+.product-result-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.product-result-name{font:25px Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;letter-spacing:.025em}
+.product-result-sku{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#aaa;margin-top:4px}
+.product-result-status{border:1px solid #3d8751;color:var(--g);border-radius:999px;padding:5px 9px;font-size:10px;font-weight:950;white-space:nowrap}
+.product-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:14px}
+.product-detail-cell{background:#090909;border:1px solid #292929;border-radius:9px;padding:10px;min-width:0}
+.product-detail-cell small{display:block;color:#777;font-size:9px;font-weight:900;letter-spacing:.06em}
+.product-detail-cell b{display:block;margin-top:4px;font-size:15px;overflow-wrap:anywhere}
+.product-result-photos{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}
+.product-result-photos img{width:100%;aspect-ratio:1/1;object-fit:cover;border:1px solid #333;border-radius:8px}
+.product-result-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.product-result-actions .btn{margin-top:0;flex:1 1 145px}
+.product-location-callout{margin-top:12px;border-left:4px solid var(--crown);padding:10px 12px;background:#0a0a0a;color:#bbb}
+@media(max-width:620px){.product-intake-grid{grid-template-columns:1fr}.intake-action{min-height:84px}.product-detail-grid{grid-template-columns:1fr 1fr}.product-result-photos{grid-template-columns:repeat(3,1fr)}}
+
 </style>
 <link href="gengrail-theme.css" rel="stylesheet"/>
 <link href="gengrail-gold-tabs.css" rel="stylesheet"/>
@@ -968,7 +1002,7 @@ body.inner-page .kpi,
 <div class="command-group" data-group-screen="operations" id="group-operations"><div class="command-group-head"><button aria-label="Back to Command Centre" class="page-back group-back" type="button">←</button><div class="command-group-copy"><h2>Operations</h2><p>Act on orders and control physical inventory</p></div></div><div class="group-menu"><button data-go="orders" id="operationsOrdersTile" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M6 4h12l2 4-8 4-8-4 2-4Z"></path><path d="M4 8v9l8 4 8-4V8"></path><path d="m9 15 2 2 4-4"></path></svg></span><span><span class="glabel">Orders</span><span class="gsub" id="operationsOrdersSub">Pick, pack and dispatch customer orders</span></span><span class="garrow">›</span></button><button data-go="stock" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><rect height="18" rx="2" width="14" x="5" y="3"></rect><path d="M8 7h8"></path><path d="M8 11h8"></path><path d="M8 15h5"></path></svg></span><span><span class="glabel">Stock</span><span class="gsub">Catalogue, view and manage inventory</span></span><span class="garrow">›</span></button><button data-go="storage" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z"></path><circle cx="12" cy="10" r="2"></circle></svg></span><span><span class="glabel">Locations</span><span class="gsub">Warehouse storage and stock placement</span></span><span class="garrow">›</span></button></div></div>
 <div class="command-group" data-group-screen="sales" id="group-sales"><div class="command-group-head"><button aria-label="Back to Command Centre" class="page-back group-back" type="button">←</button><div class="command-group-copy"><h2>Sales</h2><p>Manage selling activity and connected channels</p></div></div><div class="group-menu"><button data-go="sales" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 6h16"></path><path d="M4 11h16"></path><path d="M4 16h10"></path><circle cx="18" cy="16" r="2"></circle></svg></span><span><span class="glabel">Sales Log</span><span class="gsub">Review sales history and add non-channel sales</span></span><span class="garrow">›</span></button><button data-go="channels" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><circle cx="7" cy="12" r="3"></circle><circle cx="17" cy="7" r="3"></circle><circle cx="17" cy="17" r="3"></circle><path d="M9.7 10.6 14.2 8.3"></path><path d="m9.7 13.4 4.5 2.3"></path></svg></span><span><span class="glabel">Channels</span><span class="gsub">Open eBay and future marketplace integrations</span></span><span class="garrow">›</span></button></div></div>
 <div class="command-group" data-group-screen="finance" id="group-finance"><div class="command-group-head"><button aria-label="Back to Command Centre" class="page-back group-back" type="button">←</button><div class="command-group-copy"><h2>Finance</h2><p>Understand and control the business</p></div></div><div class="group-menu"><button data-go="dash" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><rect height="8" rx="1" width="8" x="3" y="3"></rect><rect height="5" rx="1" width="8" x="13" y="3"></rect><rect height="11" rx="1" width="8" x="13" y="10"></rect><rect height="8" rx="1" width="8" x="3" y="13"></rect></svg></span><span><span class="glabel">Dashboard</span><span class="gsub">Revenue, profit, cash and stock overview</span></span><span class="garrow">›</span></button><button data-go="exp" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21V3Z"></path><path d="M9 7h6"></path><path d="M9 11h6"></path><path d="M9 15h4"></path></svg></span><span><span class="glabel">Expenses</span><span class="gsub">Log and review business expenditure</span></span><span class="garrow">›</span></button><button data-go="owner" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><circle cx="12" cy="8" r="3"></circle><path d="M5 21a7 7 0 0 1 14 0"></path><path d="M12 2v2"></path></svg></span><span><span class="glabel">Owner</span><span class="gsub">Funding, contributions and dividends</span></span><span class="garrow">›</span></button><button data-go="tax" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><rect height="18" rx="2" width="16" x="4" y="3"></rect><path d="M7 7h10"></path><path d="M8 11h1"></path><path d="M12 11h1"></path><path d="M16 11h1"></path><path d="M8 15h1"></path><path d="M12 15h1"></path><path d="M16 15h1"></path><path d="M8 18h1"></path><path d="M12 18h5"></path></svg></span><span><span class="glabel">Tax</span><span class="gsub">Corporation tax and reserve tools</span></span><span class="garrow">›</span></button></div></div>
-<div class="command-group" data-group-screen="tools" id="group-tools"><div class="command-group-head"><button aria-label="Back to Command Centre" class="page-back group-back" type="button">←</button><div class="command-group-copy"><h2>Tools</h2><p>Fast utilities for everyday work</p></div></div><div class="group-menu"><button data-go="pricing" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><rect height="18" rx="2" width="16" x="4" y="3"></rect><path d="M8 7h8"></path><path d="M8 11h1"></path><path d="M12 11h1"></path><path d="M16 11h1"></path><path d="M8 15h1"></path><path d="M12 15h1"></path><path d="M16 15h1"></path><path d="M8 18h9"></path></svg></span><span><span class="glabel">Pricing Calculator</span><span class="gsub">Quick margin and selling-price utility</span></span><span class="garrow">›</span></button><button data-go="storage" data-focus="scanInput" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 8V4h4"></path><path d="M16 4h4v4"></path><path d="M20 16v4h-4"></path><path d="M8 20H4v-4"></path><path d="M8 9v6"></path><path d="M11 9v6"></path><path d="M14 9v6"></path><path d="M17 9v6"></path></svg></span><span><span class="glabel">Stock Lookup</span><span class="gsub">Jump straight to SKU / scan lookup</span></span><span class="garrow">›</span></button></div></div>
+<div class="command-group" data-group-screen="tools" id="group-tools"><div class="command-group-head"><button aria-label="Back to Command Centre" class="page-back group-back" type="button">←</button><div class="command-group-copy"><h2>Tools</h2><p>Fast utilities for everyday work</p></div></div><div class="group-menu"><button data-go="pricing" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><rect height="18" rx="2" width="16" x="4" y="3"></rect><path d="M8 7h8"></path><path d="M8 11h1"></path><path d="M12 11h1"></path><path d="M16 11h1"></path><path d="M8 15h1"></path><path d="M12 15h1"></path><path d="M16 15h1"></path><path d="M8 18h9"></path></svg></span><span><span class="glabel">Pricing Calculator</span><span class="gsub">Quick margin and selling-price utility</span></span><span class="garrow">›</span></button><button data-go="lookup" data-focus="productLookupInput" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 8V4h4"></path><path d="M16 4h4v4"></path><path d="M20 16v4h-4"></path><path d="M8 20H4v-4"></path><path d="M8 9v6"></path><path d="M11 9v6"></path><path d="M14 9v6"></path><path d="M17 9v6"></path></svg></span><span><span class="glabel">Stock Lookup</span><span class="gsub">Find an item, then act on it</span></span><span class="garrow">›</span></button></div></div>
 </section>
 <section class="sec" id="channels"><div class="panel"><div class="title">SALES CHANNELS</div><div class="channel-hub-card"><div class="channel-hub-head"><div><b>eBay</b><small>Production marketplace integration</small></div><span class="channel-status-live">ACTIVE</span></div><p>Manage drafts, live listings, publishing setup and eBay sales sync through the existing proven eBay channel.</p><button class="btn" id="openEbayChannel" type="button">OPEN EBAY CHANNEL</button></div><div class="note">Gengrail is now organised so marketplace integrations sit behind a common Channels layer. Shopify and TikTok Shop can be added here later without changing the core Stock, Orders or Finance workflow.</div></div></section>
 <section class="sec" id="dash"><div class="panel"><div class="title">BUSINESS DASHBOARD</div><div class="kpis">
@@ -986,7 +1020,18 @@ body.inner-page .kpi,
 <div class="kpi"><small>Available buying capital</small><b id="buycap">£0</b></div>
 </div><div class="note" id="cashnote"></div></div></section>
 <section class="sec" id="stock">
-<div class="panel"><div class="title">LOG A PURCHASE</div><div class="grid">
+<div class="panel product-intake-launcher">
+<div class="title">ADD CARD / PRODUCT</div>
+<div class="note" style="margin-top:0">Choose how you want to start. Camera and photo intake are the foundation for Gengrail recognition; you can review every field before anything is added to Stock.</div>
+<div class="product-intake-grid">
+<button class="intake-action" id="startCameraIntake" type="button"><span class="intake-icon">⌁</span><b>SCAN CARD</b><small>Use the iPhone camera</small></button>
+<button class="intake-action" id="startPhotoIntake" type="button"><span class="intake-icon">▧</span><b>CHOOSE PHOTO</b><small>Select an existing image</small></button>
+<button class="intake-action" id="startManualIntake" type="button"><span class="intake-icon">＋</span><b>ENTER MANUALLY</b><small>Open the full stock sheet</small></button>
+</div>
+<input accept="image/*" capture="environment" id="pcamera" style="display:none" type="file"/>
+<div class="recognition-ready"><span>AI PRODUCT ENGINE</span><b>Recognition hook ready</b><small>Photo capture is live in this build. Automatic card identification and market intelligence plug into this intake next.</small></div>
+</div>
+<div class="panel" hidden id="stockEntryPanel"><div class="title">LOG A PURCHASE</div><div class="grid">
 <div><label>Card / product</label><input id="pn"/></div><div><label>Category</label><select id="pc"><option>Raw Single</option><option>Graded</option><option>Sealed</option><option>Collection</option><option>Accessory</option><option>Other</option></select></div>
 <div><label>Purchase date</label><input id="pd" type="date"/></div><div><label>Quantity</label><input id="pq" min="1" type="number" value="1"/></div>
 <div><label>Total buy price (£)</label><input id="pp" step=".01" type="number"/></div><div><label>Source / seller</label><input id="ps"/></div>
@@ -998,8 +1043,20 @@ body.inner-page .kpi,
 <div><label>Target / eBay list price (£)</label><input id="plist" placeholder="Optional" step=".01" type="number"/></div>
 <div><label>eBay status</label><select id="pebaystatus"><option value="NOT_LISTED">Not listed</option><option value="DRAFT">Draft</option><option value="LISTED">Listed</option></select></div>
 <div class="full photo-picker"><label>Product photos</label><input accept="image/*" id="pphotos" multiple="" type="file"/><div class="photo-help">Add front/back and detail photos now. Images are stored separately on this device so they do not inflate the accounting database or JSON backup.</div><div class="photo-preview" id="ppreview"></div></div>
-<div class="full"><label>Notes</label><textarea id="pnotes"></textarea></div></div><button class="btn" id="addp">ADD TO STOCK</button></div>
+<div class="full"><label>Notes</label><textarea id="pnotes"></textarea></div></div><div class="actions"><button class="btn" id="addp">ADD TO STOCK</button><button class="btn alt" id="cancelStockEntry" type="button">CLOSE</button></div></div>
 <div class="panel"><div class="title">CURRENT STOCK</div><div class="table"><table><thead><tr><th>Item</th><th>SKU</th><th>Purchase ID</th><th>Location</th><th>Status</th><th>Condition</th><th>Qty left</th><th>Unit cost</th><th>Target list</th><th>eBay</th><th>Photos</th><th>Source</th><th>Actions</th></tr></thead><tbody id="pbody"></tbody></table></div><div class="note">Stock is now the master product record. Photos stay on this device in dedicated browser storage; SKU, condition, target price and eBay status are stored with the stock record and can be used by the eBay integration.</div></div>
+</section>
+<section class="sec" id="lookup">
+<div class="panel">
+<div class="title">STOCK LOOKUP</div>
+<div class="note" style="margin-top:0">Scan or enter a Gengrail SKU to open the product record. Location actions only appear when they are relevant.</div>
+<div class="scan-box product-lookup-box">
+<label>SKU or scan data</label>
+<input class="mono" id="productLookupInput" placeholder="GEN000001 or GENGRAIL:SKU:GEN000001"/>
+<button class="btn" id="productLookupBtn" type="button">LOOK UP ITEM</button>
+</div>
+</div>
+<div id="productLookupResult"><div class="panel product-empty-state"><div class="product-empty-icon">⌕</div><b>Ready to find stock</b><span>Enter or scan a SKU above.</span></div></div>
 </section>
 <section class="sec" id="storage">
 <div class="panel"><div class="title">LOCATION OVERVIEW</div><div class="wh-grid">
@@ -1360,11 +1417,20 @@ async function deletePhotosFor(pid){
  await new Promise((resolve,reject)=>{const tx=dbp.transaction(PHOTO_STORE,'readwrite'),s=tx.objectStore(PHOTO_STORE);rows.forEach(x=>s.delete(x.id));tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});
  dbp.close();
 }
+let pendingCameraFiles=[];
+function currentIntakeFiles(){
+ return [...pendingCameraFiles,...($('pphotos')?.files||[])].filter((f,i,a)=>a.findIndex(x=>x.name===f.name&&x.size===f.size&&x.lastModified===f.lastModified)===i);
+}
 function previewPickedPhotos(){
  const box=$('ppreview'); if(!box)return; box.innerHTML='';
- [...($('pphotos').files||[])].slice(0,8).forEach(f=>{const img=document.createElement('img');img.src=URL.createObjectURL(f);img.onload=()=>URL.revokeObjectURL(img.src);box.appendChild(img)});
+ currentIntakeFiles().slice(0,8).forEach(f=>{const img=document.createElement('img');img.src=URL.createObjectURL(f);img.onload=()=>URL.revokeObjectURL(img.src);box.appendChild(img)});
 }
-$('pphotos').onchange=previewPickedPhotos;
+if($('pphotos'))$('pphotos').onchange=()=>{previewPickedPhotos();openStockEntry('photo')};
+if($('pcamera'))$('pcamera').onchange=()=>{
+ pendingCameraFiles=[...($('pcamera').files||[])];
+ previewPickedPhotos();
+ openStockEntry('camera');
+};
 
 window.prepareEbayFromStock=async pid=>{
  const p=db.purchases.find(x=>x.id===pid); if(!p)return;
@@ -1635,7 +1701,7 @@ function render(){
 
 const PAGE_TITLES={
  dash:'Dashboard',stock:'Stock',storage:'Locations',orders:'Orders',sales:'Sales',channels:'Channels',exp:'Expenses',
- owner:'Owner & Funding',tax:'Tax',settings:'Settings',pricing:'Pricing Calculator',opps:'Opportunity Finder'
+ owner:'Owner & Funding',tax:'Tax',settings:'Settings',pricing:'Pricing Calculator',opps:'Opportunity Finder',lookup:'Stock Lookup'
 };
 const PAGE_SUBTITLES={
  dash:'Business overview',
@@ -1649,13 +1715,14 @@ const PAGE_SUBTITLES={
  tax:'Corporation tax tools',
  settings:'Backup, restore & app data',
  pricing:'Work out true value',
- opps:'Find and assess opportunities'
+ opps:'Find and assess opportunities',
+ lookup:'Find and act on inventory'
 };
 const PAGE_GROUPS={
  stock:'operations',storage:'operations',orders:'operations',
  sales:'sales',channels:'sales',
  dash:'finance',exp:'finance',owner:'finance',tax:'finance',
- settings:'',pricing:'buying',opps:'buying'
+ settings:'',pricing:'buying',opps:'buying',lookup:'tools'
 };
 let currentCommandGroup='';
 
@@ -1764,15 +1831,36 @@ if(manualSaleToggle&&manualSaleForm){
 
 $('salary').onchange=save;$('divUsedElsewhere').onchange=save;
 
+function openStockEntry(mode='manual'){
+ const panel=$('stockEntryPanel'); if(!panel)return;
+ panel.hidden=false;
+ if(mode==='camera' || mode==='photo'){
+   const notes=$('pnotes');
+   if(notes && !notes.value.trim()) notes.value=mode==='camera'?'Photo captured for product intake.':'Photo selected for product intake.';
+ }
+ setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'start'}),40);
+}
+function closeStockEntry(){
+ const panel=$('stockEntryPanel'); if(panel)panel.hidden=true;
+ pendingCameraFiles=[];
+ if($('pcamera'))$('pcamera').value='';
+ if($('pphotos'))$('pphotos').value='';
+ if($('ppreview'))$('ppreview').innerHTML='';
+}
+if($('startManualIntake'))$('startManualIntake').onclick=()=>openStockEntry('manual');
+if($('startCameraIntake'))$('startCameraIntake').onclick=()=>{if($('pcamera'))$('pcamera').click()};
+if($('startPhotoIntake'))$('startPhotoIntake').onclick=()=>{openStockEntry('photo');setTimeout(()=>$('pphotos')?.click(),50)};
+if($('cancelStockEntry'))$('cancelStockEntry').onclick=()=>closeStockEntry();
+
 $('addp').onclick=async()=>{
  if(!$('pn').value.trim())return alert('Enter an item.');
- const pid=id(), files=[...($('pphotos').files||[])];
+ const pid=id(), files=currentIntakeFiles();
  const sku=$('psku').value.trim()||nextSku();
  const purchaseId=$('ppurchaseid').value.trim()||nextPurchaseId();
  const p={id:pid,name:$('pn').value.trim(),cat:$('pc').value,date:$('pd').value,q:Math.max(1,Math.floor(n('pq'))),cost:n('pp'),source:$('ps').value.trim(),condition:$('pcondition').value,sku,purchaseId,location:$('plocation').value||'UNALLOCATED',inventoryStatus:$('pstatus').value||'IN_STOCK',qrData:'GENGRAIL:SKU:'+sku,listPrice:n('plist'),ebayStatus:$('pebaystatus').value,ebayItemId:'',ebayUrl:'',photoCount:0,notes:$('pnotes').value};
  db.purchases.push(p);
  try{p.photoCount=await addPhotos(pid,files)}catch(e){console.error(e);alert('Stock was saved, but one or more photos could not be stored on this device.');}
- ['pn','pp','ps','psku','ppurchaseid','plist','pnotes'].forEach(x=>$(x).value='');$('pq').value=1;$('pcondition').value='Ungraded';$('pebaystatus').value='NOT_LISTED';$('pphotos').value='';$('ppreview').innerHTML='';save();
+ ['pn','pp','ps','psku','ppurchaseid','plist','pnotes'].forEach(x=>$(x).value='');$('pq').value=1;$('pcondition').value='Ungraded';$('pebaystatus').value='NOT_LISTED';$('pphotos').value='';if($('pcamera'))$('pcamera').value='';pendingCameraFiles=[];$('ppreview').innerHTML='';save();closeStockEntry();
 };
 $('adds').onclick=()=>{let p=db.purchases.find(x=>x.id===$('si').value),q=Math.max(1,Math.floor(n('sq')));if(!p)return alert('Select stock.');if(q>left(p))return alert('Not enough stock.');if(n('sp')<=0)return alert('Enter sale price.');const saleId=id();db.sales.push({id:saleId,pid:p.id,date:$('sd').value,q,price:n('sp'),buyerPost:0,source:'MANUAL',pl:$('spl').value,fee:n('sf'),post:n('spo'),pack:n('spa'),other:n('so'),notes:$('snotes').value});const orderNo='ORD'+String(db.orders.length+1).padStart(6,'0');db.orders.push({id:id(),orderNo,saleId,pid:p.id,sku:p.sku,itemName:p.name,location:p.location||'UNALLOCATED',channel:$('spl').value,status:'PICK_REQUIRED',created:new Date().toISOString()});p.inventoryStatus='PICK_REQUIRED';['sp','sf','spo','spa','so'].forEach(x=>$(x).value='0');$('snotes').value='';save();if($('manualSaleForm'))$('manualSaleForm').hidden=true;if($('toggleManualSale'))$('toggleManualSale').textContent='+ ADD MANUAL SALE'};
 $('adde').onclick=()=>{if(!$('edes').value.trim())return alert('Enter expense details.');let amount=n('ea');if(amount===0)return alert('Enter an expense amount.');db.expenses.push({id:id(),date:$('ed').value,supplier:$('esupplier').value.trim(),cat:$('ec').value,class:$('eclass').value,desc:$('edes').value.trim(),qty:Math.max(1,Math.floor(n('eqty'))),amount,startup:$('estartup').value==='true',notes:$('en').value});$('esupplier').value='';$('edes').value='';$('eqty').value=1;$('ea').value='';$('estartup').value='false';$('en').value='';save()};
@@ -1872,7 +1960,45 @@ window.advanceOrderAnimated=oid=>{
 function labelWindow(title,code,sub){const w=window.open('','_blank','width=420,height=300');if(!w)return alert('Allow pop-ups to print labels.');w.document.write(`<html><head><title>${esc(title)}</title><style>body{font-family:Arial;text-align:center;padding:24px}.sku{font-size:30px;font-weight:900}.data{font-family:monospace;margin-top:12px;font-size:13px}</style></head><body><div>GENGRAIL TCG</div><div class="sku">${esc(code)}</div><div>${esc(sub||'')}</div><div class="data">${esc(title)}</div><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()}
 window.printStockLabel=pid=>{const p=db.purchases.find(x=>x.id===pid);if(p)labelWindow(p.qrData||('GENGRAIL:SKU:'+p.sku),p.sku,p.name)};
 window.printLocationLabel=code=>{const meta=boxMeta(code),w=window.open('','_blank','width=500,height=360');if(!w)return alert('Allow pop-ups to print labels.');const sub=meta?`Box ${meta.box} · Row ${meta.row} · Pos ${meta.pos}`:'Storage location';w.document.write(`<html><head><title>${esc(code)} location label</title><style>@page{size:50mm 30mm;margin:0}html,body{margin:0;padding:0;width:50mm;height:30mm}body{font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center}.label{width:50mm;height:30mm;box-sizing:border-box;padding:2.5mm;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}.brand{font-size:2.4mm;font-weight:900}.code{font-size:11mm;font-weight:1000;line-height:1}.sub{font-size:2.3mm;margin-top:1mm}.data{font-family:monospace;font-size:1.8mm;margin-top:1mm}</style></head><body><div class="label"><div class="brand">♛ GENGRAIL TCG</div><div class="code">${esc(code)}</div><div class="sub">${esc(sub)}</div><div class="data">GENGRAIL:LOC:${esc(code)}</div></div><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()};
-if($('scanLookup'))$('scanLookup').onclick=()=>{let v=String($('scanInput').value||'').trim().toUpperCase();v=v.replace('GENGRAIL:SKU:','');const p=db.purchases.find(x=>String(x.sku||'').toUpperCase()===v);$('scanResult').innerHTML=p?`<b>${esc(p.name)}</b><br>SKU <span class="mono">${esc(p.sku)}</span> · Location <b>${esc(p.location||'UNALLOCATED')}</b> · Status ${esc((p.inventoryStatus||'IN_STOCK').replaceAll('_',' '))}`:'No matching SKU found.'};
+function normaliseSkuScan(v=''){return String(v||'').trim().toUpperCase().replace('GENGRAIL:SKU:','').trim()}
+function findStockByScan(v=''){const needle=normaliseSkuScan(v);return db.purchases.find(x=>String(x.sku||'').toUpperCase()===needle)||null}
+async function renderProductLookup(p){
+ const host=$('productLookupResult'); if(!host)return;
+ if(!p){host.innerHTML='<div class="panel product-empty-state"><div class="product-empty-icon">×</div><b>No matching stock item</b><span>Check the SKU and try again.</span></div>';return}
+ const qty=left(p), loc=p.location||'UNALLOCATED', status=(p.inventoryStatus||'IN_STOCK').replaceAll('_',' ');
+ let photos=[];try{photos=await getPhotos(p.id)}catch{}
+ const photoHtml=photos.slice(0,8).map(x=>`<img alt="${esc(p.name)}" src="${URL.createObjectURL(x.blob)}"/>`).join('');
+ const locationAction=loc==='UNALLOCATED'
+   ? `<button class="btn" type="button" onclick="allocateLookupItem('${p.id}')">ALLOCATE LOCATION</button>`
+   : `<button class="btn" type="button" onclick="goToLookupLocation('${p.id}','${esc(loc)}')">GO TO ${esc(loc)}</button>`;
+ const listingAction=p.ebayStatus==='LISTED'
+   ? `<button class="btn alt" type="button" onclick="prepareEbayFromStock('${p.id}')">VIEW / EDIT EBAY</button>`
+   : `<button class="btn alt" type="button" onclick="prepareEbayFromStock('${p.id}')">LIST / DRAFT</button>`;
+ host.innerHTML=`<div class="panel product-result-card">
+   <div class="product-result-head"><div><div class="product-result-name">${esc(p.name)}</div><div class="product-result-sku">${esc(p.sku||'NO SKU')}</div></div><span class="product-result-status">${esc(status)}</span></div>
+   ${photoHtml?`<div class="product-result-photos">${photoHtml}</div>`:''}
+   <div class="product-detail-grid">
+    <div class="product-detail-cell"><small>QUANTITY LEFT</small><b>${qty}</b></div>
+    <div class="product-detail-cell"><small>LOCATION</small><b>${esc(loc)}</b></div>
+    <div class="product-detail-cell"><small>CONDITION</small><b>${esc(p.condition||'—')}</b></div>
+    <div class="product-detail-cell"><small>UNIT COST</small><b>${m(uc(p))}</b></div>
+    <div class="product-detail-cell"><small>TARGET LIST</small><b>${p.listPrice?m(p.listPrice):'—'}</b></div>
+    <div class="product-detail-cell"><small>EBAY</small><b>${esc((p.ebayStatus||'NOT_LISTED').replaceAll('_',' '))}</b></div>
+   </div>
+   <div class="product-location-callout">${loc==='UNALLOCATED'?'This item has not been put away yet. Allocate it when you are ready.':`Stored at <b>${esc(loc)}</b>. Open the warehouse location for physical stock actions.`}</div>
+   <div class="product-result-actions">${locationAction}<button class="btn alt" type="button" onclick="viewLookupStock('${p.id}')">VIEW STOCK RECORD</button>${listingAction}<button class="btn alt" type="button" onclick="printStockLabel('${p.id}')">PRINT LABEL</button></div>
+ </div>`;
+}
+function runProductLookup(){
+ const p=findStockByScan($('productLookupInput')?.value||'');
+ renderProductLookup(p);
+}
+if($('productLookupBtn'))$('productLookupBtn').onclick=runProductLookup;
+if($('productLookupInput'))$('productLookupInput').addEventListener('keydown',e=>{if(e.key==='Enter')runProductLookup()});
+window.allocateLookupItem=pid=>{currentCommandGroup='operations';setActiveTab('storage',true);setTimeout(()=>{if($('moveSku'))$('moveSku').value=pid;$('moveSku')?.scrollIntoView({behavior:'smooth',block:'center'})},100)};
+window.goToLookupLocation=(pid,loc)=>{currentCommandGroup='operations';setActiveTab('storage',true);setTimeout(()=>{if(typeof openLocationDetail==='function')openLocationDetail(loc)},120)};
+window.viewLookupStock=pid=>{currentCommandGroup='operations';setActiveTab('stock',true);setTimeout(()=>{const p=db.purchases.find(x=>x.id===pid);if(p){const tbody=$('pbody');tbody?.scrollIntoView({behavior:'smooth',block:'start'})}},120)};
+if($('scanLookup'))$('scanLookup').onclick=()=>{const p=findStockByScan($('scanInput').value);$('scanResult').innerHTML=p?`<b>${esc(p.name)}</b><br>SKU <span class="mono">${esc(p.sku)}</span> · Location <b>${esc(p.location||'UNALLOCATED')}</b> · Status ${esc((p.inventoryStatus||'IN_STOCK').replaceAll('_',' '))}`:'No matching SKU found.'};
 
 /* ==========================
    GENGRAIL PRICING CALCULATOR
