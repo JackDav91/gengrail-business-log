@@ -1,0 +1,50 @@
+name: One-off known-good raw backup sync
+
+on:
+  push:
+    branches:
+      - backup/raw-recognition-known-good-2026-08-16
+    paths:
+      - .github/workflows/one-off-raw-backup.yml
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout backup branch
+        uses: actions/checkout@v4
+        with:
+          ref: backup/raw-recognition-known-good-2026-08-16
+          fetch-depth: 0
+
+      - name: Clone last-known-good temp repo main
+        run: git clone --depth 1 --branch main https://github.com/JackDav91/temporary-test-repo.git /tmp/gengrail-known-good
+
+      - name: Mirror source into isolated backup branch
+        run: |
+          rsync -a --delete --exclude='.git/' /tmp/gengrail-known-good/ ./
+          cat > BACKUP_MARKER.md <<'EOF'
+          # Gengrail last-known-good raw backup
+
+          Source repository: `JackDav91/temporary-test-repo`
+          Source branch: `main`
+          Snapshot purpose: preserve the proven raw-card recognition + automatic market-pricing app before further graded-slab integration work.
+          Snapshot date: 2026-08-16
+
+          This branch is an isolated cold backup. It is not the deployed `gengrail-business-log/main` branch.
+          EOF
+
+      - name: Commit exact backup snapshot
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'Backup already matches source.'
+          else
+            git commit -m 'Snapshot known-good raw recognition app from temporary-test-repo main'
+            git push origin HEAD:backup/raw-recognition-known-good-2026-08-16
+          fi
