@@ -8,7 +8,7 @@
 <meta content="Gengrail TCG" name="apple-mobile-web-app-title"/>
 <link href="manifest.json" rel="manifest"/>
 <link href="icon-512.png" rel="apple-touch-icon" sizes="512x512"/><title>Gengrail TCG Business Log</title>
-<meta content="v19.8.2-ai-transport-hardening" name="gengrail-build"/>
+<meta content="v20.2.0-unified-ai-contract" name="gengrail-build"/>
 <style>
 /* GENGRAIL CROWN-GOLD ACTIVE TABS */
 
@@ -126,13 +126,13 @@ input[type="date"]::-webkit-calendar-picker-indicator{
 
 
 /* ---------- EBAY CHANNEL VISIBILITY ---------- */
-/* Keep the full eBay Channel visually attached to Sales only. */
-body:not(.sales-active) .ebay-channel,
-body:not(.sales-active) #ebayChannel,
-body:not(.sales-active) [data-ebay-channel="main"]{
+/* Keep the full eBay Channel visually attached to Channels only. */
+body:not(.channels-active) .ebay-channel,
+body:not(.channels-active) #ebayChannel,
+body:not(.channels-active) [data-ebay-channel="main"]{
   display:none !important;
 }
-body:not(.sales-active) [data-ebay-channel-main="true"]{
+body:not(.channels-active) [data-ebay-channel-main="true"]{
   display:none !important;
 }
 
@@ -978,6 +978,11 @@ body.inner-page .kpi,
 .product-result-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .product-result-actions .btn{margin-top:0;flex:1 1 145px}
 .product-location-callout{margin-top:12px;border-left:4px solid var(--crown);padding:10px 12px;background:#0a0a0a;color:#bbb}
+
+.market-price-card{display:none;margin-top:12px;border:1px solid #416a4c;background:linear-gradient(145deg,#0d1710,#090b09);border-radius:12px;padding:13px}
+.market-price-card.on{display:block}.market-price-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.market-price-kicker{font-size:10px;font-weight:900;letter-spacing:.12em;color:var(--g)}.market-price-main{font:34px Impact,sans-serif;margin-top:3px}.market-price-confidence{border:1px solid #3d8751;border-radius:999px;padding:4px 8px;color:var(--g);font-size:10px;font-weight:900;white-space:nowrap}.market-price-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}.market-price-grid div{background:#080808;border:1px solid #29352c;border-radius:8px;padding:8px}.market-price-grid small{display:block;color:#888;font-size:9px;font-weight:800}.market-price-grid b{display:block;margin-top:2px}.market-price-note{font-size:10px;color:#aaa;line-height:1.45;margin-top:9px}.sequence-preview{margin-top:10px;border:1px solid #6c5318;background:#100d06;border-radius:10px;padding:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px}.sequence-preview small{display:block;color:#a99662;font-size:9px;font-weight:900;letter-spacing:.08em}.sequence-preview b{display:block;color:var(--crown-hi);font-size:18px;margin-top:2px}.sequence-note{grid-column:1/-1;color:#8f856c;font-size:10px;line-height:1.35}
+.ai-approved-market{display:block;margin-top:12px}.ai-approved-market .market-price-main{font-size:28px}.ai-approved-market-choice{margin-top:8px;color:#8fbc99;font-size:10px;font-weight:850}.ai-approved-market-choice.off{color:#888}.ai-approved-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.ai-approved-actions .wide{grid-column:1/-1}.ai-approved-actions .btn{margin-top:0}.ai-approved-actions .selected{box-shadow:0 0 0 2px rgba(130,221,160,.22) inset;border-color:#5ca970}
+@media(max-width:620px){.market-price-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:620px){.product-intake-grid{grid-template-columns:1fr}.intake-action{min-height:84px}.product-detail-grid{grid-template-columns:1fr 1fr}.product-result-photos{grid-template-columns:repeat(3,1fr)}}
 
 
@@ -1018,6 +1023,7 @@ body.inner-page .kpi,
 }
 
 
+.gengrail-perf{margin-top:10px;border:1px dashed #4b4228;background:#0b0a07;border-radius:8px;padding:9px 10px;color:#a9a18e;font-size:9px;line-height:1.55}.gengrail-perf b{color:#e0ad16}.gengrail-perf-grid{display:grid;grid-template-columns:1fr auto;gap:2px 10px}.gengrail-perf-title{color:#e0ad16;font-weight:950;letter-spacing:.12em;margin-bottom:5px}
 /* ---------- PRODUCT ENGINE v19.8 — AI RAW SINGLE RECOGNITION ---------- */
 .ai-recognition-panel{margin-top:12px;border:1px solid #3a3a3a;border-left:4px solid var(--crown);background:#090909;border-radius:10px;padding:12px}
 .ai-recognition-panel.good{border-left-color:#3d8751}.ai-recognition-panel.warn{border-left-color:#8a6c25}.ai-recognition-panel.bad{border-left-color:#7c3a3a}
@@ -1026,10 +1032,67 @@ body.inner-page .kpi,
 .ai-recognition-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}.ai-recognition-cell{background:#111;border:1px solid #2b2b2b;border-radius:8px;padding:9px}.ai-recognition-cell small{display:block;color:#777;font-size:8px;font-weight:950;letter-spacing:.06em}.ai-recognition-cell b{display:block;margin-top:3px;font-size:13px;overflow-wrap:anywhere}
 .ai-recognition-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.ai-recognition-actions button{margin-top:0;flex:1 1 140px}
 .ai-confidence{display:inline-flex;align-items:center;gap:6px;border:1px solid #3d8751;color:var(--g);border-radius:999px;padding:4px 8px;font-size:9px;font-weight:950;margin-top:8px}
+/* ---------- PRODUCT ENGINE v19.10 — FIELD-LEVEL RECOGNITION ---------- */
+.ai-confidence.warn{border-color:#8a6c25;color:#e1bd5d}.ai-confidence.bad{border-color:#7c3a3a;color:#dc8d8d}
+.ai-model-confidence{display:block;color:#737373;font-size:9px;margin-top:5px}
+.ai-field-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px}
+.ai-field-head label{margin:0}
+.ai-field-state{display:inline-flex;align-items:center;gap:4px;border:1px solid #333;border-radius:999px;padding:3px 6px;font-size:7px;font-weight:950;letter-spacing:.05em;white-space:nowrap}
+.ai-field-state.good{border-color:#3d8751;color:#76d08e}.ai-field-state.warn{border-color:#8a6c25;color:#e1bd5d}.ai-field-state.bad{border-color:#7c3a3a;color:#dc8d8d}
+.ai-diagnostic{margin-top:9px;background:#0d0d0d;border:1px solid #292929;border-radius:8px;padding:9px 10px;color:#a8a8a8;font-size:10px;line-height:1.45}
+.ai-diagnostic b{color:#f0f0f0}
 .ai-spinner{display:inline-block;width:13px;height:13px;border:2px solid #555;border-top-color:var(--crown-hi);border-radius:50%;animation:gengrailSpin .8s linear infinite;vertical-align:-2px;margin-right:6px}@keyframes gengrailSpin{to{transform:rotate(360deg)}}
 .ai-settings-status{margin-top:9px;font-size:11px;color:#aaa}.ai-settings-status.good{color:var(--g)}.ai-settings-status.bad{color:var(--r)}
 @media(max-width:620px){.ai-recognition-grid{grid-template-columns:1fr 1fr}}
+/* ---------- PRODUCT ENGINE v19.9 — REVIEW BEFORE STOCK ---------- */
+.ai-review-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:11px}
+.ai-review-grid .full{grid-column:1/-1}
+.ai-review-grid label{font-size:8px;letter-spacing:.08em;color:#777;font-weight:950}
+.ai-review-grid input{margin-top:4px;background:#101010;border-color:#333}
+.ai-review-note{margin-top:10px;padding:9px 10px;border:1px solid #3a321b;background:#110f08;border-radius:8px;color:#cfc4a5;font-size:10px;line-height:1.45}
+.ai-approved-badge{display:inline-block;margin-top:8px;padding:4px 8px;border:1px solid #3d8751;border-radius:999px;color:#82dda0;font-size:9px;font-weight:950;letter-spacing:.06em}
+@media(max-width:620px){.ai-review-grid{grid-template-columns:1fr}.ai-review-grid .full{grid-column:auto}}
 
+
+.pricing-ai-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.pricing-ai-card{border:1px solid var(--line,#333);border-radius:16px;padding:14px;margin-bottom:12px;background:rgba(255,255,255,.025)}.pricing-ai-title{font-size:1.15rem;font-weight:800;margin-top:4px}.pricing-ai-meta{opacity:.78;margin-top:4px}.pricing-ai-market{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}.pricing-ai-market small{display:block;opacity:.7}.pricing-ai-market b{font-size:1.65rem}.pricing-ai-market span{font-size:.75rem;font-weight:800;opacity:.8}.pricing-ai-signals{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.pricing-ai-signals span{padding:6px 8px;border:1px solid rgba(255,255,255,.08);border-radius:999px;font-size:.78rem;opacity:.82}
+
+.postage-profile-summary{margin:10px 0 14px;padding:12px;border:1px solid #34563e;border-radius:12px;background:#0b120d;color:#d9e9de}.postage-profile-summary b{color:#82dda0}.postage-profile-summary .pps-row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.postage-profile-summary small{color:#91a397}.pricing-stats-4{grid-template-columns:repeat(4,1fr)}.pricing-stat.emphasis{border-color:#7a5b13;background:#181205}.pricing-stat.emphasis b{color:#f2c84b}.postage-settings-grid{display:grid;gap:10px;margin-top:12px}.postage-setting{border:1px solid #303030;border-radius:12px;padding:12px;background:#0b0b0b}.postage-setting h4{margin:0 0 8px;color:#82dda0}.postage-setting .grid{margin-top:0}@media(max-width:700px){.pricing-stats-4{grid-template-columns:1fr 1fr}}.pricing-policy-strip{margin-top:10px;padding:10px 12px;border:1px solid #3a3421;border-radius:10px;background:#100e08;color:#d8cfb5;font-size:.82rem;line-height:1.45}.pricing-policy-strip b{color:var(--crown-hi)}.pricing-stat.subtle{opacity:.92}.pricing-stat.na b{font-size:1rem;color:#aaa}.pricing-decision.await{border-color:#4a4a4a}.pricing-decision.await .word{color:#bbb}.pricing-miss{margin-top:8px;color:#c9bfbf;font-size:.82rem;line-height:1.4}.pricing-assumption-wrap[hidden]{display:none!important}
+
+/* ---------- v20 UI CONSOLIDATION ---------- */
+.product-intake-launcher:has(#stockEntryPanel.ai-integrated){border-color:#356c45;background:linear-gradient(180deg,rgba(20,38,25,.42),rgba(10,10,10,.96))}
+#stockEntryPanel.ai-integrated{margin:0;padding:14px 0 0;border:0;border-top:1px solid rgba(130,221,160,.18);border-radius:0;background:transparent;box-shadow:none}
+#stockEntryPanel.ai-integrated .title{font-size:1rem;letter-spacing:.08em;color:#82dda0;margin-bottom:10px}
+#stockEntryPanel.ai-integrated .sequence-preview{background:#0b0d0b}
+.compact-intake-note{padding-top:10px;padding-bottom:10px}
+.pricing-recalc{margin-top:2px;opacity:.78}
+@media(max-width:620px){#stockEntryPanel.ai-integrated .grid{grid-template-columns:1fr}.product-intake-grid{gap:7px}.recognition-ready small{display:none}}
+
+/* ---------- V20.0.1 — UNIFIED AI STOCK INTAKE ---------- */
+.ai-intake-workspace{margin-top:12px;border:1px solid #356c45;border-left:4px solid #4ca766;border-radius:14px;background:linear-gradient(180deg,#081009 0%,#090909 100%);overflow:hidden}
+.ai-intake-workspace[hidden]{display:none!important}
+.ai-intake-workspace .ai-recognition-panel{margin:0;border:0;border-radius:0;background:transparent;padding:16px}
+.ai-identity-summary{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin:10px 0 12px;padding:12px;border:1px solid rgba(130,221,160,.18);border-radius:12px;background:rgba(255,255,255,.018)}
+.ai-identity-summary b{display:block;color:#f5f5f5;font-size:1.25rem;line-height:1.15}
+.ai-identity-summary span{display:block;color:#aaa;margin-top:5px;font-size:.86rem;line-height:1.4}
+.ai-verified-pill{white-space:nowrap;border:1px solid #3d8751;border-radius:999px;padding:5px 8px;color:#82dda0;font-size:.72rem;font-weight:900;letter-spacing:.06em}
+.ai-identity-details{margin:10px 0;border:1px solid #2b2f2c;border-radius:10px;background:#0a0b0a}
+.ai-identity-details summary{cursor:pointer;padding:10px 12px;color:#d7d7d7;font-weight:850}
+.ai-identity-details .ai-review-grid{padding:0 12px 12px;margin-top:0}
+.ai-identity-details .ai-review-grid input{padding:10px 11px;font-size:.92rem}
+.ai-intake-workspace #stockEntryPanel.ai-integrated{margin:0!important;padding:16px!important;border:0!important;border-top:1px solid rgba(130,221,160,.18)!important;border-radius:0!important;background:rgba(255,255,255,.01)!important;box-shadow:none!important}
+#stockEntryPanel.ai-integrated .title{font-size:1rem;letter-spacing:.08em;color:#82dda0;margin:0 0 12px}
+#stockEntryPanel.ai-integrated .grid{grid-template-columns:1fr 1fr;gap:10px}
+#stockEntryPanel.ai-integrated .intake-system-only{display:none!important}
+#stockEntryPanel.ai-integrated .intake-assigned-meta{display:block!important;grid-column:1/-1;padding:9px 11px;border:1px solid #292929;border-radius:9px;color:#999;font-size:.78rem;line-height:1.4;background:#090909}
+#stockEntryPanel:not(.ai-integrated) .intake-assigned-meta{display:none!important}
+#stockEntryPanel.ai-integrated .photo-help{font-size:.75rem;line-height:1.35}
+#stockEntryPanel.ai-integrated .actions{margin-top:14px}
+#stockEntryPanel.ai-integrated #addp{flex:1;min-width:190px}
+@media(max-width:620px){#stockEntryPanel.ai-integrated .grid{grid-template-columns:1fr}.ai-identity-summary{display:block}.ai-verified-pill{display:inline-block;margin-top:9px}}
+
+/* ---------- v20.1 CONSOLIDATION ---------- */
+.compact-help,.compact-intake-note{color:#9e9e9e;font-size:13px;line-height:1.45;margin:6px 0 12px}.compact-engine{padding:10px 12px;margin-top:12px}.compact-engine span{font-size:9px}.compact-engine b{font-size:15px}.compact-details,.settings-details,.history-details,.danger-zone{margin-top:12px;border:1px solid #303030;border-radius:12px;background:#0b0b0b;overflow:hidden}.compact-details summary,.settings-details summary,.history-details summary,.danger-zone summary{cursor:pointer;padding:12px 14px;font-weight:900;color:#ddd;list-style:none}.compact-details summary::-webkit-details-marker,.settings-details summary::-webkit-details-marker,.history-details summary::-webkit-details-marker,.danger-zone summary::-webkit-details-marker{display:none}.compact-details summary:before,.settings-details summary:before,.history-details summary:before,.danger-zone summary:before{content:'›';display:inline-block;margin-right:8px;color:var(--y);transition:.15s}.compact-details[open] summary:before,.settings-details[open] summary:before,.history-details[open] summary:before,.danger-zone[open] summary:before{transform:rotate(90deg)}.compact-details .note,.settings-details .note{margin:0 12px 12px}.settings-status-row{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid #303030;border-radius:12px;background:#0b0b0b;padding:12px}.settings-status-row b,.settings-status-row small{display:block}.settings-status-row small{color:#888;margin-top:3px}.settings-ok{border:1px solid #3d8751;background:#0d1a11;color:#82dda0;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:900}.danger-zone{border-color:#5c3030}.danger-zone summary{color:#ff9b9b}.postage-setting details{border:0}.postage-setting summary{display:flex;justify-content:space-between;gap:10px;align-items:center;cursor:pointer;list-style:none}.postage-setting summary::-webkit-details-marker{display:none}.postage-setting .pf-summary-copy b,.postage-setting .pf-summary-copy small{display:block}.postage-setting .pf-summary-copy small{color:#888;margin-top:4px}.postage-setting .pf-summary-range{font-size:11px;color:#d6b649;text-align:right}.postage-setting .pf-edit{margin-top:12px;padding-top:12px;border-top:1px solid #252525}.mobile-record-cards{display:none}.record-card{border:1px solid #303030;border-radius:14px;background:#0b0b0b;padding:13px;margin-top:10px}.record-card-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.record-card-title{font-weight:950;font-size:17px;line-height:1.2}.record-card-sub{font-size:11px;color:#999;margin-top:4px}.record-card-meta{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}.record-card-meta>div{border:1px solid #252525;border-radius:9px;padding:9px}.record-card-meta small{display:block;color:#777;font-size:9px;font-weight:900;text-transform:uppercase}.record-card-meta b{display:block;margin-top:3px;font-size:13px}.record-card-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.record-card-actions button{flex:1 1 115px}.record-action{appearance:none;-webkit-appearance:none;background:#252525;color:#f4f1ea;border:1px solid #444;border-radius:10px;padding:10px 12px;font:inherit;font-size:12px;font-weight:900;letter-spacing:.02em}.record-action.secondary{background:#202020;color:#eee}.record-action.danger{background:#3a1717;color:#ffb0b0;border-color:#713131}.record-action:active{transform:translateY(1px)}.location-admin-panel .compact-details{margin-top:0}.location-admin-inner{padding:0 14px 14px}.subsection-title{font-weight:950;color:#f4f1ea;margin:4px 0 10px}.location-custom-title{margin-top:18px;padding-top:16px;border-top:1px solid #252525}.history-details{margin-top:14px}.history-details summary{display:flex;justify-content:space-between}.pricing-purpose{margin-top:0}.pricing-recalc{opacity:1}.pricing-decision.await{display:none!important}.postage-profile-summary>small{display:none}.ai-approved-market .market-price-grid{margin-bottom:0}
+@media(max-width:700px){.desktop-record-table{display:none!important}.mobile-record-cards{display:block}.orders-table-wrap{display:none!important}.pricing-hero{padding:12px}.pricing-price{font-size:34px}.pricing-hero small{font-size:10px}.pricing-ai-market b{font-size:1.45rem}.record-card-actions .stock-ebay-btn{flex-basis:100%}}
 </style>
 <link href="gengrail-theme.css" rel="stylesheet"/>
 <link href="gengrail-gold-tabs.css" rel="stylesheet"/>
@@ -1052,9 +1115,10 @@ body.inner-page .kpi,
 <div class="command-group" data-group-screen="operations" id="group-operations"><div class="command-group-head"><button aria-label="Back to Command Centre" class="page-back group-back" type="button">←</button><div class="command-group-copy"><h2>Operations</h2><p>Act on orders and control physical inventory</p></div></div><div class="group-menu"><button data-go="orders" id="operationsOrdersTile" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M6 4h12l2 4-8 4-8-4 2-4Z"></path><path d="M4 8v9l8 4 8-4V8"></path><path d="m9 15 2 2 4-4"></path></svg></span><span><span class="glabel">Orders</span><span class="gsub" id="operationsOrdersSub">Pick, pack and dispatch customer orders</span></span><span class="garrow">›</span></button><button data-go="stock" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><rect height="18" rx="2" width="14" x="5" y="3"></rect><path d="M8 7h8"></path><path d="M8 11h8"></path><path d="M8 15h5"></path></svg></span><span><span class="glabel">Stock</span><span class="gsub">Catalogue, view and manage inventory</span></span><span class="garrow">›</span></button><button data-go="storage" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z"></path><circle cx="12" cy="10" r="2"></circle></svg></span><span><span class="glabel">Locations</span><span class="gsub">Warehouse storage and stock placement</span></span><span class="garrow">›</span></button></div></div>
 <div class="command-group" data-group-screen="sales" id="group-sales"><div class="command-group-head"><button aria-label="Back to Command Centre" class="page-back group-back" type="button">←</button><div class="command-group-copy"><h2>Sales</h2><p>Manage selling activity and connected channels</p></div></div><div class="group-menu"><button data-go="sales" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 6h16"></path><path d="M4 11h16"></path><path d="M4 16h10"></path><circle cx="18" cy="16" r="2"></circle></svg></span><span><span class="glabel">Sales Log</span><span class="gsub">Review sales history and add non-channel sales</span></span><span class="garrow">›</span></button><button data-go="channels" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><circle cx="7" cy="12" r="3"></circle><circle cx="17" cy="7" r="3"></circle><circle cx="17" cy="17" r="3"></circle><path d="M9.7 10.6 14.2 8.3"></path><path d="m9.7 13.4 4.5 2.3"></path></svg></span><span><span class="glabel">Channels</span><span class="gsub">Open eBay and future marketplace integrations</span></span><span class="garrow">›</span></button></div></div>
 <div class="command-group" data-group-screen="finance" id="group-finance"><div class="command-group-head"><button aria-label="Back to Command Centre" class="page-back group-back" type="button">←</button><div class="command-group-copy"><h2>Finance</h2><p>Understand and control the business</p></div></div><div class="group-menu"><button data-go="dash" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><rect height="8" rx="1" width="8" x="3" y="3"></rect><rect height="5" rx="1" width="8" x="13" y="3"></rect><rect height="11" rx="1" width="8" x="13" y="10"></rect><rect height="8" rx="1" width="8" x="3" y="13"></rect></svg></span><span><span class="glabel">Dashboard</span><span class="gsub">Revenue, profit, cash and stock overview</span></span><span class="garrow">›</span></button><button data-go="exp" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21V3Z"></path><path d="M9 7h6"></path><path d="M9 11h6"></path><path d="M9 15h4"></path></svg></span><span><span class="glabel">Expenses</span><span class="gsub">Log and review business expenditure</span></span><span class="garrow">›</span></button><button data-go="owner" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><circle cx="12" cy="8" r="3"></circle><path d="M5 21a7 7 0 0 1 14 0"></path><path d="M12 2v2"></path></svg></span><span><span class="glabel">Owner</span><span class="gsub">Funding, contributions and dividends</span></span><span class="garrow">›</span></button><button data-go="tax" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><rect height="18" rx="2" width="16" x="4" y="3"></rect><path d="M7 7h10"></path><path d="M8 11h1"></path><path d="M12 11h1"></path><path d="M16 11h1"></path><path d="M8 15h1"></path><path d="M12 15h1"></path><path d="M16 15h1"></path><path d="M8 18h1"></path><path d="M12 18h5"></path></svg></span><span><span class="glabel">Tax</span><span class="gsub">Corporation tax and reserve tools</span></span><span class="garrow">›</span></button></div></div>
-<div class="command-group" data-group-screen="tools" id="group-tools"><div class="command-group-head"><button aria-label="Back to Command Centre" class="page-back group-back" type="button">←</button><div class="command-group-copy"><h2>Tools</h2><p>Fast utilities for everyday work</p></div></div><div class="group-menu"><button data-go="pricing" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><rect height="18" rx="2" width="16" x="4" y="3"></rect><path d="M8 7h8"></path><path d="M8 11h1"></path><path d="M12 11h1"></path><path d="M16 11h1"></path><path d="M8 15h1"></path><path d="M12 15h1"></path><path d="M16 15h1"></path><path d="M8 18h9"></path></svg></span><span><span class="glabel">Pricing Calculator</span><span class="gsub">Quick margin and selling-price utility</span></span><span class="garrow">›</span></button><button data-go="lookup" data-focus="productLookupInput" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 8V4h4"></path><path d="M16 4h4v4"></path><path d="M20 16v4h-4"></path><path d="M8 20H4v-4"></path><path d="M8 9v6"></path><path d="M11 9v6"></path><path d="M14 9v6"></path><path d="M17 9v6"></path></svg></span><span><span class="glabel">Stock Lookup</span><span class="gsub">Find an item, then act on it</span></span><span class="garrow">›</span></button></div></div>
+<div class="command-group" data-group-screen="tools" id="group-tools"><div class="command-group-head"><button aria-label="Back to Command Centre" class="page-back group-back" type="button">←</button><div class="command-group-copy"><h2>Tools</h2><p>Fast utilities for everyday work</p></div></div><div class="group-menu"><button data-go="lookup" data-focus="productLookupInput" type="button"><span class="gicon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 8V4h4"></path><path d="M16 4h4v4"></path><path d="M20 16v4h-4"></path><path d="M8 20H4v-4"></path><path d="M8 9v6"></path><path d="M11 9v6"></path><path d="M14 9v6"></path><path d="M17 9v6"></path></svg></span><span><span class="glabel">Stock Lookup</span><span class="gsub">Find an item, then act on it</span></span><span class="garrow">›</span></button></div></div>
 </section>
-<section class="sec" id="channels"><div class="panel"><div class="title">SALES CHANNELS</div><div class="channel-hub-card"><div class="channel-hub-head"><div><b>eBay</b><small>Production marketplace integration</small></div><span class="channel-status-live">ACTIVE</span></div><p>Manage drafts, live listings, publishing setup and eBay sales sync through the existing proven eBay channel.</p><button class="btn" id="openEbayChannel" type="button">OPEN EBAY CHANNEL</button></div><div class="note">Gengrail is now organised so marketplace integrations sit behind a common Channels layer. Shopify and TikTok Shop can be added here later without changing the core Stock, Orders or Finance workflow.</div></div></section>
+<section class="sec" id="channels"><div class="panel"><div class="title">SALES CHANNELS</div><div class="channel-hub-card"><div class="channel-hub-head"><div><b>eBay</b><small>Production marketplace integration</small></div><span class="channel-status-live">ACTIVE</span></div><p>Drafts, live listings, publishing setup and sales sync.</p><button class="btn" id="openEbayChannel" type="button">OPEN EBAY CHANNEL</button></div></div></section>
+<section class="sec" id="ebayChannel"><div id="ebayChannelMount"></div></section>
 <section class="sec" id="dash"><div class="panel"><div class="title">BUSINESS DASHBOARD</div><div class="kpis">
 <div class="kpi"><small>Sales revenue</small><b id="rev">£0</b></div>
 <div class="kpi"><small>Cost of stock sold</small><b id="cogskpi">£0</b></div>
@@ -1068,39 +1132,41 @@ body.inner-page .kpi,
 <div class="kpi"><small>Startup expenditure</small><b id="startupSpend">£0</b></div>
 <div class="kpi"><small>Retained after-tax profit</small><b id="retained">£0</b></div>
 <div class="kpi"><small>Available buying capital</small><b id="buycap">£0</b></div>
-</div><div class="note" id="cashnote"></div></div></section>
+</div><details class="compact-details"><summary>How the dashboard is calculated</summary><div class="note" id="cashnote"></div></details></div></section>
 <section class="sec" id="stock">
 <div class="panel product-intake-launcher">
 <div class="title">ADD CARD / PRODUCT</div>
-<div class="note" style="margin-top:0">Choose how you want to start. Camera and photo intake are the foundation for Gengrail recognition; you can review every field before anything is added to Stock.</div>
+<div class="compact-intake-note">Scan, import or enter manually.</div>
 <div class="product-intake-grid">
 <button class="intake-action" id="startCameraIntake" type="button"><span class="intake-icon">⌁</span><b>SCAN CARD</b><small>Use the iPhone camera</small></button>
 <button class="intake-action" id="startPhotoIntake" type="button"><span class="intake-icon">▧</span><b>IMPORT PHOTO</b><small>Choose an existing card image</small></button>
 <button class="intake-action" id="startManualIntake" type="button"><span class="intake-icon">＋</span><b>ENTER MANUALLY</b><small>Open the full stock sheet</small></button>
 </div>
 <input accept="image/*" capture="environment" id="pcamera" style="display:none" type="file"/>
-<div class="recognition-ready"><span>AI PRODUCT ENGINE</span><b>English + Japanese raw single recognition ready</b><small>Scan or import the front of a Pokémon card. Gengrail will identify the card, detect language, verify English matches where possible and pre-fill the Stock sheet for your approval.</small></div>
-<div class="ai-recognition-panel" id="aiRecognitionPanel" hidden></div>
+<div class="recognition-ready compact-engine"><span>AI READY</span><b>English + Japanese raw singles</b></div>
+<div class="ai-intake-workspace" id="aiIntakeWorkspace" hidden><div class="ai-recognition-panel" id="aiRecognitionPanel" hidden></div></div>
 </div>
-<div class="panel" hidden id="stockEntryPanel"><div class="title">LOG A PURCHASE</div><div class="grid">
-<div><label>Card / product</label><input id="pn"/></div><div><label>Category</label><select id="pc"><option>Raw Single</option><option>Graded</option><option>Sealed</option><option>Collection</option><option>Accessory</option><option>Other</option></select></div>
+<div class="panel" hidden id="stockEntryPanel"><div class="title" id="stockEntryTitle">PURCHASE DETAILS</div><div class="grid">
+<div class="intake-system-only"><label>Card / product</label><input id="pn"/></div><div class="intake-system-only"><label>Category</label><select id="pc"><option>Raw Single</option><option>Graded</option><option>Sealed</option><option>Collection</option><option>Accessory</option><option>Other</option></select></div>
 <div><label>Purchase date</label><input id="pd" type="date"/></div><div><label>Quantity</label><input id="pq" min="1" type="number" value="1"/></div>
-<div><label>Total buy price (£)</label><input id="pp" step=".01" type="number"/></div><div><label>Source / seller</label><input id="ps"/></div>
+<div><label>Total buy price (£)</label><input id="pp" step=".01" type="number" inputmode="decimal"/></div><div><label>Source / seller</label><input id="ps"/></div>
 <div><label>Condition</label><select id="pcondition"><option>Ungraded</option><option>Graded</option><option>New</option><option>Used</option></select></div>
-<div><label>SKU</label><input id="psku" placeholder="Auto-generated GEN000001 if blank"/></div>
-<div><label>Purchase / batch ID</label><input id="ppurchaseid" placeholder="Auto-generated PUR000001 if blank"/></div>
+<div class="intake-system-only"><label>SKU</label><input id="psku" placeholder="Auto-generated from permanent SKU ledger if blank"/></div>
+<div class="intake-system-only"><label>Purchase / batch ID</label><input id="ppurchaseid" placeholder="Auto-generated from permanent purchase ledger if blank"/></div>
 <div><label>Storage location</label><select id="plocation"><option value="UNALLOCATED">UNALLOCATED</option></select></div>
-<div><label>Inventory status</label><select id="pstatus"><option value="IN_STOCK">In stock</option><option value="TO_CATALOGUE">To catalogue</option><option value="LISTED">Listed</option></select></div>
-<div><label>Target / eBay list price (£)</label><input id="plist" placeholder="Optional" step=".01" type="number"/></div>
-<div><label>eBay status</label><select id="pebaystatus"><option value="NOT_LISTED">Not listed</option><option value="DRAFT">Draft</option><option value="LISTED">Listed</option></select></div>
-<div class="full photo-picker"><label>Product photos</label><input accept="image/*" id="pphotos" multiple="" type="file"/><div class="photo-help">Add front/back and detail photos now. Images are stored separately on this device so they do not inflate the accounting database or JSON backup.</div><div class="photo-preview" id="ppreview"></div></div>
+<div class="intake-system-only"><label>Inventory status</label><select id="pstatus"><option value="IN_STOCK">In stock</option><option value="TO_CATALOGUE">To catalogue</option><option value="LISTED">Listed</option></select></div>
+<div><label>Target sell price (£)</label><input id="plist" placeholder="Optional" step=".01" type="number" inputmode="decimal"/></div>
+<div class="intake-system-only"><label>eBay status</label><select id="pebaystatus"><option value="NOT_LISTED">Not listed</option><option value="DRAFT">Draft</option><option value="LISTED">Listed</option></select></div>
+<div class="intake-assigned-meta">SKU + Purchase ID assigned automatically on save.</div>
+<div class="full sequence-preview intake-system-only" id="sequencePreview"><div><small>NEXT SKU</small><b id="sequenceSku">—</b></div><div><small>NEXT PURCHASE ID</small><b id="sequencePurchase">—</b></div><div class="sequence-note">Sequence preview is generated from Gengrail's permanent high-water ledger. Sold or deleted historical IDs are never reused.</div></div>
+<div class="full photo-picker"><label>Product photos</label><input accept="image/*" id="pphotos" multiple="" type="file"/><div class="photo-help">Front/back or detail photos stay on this device and are excluded from the accounting JSON backup.</div><div class="photo-preview" id="ppreview"></div></div>
 <div class="full"><label>Notes</label><textarea id="pnotes"></textarea></div></div><div class="actions"><button class="btn" id="addp">ADD TO STOCK</button><button class="btn alt" id="cancelStockEntry" type="button">CLOSE</button></div></div>
-<div class="panel"><div class="title">CURRENT STOCK</div><div class="table"><table><thead><tr><th>Item</th><th>SKU</th><th>Purchase ID</th><th>Location</th><th>Status</th><th>Condition</th><th>Qty left</th><th>Unit cost</th><th>Target list</th><th>eBay</th><th>Photos</th><th>Source</th><th>Actions</th></tr></thead><tbody id="pbody"></tbody></table></div><div class="note">Stock is now the master product record. Photos stay on this device in dedicated browser storage; SKU, condition, target price and eBay status are stored with the stock record and can be used by the eBay integration.</div></div>
+<div class="panel"><div class="title">CURRENT STOCK</div><div class="table desktop-record-table"><table><thead><tr><th>Item</th><th>SKU</th><th>Purchase ID</th><th>Location</th><th>Status</th><th>Condition</th><th>Qty left</th><th>Unit cost</th><th>Target list</th><th>eBay</th><th>Photos</th><th>Source</th><th>Actions</th></tr></thead><tbody id="pbody"></tbody></table></div><div class="mobile-record-cards" id="stockCards"></div></div>
 </section>
 <section class="sec" id="lookup">
 <div class="panel">
 <div class="title">STOCK LOOKUP</div>
-<div class="note" style="margin-top:0">Scan or enter a Gengrail SKU to open the product record. Location actions only appear when they are relevant.</div>
+
 <div class="scan-box product-lookup-box">
 <label>SKU or scan data</label>
 <input class="mono" id="productLookupInput" placeholder="GEN000001 or GENGRAIL:SKU:GEN000001"/>
@@ -1118,21 +1184,18 @@ body.inner-page .kpi,
 <div id="locationBrowser"></div>
 <div class="loc-detail" id="locationDetail"></div>
 </div>
-<div class="panel"><div class="title">ADD STANDARD BOX</div>
-<div class="loc-create-standard"><div><label>Box letter</label><input id="standardBoxLetter" maxlength="1" placeholder="A"/></div><button class="btn" id="addStandardBox" type="button">CREATE 24 LOCATIONS</button></div>
-<div class="note">A standard 3-row Gengrail box creates 24 locations automatically: row 1 = 01–08, row 2 = 09–16, row 3 = 17–24. Example: Box A creates A01–A24.</div></div>
-<div class="panel"><div class="title">CUSTOM LOCATION</div><div class="grid"><div><label>Location code</label><input id="newLocCode" placeholder="Q01"/></div><div class="full"><label>Description</label><input id="newLocDesc" placeholder="Quarantine / grading / special storage"/></div></div><button class="btn" id="addLocation">CREATE LOCATION</button><div class="note">Use custom locations only when the standard A01–A24 box structure does not fit the physical storage.</div></div>
+<div class="panel location-admin-panel"><details class="compact-details"><summary>ADD STORAGE LOCATIONS</summary><div class="location-admin-inner"><div class="subsection-title">STANDARD BOX</div><div class="loc-create-standard"><div><label>Box letter</label><input id="standardBoxLetter" maxlength="1" placeholder="A"/></div><button class="btn" id="addStandardBox" type="button">CREATE 24 LOCATIONS</button></div><div class="compact-help">Creates 24 locations automatically: 01–08, 09–16 and 17–24. Example: Box A creates A01–A24.</div><div class="subsection-title location-custom-title">CUSTOM LOCATION</div><div class="grid"><div><label>Location code</label><input id="newLocCode" placeholder="Q01"/></div><div class="full"><label>Description</label><input id="newLocDesc" placeholder="Quarantine / grading / special storage"/></div></div><button class="btn alt" id="addLocation">CREATE CUSTOM LOCATION</button><div class="compact-help">Use only when the standard box structure does not fit the physical storage.</div></div></details></div>
 <div class="panel"><div class="title">PUT AWAY / MOVE STOCK</div><div class="grid"><div class="full"><label>Stock item</label><select id="moveSku"></select></div><div><label>New location</label><select id="moveLocation"></select></div><div><label>New status</label><select id="moveStatus"><option value="IN_STOCK">In stock</option><option value="TO_CATALOGUE">To catalogue</option><option value="LISTED">Listed</option></select></div></div><button class="btn" id="moveStock">SAVE LOCATION</button></div>
-<div class="panel"><div class="title">SCAN / LOOKUP</div><div class="scan-box"><label>SKU or scan data</label><input class="mono" id="scanInput" placeholder="GEN000001 or GENGRAIL:SKU:GEN000001"/><button class="btn" id="scanLookup">LOOK UP ITEM</button><div class="scan-result" id="scanResult">Ready.</div></div></div>
+
 </section>
 <section class="sec" id="orders">
 <div class="panel"><div class="title">FULFILMENT QUEUE</div><div class="kpis"><div class="kpi"><small>Pick required</small><b id="orderPick">0</b></div><div class="kpi"><small>Picked</small><b id="orderPicked">0</b></div><div class="kpi"><small>Packed</small><b id="orderPacked">0</b></div><div class="kpi"><small>Dispatched</small><b id="orderDispatched">0</b></div></div></div>
-<div class="panel"><div class="title">ORDERS</div><div class="orders-table-wrap"><div class="table"><table><thead><tr><th>Order</th><th>Item</th><th>SKU</th><th>Location</th><th>Channel</th><th>Status</th><th>Next action</th></tr></thead><tbody id="orderBody"></tbody></table></div></div><div class="order-cards" id="orderCards"></div><div class="actions" style="margin-top:12px"><button class="btn alt" onclick="cleanOrphanOrders()" type="button">CLEAN ORPHANED ORDERS</button></div><div class="note">Manual sales create a fulfilment task automatically. Once the eBay API is live, eBay orders can feed this same queue. The cleanup tool only removes orders whose linked sale no longer exists.</div></div>
+<div class="panel"><div class="title">ACTIVE ORDERS</div><div class="orders-table-wrap"><div class="table"><table><thead><tr><th>Order</th><th>Item</th><th>SKU</th><th>Location</th><th>Channel</th><th>Status</th><th>Next action</th></tr></thead><tbody id="orderBody"></tbody></table></div></div><div class="order-cards" id="orderCards"></div><details class="history-details" id="orderHistoryDetails"><summary>DISPATCHED HISTORY <span id="orderHistoryCount">0</span></summary><div class="order-cards" id="orderHistoryCards"></div></details></div>
 </section>
 <section class="sec" id="sales">
 <div class="panel manual-sale-launch">
 <button class="btn" id="toggleManualSale" style="margin-top:0" type="button">+ ADD MANUAL SALE</button>
-<div class="note">Use manual entry only for sales made outside the automatic eBay channel — for example Direct, Facebook Marketplace, card shows, Vinted or Cardmarket.</div>
+<div class="compact-help">For Direct, Facebook, card shows, Vinted, Cardmarket or other off-channel sales.</div>
 </div>
 <div class="panel" hidden="" id="manualSaleForm">
 <div class="title">ADD MANUAL SALE</div><div class="grid">
@@ -1142,7 +1205,7 @@ body.inner-page .kpi,
 <div><label>Packaging allocation (£)</label><input id="spa" step=".01" type="number" value="0"/></div><div><label>Other sale costs (£)</label><input id="so" step=".01" type="number" value="0"/></div>
 <div class="full"><label>Notes</label><textarea id="snotes"></textarea></div></div><button class="btn" id="adds">SAVE MANUAL SALE</button>
 <div class="note">Packaging allocation is used for per-sale margin analysis. If you also record the actual purchase of sleeves, envelopes, labels etc. in Expenses, this allocation is not deducted again from accounting profit or cash, avoiding double-counting.</div></div>
-<div class="panel"><div class="title">SALES LOG</div><div class="table"><table><thead><tr><th>Date</th><th>Item</th><th>Source</th><th>Platform</th><th>Revenue</th><th>COGS</th><th>Fees</th><th>Postage/Other</th><th>Pack alloc.</th><th>Contribution</th><th>Margin</th><th></th></tr></thead><tbody id="sbody"></tbody></table></div></div>
+<div class="panel"><div class="title">SALES LOG</div><div class="table desktop-record-table"><table><thead><tr><th>Date</th><th>Item</th><th>Source</th><th>Platform</th><th>Revenue</th><th>COGS</th><th>Fees</th><th>Postage/Other</th><th>Pack alloc.</th><th>Contribution</th><th>Margin</th><th></th></tr></thead><tbody id="sbody"></tbody></table></div><div class="mobile-record-cards" id="salesCards"></div></div>
 </section>
 <section class="sec" id="exp">
 <div class="panel"><div class="title">EXPENSE SUMMARY</div><div class="kpis">
@@ -1162,13 +1225,13 @@ body.inner-page .kpi,
 <div><label>Startup expenditure?</label><select id="estartup"><option value="false">No</option><option value="true">Yes</option></select></div>
 <div class="full"><label>Notes / receipt reference</label><textarea id="en"></textarea></div>
 </div><button class="btn" id="adde">ADD EXPENSE</button></div>
-<div class="panel"><div class="title">EXPENSE LOG</div><div class="table"><table><thead><tr><th>Date</th><th>Supplier</th><th>Category</th><th>Class</th><th>Description</th><th>Qty</th><th>Amount</th><th>Startup</th><th>Notes</th><th></th></tr></thead><tbody id="ebody"></tbody></table></div></div>
+<div class="panel"><div class="title">EXPENSE LOG</div><div class="table desktop-record-table"><table><thead><tr><th>Date</th><th>Supplier</th><th>Category</th><th>Class</th><th>Description</th><th>Qty</th><th>Amount</th><th>Startup</th><th>Notes</th><th></th></tr></thead><tbody id="ebody"></tbody></table></div><div class="mobile-record-cards" id="expenseCards"></div></div>
 </section>
 <section class="sec" id="owner">
 <div class="panel"><div class="title">OWNER &amp; FUNDING</div>
 <div class="grid"><div><label>Annual PAYE employment salary (£)</label><input id="salary" step="100" type="number" value="57000"/></div>
 <div><label>Dividend allowance used elsewhere (£)</label><input id="divUsedElsewhere" step=".01" type="number" value="0"/></div></div>
-<div class="note">Your salary does not change the company's Corporation Tax rate. It matters when company profits are extracted personally, particularly as dividends.</div></div>
+<details class="compact-details"><summary>Why these details matter</summary><div class="note">Your salary is used for personal extraction/dividend estimates; it does not change the company Corporation Tax rate.</div></details></div>
 <div class="panel"><div class="title">CAPITAL INTRODUCED</div><div class="grid">
 <div><label>Date</label><input id="fd" type="date"/></div><div><label>Amount paid into company (£)</label><input id="fa" step=".01" type="number"/></div>
 <div class="full"><label>Note</label><input id="fn" placeholder="e.g. initial owner funding"/></div></div><button class="btn" id="addfund">LOG FUNDING</button>
@@ -1178,60 +1241,79 @@ body.inner-page .kpi,
 <div class="full"><label>Note</label><input id="dn" placeholder="e.g. interim dividend"/></div></div><button class="btn" id="adddiv">LOG DIVIDEND</button>
 <div class="kpis" style="margin-top:12px"><div class="kpi"><small>Total dividends</small><b id="totdiv">£0</b></div><div class="kpi"><small>Est. personal dividend tax</small><b id="divtax">£0</b></div><div class="kpi"><small>Net dividends after est. tax</small><b id="divnet">£0</b></div><div class="kpi"><small>Unused £500 allowance</small><b id="divallow">£500</b></div></div>
 <div class="table" style="margin-top:12px"><table><thead><tr><th>Date</th><th>Dividend</th><th>Note</th><th></th></tr></thead><tbody id="dbody"></tbody></table></div>
-<div class="note">Personal dividend tax is an estimate only and depends on your full tax position.</div></div>
+<details class="compact-details"><summary>Dividend estimate note</summary><div class="note">Personal dividend tax is an estimate and depends on your full tax position.</div></details></div>
 </section>
 <section class="sec" id="tax">
 <div class="panel"><div class="title">UK LIMITED COMPANY TAX ESTIMATE</div><div class="kpis">
 <div class="kpi"><small>Accounting profit</small><b id="tp">£0</b></div><div class="kpi"><small>Estimated CT</small><b id="tct">£0</b></div><div class="kpi"><small>Effective CT rate</small><b id="tr">0%</b></div><div class="kpi"><small>After-tax profit</small><b id="tn">£0</b></div>
-</div><div class="note">Uses the tax-rate assumptions already configured in this app. This remains a management estimate, not a Corporation Tax return; capital allowances, disallowable expenditure, associated companies and accounting-period rules can alter taxable profit and tax due.</div></div>
+</div><details class="compact-details"><summary>About this estimate</summary><div class="note">Management estimate only. Accounting adjustments and period rules can change taxable profit and tax due.</div></details></div>
 <div class="panel"><div class="title">CASH &amp; REINVESTMENT</div><div class="kpis">
 <div class="kpi"><small>Company cash estimate</small><b id="cash">£0</b></div><div class="kpi"><small>CT reserve</small><b id="taxreserve">£0</b></div><div class="kpi"><small>Available buying capital</small><b id="avail">£0</b></div><div class="kpi"><small>Retained profit after dividends</small><b id="ret2">£0</b></div>
-</div><div class="note" id="capnote"></div></div>
+</div><details class="compact-details"><summary>Retained profit detail</summary><div class="note" id="capnote"></div></details></div>
 <div class="panel"><div class="title">VAT THRESHOLD MONITOR</div><p>Recorded turnover: <b id="vat">£0</b> / £90,000</p><div class="bar"><i id="vbar"></i></div><div class="note" id="vtxt"></div></div>
 
 </section>
 <section class="sec" id="settings">
 <div class="panel"><div class="title">AI CARD RECOGNITION</div>
-<div class="note" style="margin-top:0">Raw Pokémon singles only in this release. Recognition runs through a private Cloudflare Workers AI endpoint; no AI credential is stored in the app.</div>
-<div class="grid" style="margin-top:12px"><div class="full"><label>Recognition backend URL</label><input id="aiRecognitionEndpoint" placeholder="https://gengrail-card-ai.gengrailtcg.workers.dev"/></div></div>
-<div class="actions"><button class="btn alt" id="testAiRecognition" type="button">TEST AI CONNECTION</button></div><div class="ai-settings-status" id="aiRecognitionStatus">Not tested yet.</div></div>
-<div class="panel"><div class="title">BACKUP &amp; EXPORT</div><div class="actions"><button class="btn alt" id="csv">EXPORT CSV</button><button class="btn alt" id="json">BACKUP JSON</button><label class="btn alt">RESTORE JSON<input accept=".json" id="imp" style="display:none" type="file"/></label><button class="btn red" id="wipe">ERASE ALL</button></div><div class="note"><b>Protect the business data.</b> Core records are stored locally in this browser/device, so create a JSON backup before major app updates and regularly during normal use. Product photos remain in dedicated on-device photo storage and are not included in the JSON backup.</div></div>
-<div class="panel"><div class="title">APP DATA</div><div class="note">Export CSV creates a readable business-data export. Backup JSON is the portable, restorable Gengrail backup and also includes supported app preferences and eBay module data. <b>Automatic Safety Vault:</b> Gengrail now also maintains an independent last-good database copy in IndexedDB on this device. If an app update ever opens with its main local database missing, Gengrail checks this vault before allowing an empty database to become the new state. Product photos remain in their dedicated IndexedDB store. ERASE ALL remains a deliberate destructive action and does not overwrite the last-good safety vault.</div></div>
+<div class="settings-status-row"><div><b>AI Recognition</b><small>English + Japanese raw Pokémon singles</small></div><span class="settings-ok">CONFIGURED</span></div>
+<details class="settings-details"><summary>Advanced AI diagnostics</summary><div class="grid" style="margin-top:12px"><div class="full"><label>Recognition backend URL</label><input id="aiRecognitionEndpoint" placeholder="https://gengrail-card-ai.gengrailtcg.workers.dev"/></div></div><div class="actions"><button class="btn alt" id="testAiRecognition" type="button">TEST AI CONNECTION</button></div><div class="ai-settings-status" id="aiRecognitionStatus">Not tested yet.</div></details></div>
+<div class="panel"><div class="title">POSTAGE PROFILES</div>
+<div class="compact-help">Shared by Pricing Calculator and eBay listing preparation.</div>
+<div id="postageProfileSettings" class="postage-settings-grid"></div>
+<div class="actions"><button class="btn alt" id="resetPostageProfiles" type="button">RESET POSTAGE DEFAULTS</button></div></div>
+<div class="panel"><div class="title">BACKUP &amp; EXPORT</div><div class="settings-status-row"><div><b>Data protection</b><small>Automatic Safety Vault active on this device</small></div><span class="settings-ok">ACTIVE ✓</span></div><div class="actions"><button class="btn alt" id="csv">EXPORT CSV</button><button class="btn alt" id="json">BACKUP JSON</button><label class="btn alt">RESTORE JSON<input accept=".json" id="imp" style="display:none" type="file"/></label></div><div class="compact-help">Create a JSON backup before major updates. Product photos are stored separately on this device.</div><details class="danger-zone"><summary>Advanced data maintenance</summary><div class="actions"><button class="btn alt" onclick="cleanOrphanOrders()" type="button">CLEAN ORPHANED ORDERS</button><button class="btn red" id="wipe">ERASE ALL DATA</button></div></details></div>
+</section>
 <section class="sec" id="pricing">
 <div class="panel">
-<div class="title">PRICING CALCULATOR</div>
-<div class="note" style="margin-bottom:12px">Select stock to pull its unit cost automatically, or choose Manual calculation. Platform fee assumptions are editable and the calculator keeps buyer-paid postage separate from your actual postage cost.</div>
-<div class="grid">
-<div class="full"><label>Pricing source</label><select id="priceStock"><option value="">Manual calculation</option></select></div>
+<div class="compact-help pricing-purpose">Identify, value and test a raw Pokémon single. No Stock or listing changes.</div>
+<div class="pricing-ai-tools">
+  <label class="btn alt">IMPORT CARD PHOTO<input accept="image/*" id="pricingAiPhoto" style="display:none" type="file"/></label>
+  <button class="btn alt" id="pricingAiClear" type="button">CLEAR CARD</button>
 </div>
+<div class="pricing-ai-card" id="pricingAiCard" hidden></div>
 <div class="pricing-tabs" style="margin-top:12px">
 <button class="pricing-tab on" data-price-platform="ebay" type="button">eBay</button>
 <button class="pricing-tab" data-price-platform="vinted" type="button">Vinted</button>
 <button class="pricing-tab" data-price-platform="cardmarket" type="button">Cardmarket</button>
 </div>
-<div class="grid">
-<div><label>Card / unit cost (£)</label><input id="priceCost" inputmode="decimal" min="0" step=".01" type="number" value="10"/></div>
-<div><label>Buyer postage charged (£)</label><input id="priceBuyerPost" inputmode="decimal" min="0" step=".01" type="number" value="0"/></div>
-<div><label>Your actual postage cost (£)</label><input id="pricePostCost" inputmode="decimal" min="0" step=".01" type="number" value="1.55"/></div>
-<div><label>Packaging cost (£)</label><input id="pricePack" inputmode="decimal" min="0" step=".01" type="number" value=".30"/></div>
+<div class="grid pricing-core-grid">
+<div><label>Seller asking price (£)</label><input id="priceCost" inputmode="decimal" min="0" step=".01" type="number" placeholder="Enter seller asking price"/></div>
+<div><label>Verified market value (£)</label><input id="priceMarketValue" inputmode="decimal" min="0" step=".01" type="number" value="0"/></div>
+<div class="full"><label>Recommended delivery profile</label><select id="pricePostageProfile"></select></div>
 </div>
-<button class="btn" id="priceCalcBtn" type="button">CALCULATE SELL PRICE</button>
+<div class="postage-profile-summary" id="pricePostageSummary"></div>
+<button class="btn pricing-recalc" id="priceCalcBtn" type="button">CALCULATE</button>
 <div class="pricing-result" id="priceResult">
 <div class="pricing-hero">
-<small id="pricePlatformLabel">EBAY SUGGESTED LIST PRICE</small>
+<small id="pricePlatformLabel">GUIDED SELL PRICE</small>
 <div class="pricing-price" id="priceSuggested">£0.00</div>
 <div class="pricing-profit" id="priceProfit">Estimated net profit £0.00</div>
 </div>
-<div class="pricing-stats">
-<div class="pricing-stat"><span>5% NET MARGIN</span><b id="priceP5">£0.00</b></div>
-<div class="pricing-stat"><span>10% NET MARGIN</span><b id="priceP10">£0.00</b></div>
-<div class="pricing-stat"><span>EST. ROI</span><b id="priceRoi">0%</b></div>
+<div class="pricing-stats pricing-stats-4">
+<div class="pricing-stat emphasis"><span>RECOMMENDED BUY</span><b id="priceRecommendedBuy">£0.00</b></div>
+<div class="pricing-stat"><span>MAX ACCEPTABLE BUY</span><b id="priceMaxBuy">£0.00</b></div>
+<div class="pricing-stat subtle"><span>BREAK-EVEN CEILING</span><b id="priceBreakEven">£0.00</b></div>
+<div class="pricing-stat"><span>EST. ROI</span><b id="priceRoi">—</b></div>
+<div class="pricing-stat"><span>NET MARGIN</span><b id="priceMargin">—</b></div>
 </div>
-<div class="pricing-actions">
-<button class="btn" id="priceUseBtn" type="button">USE THIS PRICE</button>
-</div>
+<div class="pricing-policy-strip" id="pricePolicyStrip"></div>
+<div class="pricing-decision" id="priceDecisionBox" style="display:none"><div class="word" id="priceDecisionWord"></div><div id="priceDecisionText"></div><div class="pricing-miss" id="priceDecisionMiss"></div></div>
 </div>
 <details style="margin-top:14px">
+<summary>Buying & fulfilment assumptions</summary>
+<div class="grid" style="margin-top:10px">
+<div class="full"><label>Buying strategy</label><select id="priceBuyingStrategy"><option value="adaptive">Adaptive by card value & market risk</option><option value="manual">Manual fixed targets</option></select></div>
+<div class="pricing-assumption-wrap" data-manual-target><label>Target net margin %</label><input id="priceTargetMargin" min="0" max="95" step="1" type="number" value="25"/></div>
+<div class="pricing-assumption-wrap" data-manual-target><label>Minimum ROI %</label><input id="priceTargetRoi" min="0" step="1" type="number" value="30"/></div>
+<div class="pricing-assumption-wrap" data-manual-target><label>Minimum profit (£)</label><input id="priceMinProfit" min="0" step=".50" type="number" value="5"/></div>
+<div class="pricing-assumption-wrap" data-manual-target><label>Recommended-buy safety buffer %</label><input id="priceSafetyBuffer" min="0" max="50" step="1" type="number" value="10"/></div>
+<div><label>Buyer postage charged (£)</label><input id="priceBuyerPost" inputmode="decimal" min="0" step=".01" type="number" value="1.55"/></div>
+<div><label>Your actual postage cost (£)</label><input id="pricePostCost" inputmode="decimal" min="0" step=".01" type="number" value="1.55"/></div>
+<div><label>Packaging cost (£)</label><input id="pricePack" inputmode="decimal" min="0" step=".01" type="number" value=".30"/></div>
+</div>
+<div class="note">Adaptive mode relaxes percentage hurdles as card value rises, while protecting minimum cash profit and adding a market-risk buffer. Manual mode restores fixed margin/ROI/profit targets. Delivery profiles remain editable.</div>
+</details>
+<details style="margin-top:10px">
 <summary>Advanced platform fee settings</summary>
 <div class="grid" style="margin-top:10px">
 <div id="priceEbayFvfWrap"><label>eBay Final Value Fee %</label><input id="priceEbayFvf" step=".01" type="number" value="10.90"/></div>
@@ -1246,16 +1328,6 @@ body.inner-page .kpi,
 </div>
 <div class="note pricing-fee-note" id="priceFeeNote"></div>
 </details>
-</div>
-<div class="panel">
-<div class="title">BUY / NEGOTIATE / PASS</div>
-<div class="grid">
-<div><label>Seller's asking price (£)</label><input id="dealAsk" inputmode="decimal" min="0" step=".01" type="number" value="10"/></div>
-<div><label>Realistic market value (£)</label><input id="dealMarket" inputmode="decimal" min="0" step=".01" type="number" value="18"/></div>
-</div>
-<button class="btn" id="dealBtn" type="button">CHECK THE DEAL</button>
-<div class="pricing-decision" id="dealBox"><div class="word" id="dealWord"></div><div id="dealText"></div></div>
-<div class="note">Uses the original Gengrail sourcing rules: stronger required margins at lower values and progressively lower buy-cost ratios for higher-value, liquid cards.</div>
 </div>
 </section>
 <section class="sec" id="opps">
@@ -1307,7 +1379,7 @@ d=()=>new Date().toISOString().slice(0,10);
 const freshDB=()=>({
  schemaVersion:SCHEMA_VERSION,
  purchases:[],sales:[],expenses:[],funding:[],dividends:[],opportunities:[],locations:[],orders:[],
- settings:{salary:57000,divUsedElsewhere:0,startupAmazonLoaded:false,aiRecognitionEndpoint:'https://gengrail-card-ai.gengrailtcg.workers.dev'}
+ settings:{salary:57000,divUsedElsewhere:0,startupAmazonLoaded:false,aiRecognitionEndpoint:'https://gengrail-card-ai.gengrailtcg.workers.dev',sequences:{skuHighWater:0,purchaseHighWater:0}}
 });
 
 function normaliseDB(input){
@@ -1361,16 +1433,38 @@ if(validDB(primary)){
 }
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
-function nextCode(prefix,field){let max=0;db.purchases.forEach(p=>{const v=String(p[field]||'');const m=v.match(new RegExp('^'+prefix+'(\\d+)$'));if(m)max=Math.max(max,Number(m[1]))});return prefix+String(max+1).padStart(6,'0')}
-function nextSku(){return nextCode('GEN','sku')}
-function nextPurchaseId(){return nextCode('PUR','purchaseId')}
+function codeNumber(value,prefix){const m=String(value||'').trim().match(new RegExp('^'+prefix+'(\\d+)$','i'));return m?Number(m[1]):0}
+function historicalSequenceHighWater(prefix,field){
+ let max=0;
+ (db.purchases||[]).forEach(p=>{max=Math.max(max,codeNumber(p?.[field],prefix))});
+ if(prefix==='GEN')(db.orders||[]).forEach(o=>{max=Math.max(max,codeNumber(o?.sku,prefix))});
+ return max;
+}
+function ensureSequenceLedger(){
+ db.settings=db.settings||{};
+ const seq=(db.settings.sequences&&typeof db.settings.sequences==='object')?db.settings.sequences:{};
+ const sku=Math.max(Number(seq.skuHighWater||0),historicalSequenceHighWater('GEN','sku'));
+ const purchase=Math.max(Number(seq.purchaseHighWater||0),historicalSequenceHighWater('PUR','purchaseId'));
+ db.settings.sequences={skuHighWater:sku,purchaseHighWater:purchase};
+ return db.settings.sequences;
+}
+function nextSku(){const seq=ensureSequenceLedger();return 'GEN'+String(seq.skuHighWater+1).padStart(6,'0')}
+function nextPurchaseId(){const seq=ensureSequenceLedger();return 'PUR'+String(seq.purchaseHighWater+1).padStart(6,'0')}
+function commitSequenceIds(sku,purchaseId){
+ const seq=ensureSequenceLedger();
+ seq.skuHighWater=Math.max(seq.skuHighWater,codeNumber(sku,'GEN'));
+ seq.purchaseHighWater=Math.max(seq.purchaseHighWater,codeNumber(purchaseId,'PUR'));
+}
+function sequenceIdUsed(field,value){return (db.purchases||[]).some(p=>String(p?.[field]||'').toUpperCase()===String(value||'').toUpperCase())}
+function refreshSequencePreview(){if($('sequenceSku'))$('sequenceSku').textContent=nextSku();if($('sequencePurchase'))$('sequencePurchase').textContent=nextPurchaseId()}
 function migrateWarehouse(){
  db.locations=db.locations||[];db.orders=db.orders||[];
  let seq=1,pseq=1;
  const usedSku=new Set(db.purchases.map(p=>p.sku).filter(Boolean));
+ const usedPurchase=new Set(db.purchases.map(p=>p.purchaseId).filter(Boolean));
  db.purchases.forEach(p=>{
   if(!p.sku){while(usedSku.has('GEN'+String(seq).padStart(6,'0')))seq++;p.sku='GEN'+String(seq++).padStart(6,'0');usedSku.add(p.sku)}
-  if(!p.purchaseId)p.purchaseId='PUR'+String(pseq++).padStart(6,'0');
+  if(!p.purchaseId){while(usedPurchase.has('PUR'+String(pseq).padStart(6,'0')))pseq++;p.purchaseId='PUR'+String(pseq++).padStart(6,'0');usedPurchase.add(p.purchaseId)}
   if(!p.location)p.location='UNALLOCATED';
   if(!p.inventoryStatus)p.inventoryStatus=left(p)>0?'IN_STOCK':'SOLD';
   p.qrData='GENGRAIL:SKU:'+p.sku;
@@ -1384,6 +1478,7 @@ function migrateWarehouse(){
  });
 }
 migrateWarehouse();
+ensureSequenceLedger();
 const PHOTO_DB='gengrailPhotosV1', PHOTO_STORE='photos', SAFETY_STORE='businessSafety', SAFETY_RECORD='lastGoodBusinessDB';
 function photoDB(){
  return new Promise((resolve,reject)=>{
@@ -1687,12 +1782,8 @@ function render(){
  $('cashnote').innerHTML=`Confirmed startup expenses currently recorded: <b>${m(startupExps())}</b>. Estimated company cash: <b>${m(cash)}</b>. After reserving <b>${m(ct)}</b> for Corporation Tax, estimated buying capital is <b>${m(avail)}</b>. Packaging allocations recorded against individual sales total <b>${m(packagingAlloc())}</b> but are not deducted again from accounting profit because actual packaging purchases are recorded in Expenses.`;
 
  $('pbody').innerHTML=db.purchases.filter(p=>left(p)>0).map(p=>`<tr><td>${esc(p.name)}</td><td class="mono">${esc(p.sku||'')}</td><td class="mono">${esc(p.purchaseId||'')}</td><td><b>${esc(p.location||'UNALLOCATED')}</b></td><td><span class="status-pill ${p.inventoryStatus==='IN_STOCK'?'stock':p.inventoryStatus==='PICK_REQUIRED'?'pick':'done'}">${esc((p.inventoryStatus||'IN_STOCK').replaceAll('_',' '))}</span></td><td>${esc(p.condition||'Ungraded')}</td><td>${left(p)}</td><td>${m(uc(p))}</td><td>${p.listPrice?m(p.listPrice):'—'}</td><td><div class="stock-badges"><span class="badge ebay">${esc((p.ebayStatus||'NOT_LISTED').replace('_',' '))}</span><button class="stock-ebay-btn ${p.ebayStatus==='DRAFT'?'alt':''}" onclick="prepareEbayFromStock('${p.id}')">${p.ebayStatus==='DRAFT'?'EDIT DRAFT':'LIST ON EBAY'}</button></div></td><td><button onclick="managePhotos('${p.id}')">${p.photoCount||0} photo${(p.photoCount||0)===1?'':'s'}</button></td><td>${esc(p.source)}</td><td><button onclick="quickMove('${p.id}')">MOVE</button> <button onclick="printStockLabel('${p.id}')">LABEL</button> <button onclick="dp('${p.id}')">DELETE</button></td></tr>`).join('');
+ if($('stockCards'))$('stockCards').innerHTML=db.purchases.filter(p=>left(p)>0).map(p=>`<article class="record-card"><div class="record-card-top"><div><div class="record-card-title">${esc(p.name)}</div><div class="record-card-sub mono">${esc(p.sku||'')} · ${esc(p.purchaseId||'')}</div></div><span class="status-pill ${p.inventoryStatus==='IN_STOCK'?'stock':p.inventoryStatus==='PICK_REQUIRED'?'pick':'done'}">${esc((p.inventoryStatus||'IN_STOCK').replaceAll('_',' '))}</span></div><div class="record-card-meta"><div><small>Location</small><b>${esc(p.location||'UNALLOCATED')}</b></div><div><small>Condition</small><b>${esc(p.condition||'Ungraded')}</b></div><div><small>Qty left</small><b>${left(p)}</b></div><div><small>Unit cost</small><b>${m(uc(p))}</b></div><div><small>Target sell</small><b>${p.listPrice?m(p.listPrice):'—'}</b></div><div><small>eBay</small><b>${esc((p.ebayStatus||'NOT_LISTED').replaceAll('_',' '))}</b></div></div><div class="record-card-actions"><button class="stock-ebay-btn ${p.ebayStatus==='DRAFT'?'alt':''}" onclick="prepareEbayFromStock('${p.id}')">${p.ebayStatus==='DRAFT'?'EDIT EBAY DRAFT':'LIST ON EBAY'}</button><button class="record-action secondary" onclick="quickMove('${p.id}')">MOVE</button><button class="record-action secondary" onclick="managePhotos('${p.id}')">PHOTOS (${p.photoCount||0})</button><button class="record-action secondary" onclick="printStockLabel('${p.id}')">LABEL</button><button class="record-action danger" onclick="dp('${p.id}')">DELETE</button></div></article>`).join('');
  let av=db.purchases.filter(p=>left(p)>0);$('si').innerHTML=av.length?av.map(p=>`<option value="${p.id}">${esc(p.name)} — ${left(p)} left</option>`).join(''):'<option value="">No stock</option>';
-  if($('priceStock')){
-    const prior=$('priceStock').value;
-    $('priceStock').innerHTML='<option value="">Manual calculation</option>'+av.map(p=>`<option value="${p.id}">${esc(p.name)} — ${left(p)} left — ${m(uc(p))} unit cost</option>`).join('');
-    if([...$('priceStock').options].some(o=>o.value===prior))$('priceStock').value=prior;
-  }
 
 
  // Warehouse module
@@ -1708,28 +1799,18 @@ function render(){
  if($('whPickCount'))$('whPickCount').textContent=db.orders.filter(o=>o.status==='PICK_REQUIRED').length;
  renderLocationBrowser();
  if($('orderBody'))$('orderBody').innerHTML=[...db.orders].reverse().map(o=>{const p=db.purchases.find(x=>x.id===o.pid);const next=o.status==='PICK_REQUIRED'?'PICK':o.status==='PICKED'?'PACK':o.status==='PACKED'?'DISPATCH':'DONE';const loc=p?p.location:o.location||'UNALLOCATED';return `<tr><td class="mono">${esc(o.orderNo)}</td><td>${esc(p?p.name:o.itemName||'')}</td><td class="mono">${esc(p?p.sku:o.sku||'')}</td><td><button class="loc-pick-btn" onclick="openLocationDetail('${esc(loc)}')" style="background:#171107;color:#f2c84b;border:1px solid #6b5112;border-radius:8px;padding:7px 10px;font-weight:950">${esc(loc)}</button></td><td>${esc(o.channel||'MANUAL')}</td><td><span class="status-pill ${o.status==='PICK_REQUIRED'?'pick':o.status==='DISPATCHED'?'done':'stock'}">${esc(o.status.replaceAll('_',' '))}</span></td><td>${next==='DONE'?'—':`<button onclick="advanceOrder('${o.id}')">${next}</button>`}</td></tr>`}).join('');
- if($('orderCards'))$('orderCards').innerHTML=[...db.orders].reverse().map(o=>{
+ if($('orderCards'))$('orderCards').innerHTML=[...db.orders].filter(o=>o.status!=='DISPATCHED').reverse().map(o=>{
    const p=db.purchases.find(x=>x.id===o.pid);
    const next=o.status==='PICK_REQUIRED'?'PICK':o.status==='PICKED'?'PACK':o.status==='PACKED'?'DISPATCH':'DONE';
    const loc=p?p.location:(o.location||'UNALLOCATED');
-   const statusClass=o.status==='PICK_REQUIRED'?'pick':o.status==='DISPATCHED'?'done':'stock';
+   const statusClass=o.status==='PICK_REQUIRED'?'pick':'stock';
    const created=o.created?new Date(o.created):null;
    const dateLabel=created&&!isNaN(created)?created.toLocaleDateString('en-GB'):'—';
-   return `<article class="order-card" data-order-card="${esc(o.id)}">
-     <div class="order-card-top">
-       <div><div class="order-card-no">${esc(o.orderNo||'ORDER')}</div><div class="order-card-item">${esc(p?p.name:o.itemName||'')}</div><div class="order-card-sku mono">${esc(p?p.sku:o.sku||'')}</div></div>
-       <span class="status-pill ${statusClass}">${esc((o.status||'').replaceAll('_',' '))}</span>
-     </div>
-     <div class="order-card-meta">
-       <div><small>Location</small><b>${esc(loc)}</b></div>
-       <div><small>Channel</small><b>${esc(o.channel||'MANUAL')}</b></div>
-       <div><small>Date</small><b>${esc(dateLabel)}</b></div>
-     </div>
-     ${next==='DONE'
-       ? `<div class="order-complete">✓ Dispatched and complete</div>`
-       : `<div class="order-card-actions"><button class="order-location-btn" onclick="openLocationDetail('${esc(loc)}')">⌖ ${esc(loc)}</button><button class="order-action-btn" onclick="advanceOrderAnimated('${esc(o.id)}')">${next}</button></div>`}
-   </article>`;
- }).join('');
+   return `<article class="order-card" data-order-card="${esc(o.id)}"><div class="order-card-top"><div><div class="order-card-no">${esc(o.orderNo||'ORDER')}</div><div class="order-card-item">${esc(p?p.name:o.itemName||'')}</div><div class="order-card-sku mono">${esc(p?p.sku:o.sku||'')}</div></div><span class="status-pill ${statusClass}">${esc((o.status||'').replaceAll('_',' '))}</span></div><div class="order-card-meta"><div><small>Location</small><b>${esc(loc)}</b></div><div><small>Channel</small><b>${esc(o.channel||'MANUAL')}</b></div><div><small>Date</small><b>${esc(dateLabel)}</b></div></div><div class="order-card-actions"><button class="order-location-btn" onclick="openLocationDetail('${esc(loc)}')">⌖ ${esc(loc)}</button><button class="order-action-btn" onclick="advanceOrderAnimated('${esc(o.id)}')">${next}</button></div></article>`;
+ }).join('') || '<div class="product-empty-state compact-empty"><b>Nothing waiting</b><span>All current orders are dispatched.</span></div>';
+ const dispatched=[...db.orders].filter(o=>o.status==='DISPATCHED').reverse();
+ if($('orderHistoryCount'))$('orderHistoryCount').textContent=dispatched.length;
+ if($('orderHistoryCards'))$('orderHistoryCards').innerHTML=dispatched.map(o=>{const p=db.purchases.find(x=>x.id===o.pid);const loc=p?p.location:(o.location||'UNALLOCATED');const created=o.created?new Date(o.created):null;const dateLabel=created&&!isNaN(created)?created.toLocaleDateString('en-GB'):'—';return `<article class="order-card compact-order"><div class="order-card-top"><div><div class="order-card-no">${esc(o.orderNo||'ORDER')}</div><div class="order-card-item">${esc(p?p.name:o.itemName||'')}</div><div class="order-card-sku mono">${esc(p?p.sku:o.sku||'')}</div></div><span class="status-pill done">DISPATCHED</span></div><div class="order-card-meta"><div><small>Location</small><b>${esc(loc)}</b></div><div><small>Channel</small><b>${esc(o.channel||'MANUAL')}</b></div><div><small>Date</small><b>${esc(dateLabel)}</b></div></div></article>`}).join('');
 
  if($('orderPick'))$('orderPick').textContent=db.orders.filter(o=>o.status==='PICK_REQUIRED').length;
  if($('orderPicked'))$('orderPicked').textContent=db.orders.filter(o=>o.status==='PICKED').length;
@@ -1740,8 +1821,10 @@ function render(){
   let p=db.purchases.find(x=>x.id===s.pid),con=saleContribution(s),mar=s.price?con/s.price*100:0;
   return `<tr><td>${s.date}</td><td>${esc(p?p.name:'Deleted')}</td><td><span class="badge ${s.source==='EBAY'?'ebay':''}">${s.source==='EBAY'?'EBAY':'MANUAL'}</span></td><td>${esc(s.pl)}</td><td>${m(s.price)}</td><td>${m(cogs(s))}</td><td>${m(s.fee)}</td><td>${m(s.post+s.other)}</td><td>${m(s.pack)}</td><td class="${con>=0?'good':'bad'}">${m(con)}</td><td>${mar.toFixed(1)}%</td><td><button onclick="ds('${s.id}')">Delete</button></td></tr>`
  }).join('');
+ if($('salesCards'))$('salesCards').innerHTML=[...db.sales].reverse().map(s=>{const p=db.purchases.find(x=>x.id===s.pid),con=saleContribution(s),mar=s.price?con/s.price*100:0;return `<article class="record-card"><div class="record-card-top"><div><div class="record-card-title">${esc(p?p.name:'Deleted item')}</div><div class="record-card-sub">${esc(s.date)} · ${esc(s.pl||s.source||'Manual')}</div></div><span class="badge ${s.source==='EBAY'?'ebay':''}">${s.source==='EBAY'?'EBAY':'MANUAL'}</span></div><div class="record-card-meta"><div><small>Revenue</small><b>${m(s.price)}</b></div><div><small>COGS</small><b>${m(cogs(s))}</b></div><div><small>Contribution</small><b class="${con>=0?'good':'bad'}">${m(con)}</b></div><div><small>Margin</small><b>${mar.toFixed(1)}%</b></div></div><div class="record-card-actions"><button class="record-action danger" onclick="ds('${s.id}')">DELETE</button></div></article>`}).join('');
 
  $('ebody').innerHTML=[...db.expenses].reverse().map(e=>`<tr><td>${e.date}</td><td>${esc(e.supplier||'')}</td><td>${esc(e.cat)}</td><td>${esc(e.class||'Service')}</td><td>${esc(e.desc)}</td><td>${e.qty||1}</td><td class="${e.amount<0?'good':''}">${m(e.amount)}</td><td>${(e.startup===true||e.startup==='true')?'Yes':'No'}</td><td>${esc(e.notes)}</td><td><button onclick="de('${e.id}')">Delete</button></td></tr>`).join('');
+ if($('expenseCards'))$('expenseCards').innerHTML=[...db.expenses].reverse().map(e=>`<article class="record-card"><div class="record-card-top"><div><div class="record-card-title">${esc(e.supplier||e.cat||'Expense')}</div><div class="record-card-sub">${esc(e.date)} · ${esc(e.cat)}</div></div><b class="${e.amount<0?'good':''}">${m(e.amount)}</b></div><div class="record-card-meta"><div><small>Classification</small><b>${esc(e.class||'Service')}</b></div><div><small>Startup</small><b>${(e.startup===true||e.startup==='true')?'YES':'NO'}</b></div></div>${e.desc?`<div class="compact-help">${esc(e.desc)}</div>`:''}<div class="record-card-actions"><button class="record-action danger" onclick="de('${e.id}')">DELETE</button></div></article>`).join('');
  $('expTotal').textContent=m(exps());$('expStartup').textContent=m(startupExps());$('expConsumables').textContent=m(classExps('Consumable'));$('expEquipment').textContent=m(classExps('Equipment'));
 
  $('fbody').innerHTML=[...db.funding].reverse().map(f=>`<tr><td>${f.date}</td><td>${m(f.amount)}</td><td>${esc(f.note)}</td><td><button onclick="df('${f.id}')">Delete</button></td></tr>`).join('');
@@ -1757,7 +1840,7 @@ function render(){
 }
 
 const PAGE_TITLES={
- dash:'Dashboard',stock:'Stock',storage:'Locations',orders:'Orders',sales:'Sales',channels:'Channels',exp:'Expenses',
+ dash:'Dashboard',stock:'Stock',storage:'Locations',orders:'Orders',sales:'Sales',channels:'Channels',ebayChannel:'eBay Channel',exp:'Expenses',
  owner:'Owner & Funding',tax:'Tax',settings:'Settings',pricing:'Pricing Calculator',opps:'Opportunity Finder',lookup:'Stock Lookup'
 };
 const PAGE_SUBTITLES={
@@ -1767,6 +1850,7 @@ const PAGE_SUBTITLES={
  orders:'Pick, pack & dispatch',
  sales:'Sales history & manual sales',
  channels:'Marketplace connections',
+ ebayChannel:'Listings, drafts & marketplace sync',
  exp:'Log business costs',
  owner:'Funding & dividends',
  tax:'Corporation tax tools',
@@ -1777,7 +1861,7 @@ const PAGE_SUBTITLES={
 };
 const PAGE_GROUPS={
  stock:'operations',storage:'operations',orders:'operations',
- sales:'sales',channels:'sales',
+ sales:'sales',channels:'sales',ebayChannel:'sales',
  dash:'finance',exp:'finance',owner:'finance',tax:'finance',
  settings:'',pricing:'buying',opps:'buying',lookup:'tools'
 };
@@ -1830,7 +1914,7 @@ function ensurePageHeaders(){
 
 function showGroup(group,push=true,back=false){
  document.querySelectorAll('.sec').forEach(x=>x.classList.remove('on'));
- document.body.classList.remove('inner-page','sales-active');
+ document.body.classList.remove('inner-page','sales-active','channels-active');
  document.body.classList.add('home-page');
  const main=$('commandHomeMain');
  document.querySelectorAll('[data-group-screen]').forEach(x=>x.classList.remove('on'));
@@ -1860,7 +1944,8 @@ function setActiveTab(tab,push=true){
  sec.classList.add('on');
  document.body.classList.add('inner-page');
  document.body.classList.remove('home-page');
- document.body.classList.toggle('sales-active',tab==='sales');
+ document.body.classList.remove('sales-active');
+ document.body.classList.toggle('channels-active',tab==='channels'||tab==='ebayChannel');
  motionIn(sec,false);
  if(push && location.hash!==`#${tab}`)history.pushState({gengrailPage:tab},'',`#${tab}`);
  window.scrollTo({top:0,behavior:'instant'});
@@ -1889,6 +1974,8 @@ document.querySelectorAll('.home-menu [data-go],.group-menu [data-go]').forEach(
  };
 });
 
+if($('openEbayChannel'))$('openEbayChannel').onclick=()=>{currentCommandGroup='sales';setActiveTab('ebayChannel',true)};
+
 window.addEventListener('popstate',()=>{
  const route=(location.hash||'#home').slice(1);
  if(route==='home')showGroup('',false,true);
@@ -1897,8 +1984,6 @@ window.addEventListener('popstate',()=>{
  else showGroup('',false,true);
 });
 
-const openEbayChannel=$('openEbayChannel');
-if(openEbayChannel){openEbayChannel.onclick=()=>{currentCommandGroup='sales';setActiveTab('sales',true);setTimeout(()=>{const el=document.querySelector('#gengrail-ebay-channel,[data-ebay-channel-main="true"],.ebay-channel');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},180)}}
 
 ensurePageHeaders();
 const initialRoute=(location.hash||'#home').slice(1);
@@ -1925,6 +2010,7 @@ if($('testAiRecognition'))$('testAiRecognition').onclick=testAiRecognitionConnec
 
 let currentIntakeMode='manual';
 let currentRecognition=null;
+let pendingRecognition=null;
 let recognitionBusy=false;
 let recognitionSessionId=0;
 
@@ -1932,40 +2018,157 @@ function aiEndpoint(){
  const saved=String(db?.settings?.aiRecognitionEndpoint||'').trim();
  return (saved||'https://gengrail-card-ai.gengrailtcg.workers.dev').replace(/\/+$/,'');
 }
+function normaliseRecognition(raw={}){
+ const r={...raw};
+ const setObj=(raw.set&&typeof raw.set==='object')?raw.set:{};
+ r.cardName=String(raw.cardName||raw.name||raw.card||'').trim();
+ r.cardNumber=String(raw.cardNumber||raw.number||raw.cardNo||raw.collectorNumber||'').trim();
+ r.language=String(raw.language||raw.lang||'').trim();
+ r.setName=String(raw.setName||setObj.name||'').trim();
+ r.setCode=String(raw.setCode||raw.expansionCode||setObj.code||'').trim();
+ r.rarity=String(raw.rarity||raw.rarityCode||'').trim();
+ r.illustrator=String(raw.illustrator||raw.artist||'').trim();
+ r.marketPricing=(raw.marketPricing&&typeof raw.marketPricing==='object')?raw.marketPricing:null;
+ r.printedCardNumber=String(raw.printedCardNumber||raw.visionCardNumber||'').trim();
+ r.reviewRequired=!!raw.reviewRequired;
+ r.pricingConfidence=String(raw.pricingConfidence||raw.marketPricing?.qualityStatus||raw.marketPricing?.confidence||'').trim();
+ const fc=raw.fieldConfidences||raw.fieldConfidence||raw.confidences||{};
+ r.fieldConfidences=(fc&&typeof fc==='object')?fc:{};
+ const fs=raw.fieldSources||raw.sources||{};
+ r.fieldSources=(fs&&typeof fs==='object')?fs:{};
+ return r;
+}
+const recognitionFieldSpecs=[
+ ['cardName','CARD NAME',24],['cardNumber','CARD NUMBER',22],['language','LANGUAGE',12],
+ ['setName','SET NAME',10],['setCode','SET CODE',14],['rarity','RARITY',10],['illustrator','ILLUSTRATOR',8]
+];
+function fieldRecognitionInfo(r,key){
+ const value=String(r?.[key]||'').trim();
+ let explicit=r?.fieldConfidences?.[key];
+ if(explicit===undefined){
+   const aliases={cardName:'name',cardNumber:'number',setName:'set',setCode:'set_code'};
+   explicit=r?.fieldConfidences?.[aliases[key]];
+ }
+ let confidence=Number(explicit);
+ if(Number.isFinite(confidence) && confidence<=1)confidence*=100;
+ if(!Number.isFinite(confidence))confidence=value?Math.max(55,Math.min(95,Number(r?.confidence||75))):0;
+ confidence=Math.max(0,Math.min(100,Math.round(confidence)));
+ let source=String(r?.fieldSources?.[key]||'').trim();
+ if(!source)source=!value?'UNRESOLVED':(r?.verified?'DB / AI':'AI READ');
+ const upper=source.toUpperCase();
+ const cls=!value?'bad':(/VERIF|DATABASE|DB/.test(upper)?'good':(confidence>=80?'good':'warn'));
+ return {value,confidence,source,cls};
+}
+function recognitionDiagnostics(r){
+ let weighted=0,total=0,populated=0;
+ const fields={};
+ recognitionFieldSpecs.forEach(([key,label,weight])=>{
+   const info=fieldRecognitionInfo(r,key);fields[key]=info;total+=weight;
+   if(info.value){weighted+=weight*(info.confidence/100);populated++}
+ });
+ const score=Math.round(total?(weighted/total)*100:0);
+ return {score,populated,totalFields:recognitionFieldSpecs.length,missing:recognitionFieldSpecs.length-populated,fields};
+}
+function aiFieldHead(label,info){
+ const state=info.value?`${esc(info.source)} · ${info.confidence}%`:'UNRESOLVED';
+ return `<div class="ai-field-head"><label>${label}</label><span class="ai-field-state ${info.cls}">${state}</span></div>`;
+}
 function setAiRecognitionPanel(mode='idle',data=null,message=''){
- const host=$('aiRecognitionPanel'); if(!host)return;
- if(mode==='idle'){host.hidden=true;host.innerHTML='';return}
+ const host=$('aiRecognitionPanel'), workspace=$('aiIntakeWorkspace'); if(!host)return;
+ if(mode==='idle'){host.hidden=true;host.innerHTML='';if(workspace)workspace.hidden=true;return}
+ if(workspace)workspace.hidden=false;
  host.hidden=false;
  if(mode==='loading'){
    host.className='ai-recognition-panel';
-   host.innerHTML=`<div class="ai-recognition-kicker">AI PRODUCT ENGINE</div><div class="ai-recognition-title"><span class="ai-spinner"></span>Recognising card…</div><div class="ai-recognition-sub">Reading the card image and checking the result against Pokémon card data. Nothing will be saved until you approve the Stock record.</div>`;
+   host.innerHTML=`<div class="ai-recognition-kicker">AI PRODUCT ENGINE · V3</div><div class="ai-recognition-title"><span class="ai-spinner"></span>Recognising card…</div><div class="ai-recognition-sub">Identifying and verifying the exact card. Nothing is saved until you add the completed purchase to Stock.</div>`;
    return;
  }
  if(mode==='error'){
    host.className='ai-recognition-panel bad';
    const retryLabel=currentIntakeMode==='photo'?'IMPORT AGAIN':'SCAN AGAIN';
-   host.innerHTML=`<div class="ai-recognition-kicker">RECOGNITION NEEDS REVIEW</div><div class="ai-recognition-title">Could not identify this card reliably</div><div class="ai-recognition-sub">${esc(message||'Try a clearer front photo or continue manually.')}</div><div class="ai-recognition-actions"><button class="btn alt" type="button" onclick="clearAiRecognition(false)">CONTINUE MANUALLY</button><button class="btn" type="button" onclick="retryAiRecognition()">${retryLabel}</button></div>`;
+   host.innerHTML=`<div class="ai-recognition-kicker">RECOGNITION NEEDS REVIEW</div><div class="ai-recognition-title">Could not identify this card reliably</div><div class="ai-recognition-sub">${esc(message||'Try a clearer front photo or continue manually.')}</div><div class="ai-recognition-actions"><button class="btn alt" type="button" onclick="openStockEntry('manual');clearAiRecognition(false)">ENTER MANUALLY</button><button class="btn" type="button" onclick="retryAiRecognition()">${retryLabel}</button></div>`;
    return;
  }
- const r=data||{};
+ const r=normaliseRecognition(data||{});
+ if(r.reviewRequired){
+   const diag=recognitionDiagnostics(r),no=printedCollectorNumber(r)||r.cardNumber||'—',meta=[no,r.setName||r.setCode,r.language,r.rarity].filter(Boolean).map(esc).join(' · ');
+   host.className='ai-recognition-panel warn';
+   host.innerHTML=`<div class="ai-recognition-kicker">REVIEW REQUIRED · RAW CARD IDENTITY</div><div class="ai-identity-summary"><div><b>${esc(r.cardName||'Pokémon card')}</b><span>${meta}</span></div><span class="ai-verified-pill">CHECK IDENTITY</span></div><div class="market-price-note">${esc(r.message||'Two visual reads disagreed on a key identity field. Confirm the printed card number/name before pricing or saving.')}</div><details class="ai-identity-details" open><summary>Review card identity</summary><div class="ai-review-grid"><div class="full">${aiFieldHead('CARD NAME',diag.fields.cardName)}<input id="aiReviewName" value="${esc(r.cardName||'')}"/></div><div>${aiFieldHead('CARD NUMBER',diag.fields.cardNumber)}<input id="aiReviewNumber" value="${esc(r.cardNumber||'')}"/></div><div>${aiFieldHead('LANGUAGE',diag.fields.language)}<input id="aiReviewLanguage" value="${esc(r.language||'')}"/></div><div>${aiFieldHead('SET NAME',diag.fields.setName)}<input id="aiReviewSet" value="${esc(r.setName||'')}"/></div><div>${aiFieldHead('SET CODE',diag.fields.setCode)}<input id="aiReviewSetCode" value="${esc(r.setCode||'')}"/></div><div>${aiFieldHead('RARITY',diag.fields.rarity)}<input id="aiReviewRarity" value="${esc(r.rarity||'')}"/></div><div>${aiFieldHead('ILLUSTRATOR',diag.fields.illustrator)}<input id="aiReviewIllustrator" value="${esc(r.illustrator||'')}"/></div></div></details><div class="ai-approved-actions"><button class="btn alt" type="button" onclick="clearAiRecognition(false);closeStockEntry()">DISCARD MATCH</button><button class="btn" type="button" onclick="approveAiRecognition()">CONFIRM MANUALLY</button></div>`;
+   return;
+ }
  const verified=!!r.verified;
- const confidence=Math.max(0,Math.min(100,Number(r.confidence||0)));
- host.className='ai-recognition-panel '+(confidence>=85?'good':'warn');
- host.innerHTML=`<div class="ai-recognition-kicker">${verified?'VERIFIED CARD MATCH':'AI CARD MATCH'}</div>
-   <div class="ai-recognition-title">${esc(r.cardName||'Pokémon card')}</div>
-   <div class="ai-confidence">${confidence}% confidence${verified?' · database verified':''}</div>
-   <div class="ai-recognition-grid">
-    <div class="ai-recognition-cell"><small>CARD NUMBER</small><b>${esc(r.cardNumber||'—')}</b></div>
-    <div class="ai-recognition-cell"><small>SET</small><b>${esc(r.setName||'—')}</b></div>
-    <div class="ai-recognition-cell"><small>GAME</small><b>${esc(r.game||'Pokémon TCG')}</b></div>
-    <div class="ai-recognition-cell"><small>TYPE</small><b>Raw Single</b></div>
-   </div>
-   <div class="ai-recognition-sub">${esc(r.message||'The Stock sheet has been pre-filled. Check the match, then add purchase price, condition and location before saving.')}</div>
-   <div class="ai-recognition-actions"><button class="btn alt" type="button" onclick="clearAiRecognition(false)">CLEAR MATCH</button><button class="btn" type="button" onclick="document.getElementById('pn')?.scrollIntoView({behavior:'smooth',block:'center'})">REVIEW STOCK SHEET</button></div>`;
+ const diag=recognitionDiagnostics(r),f=diag.fields;
+ host.className='ai-recognition-panel '+(diag.score>=80?'good':diag.score>=55?'warn':'bad');
+ const no=printedCollectorNumber(r)||r.cardNumber||'—';
+ const meta=[no,r.setName||r.setCode,r.language,r.rarity].filter(Boolean).map(esc).join(' · ');
+ host.innerHTML=`<div class="ai-recognition-kicker">${verified?'VERIFIED CANDIDATE':'AI CARD CANDIDATE'} · V3</div>
+   <div class="ai-identity-summary"><div><b>${esc(r.cardName||'Pokémon card')}</b><span>${meta}</span></div><span class="ai-verified-pill">${diag.score}% VERIFIED</span></div>
+   ${approvedMarketPricingHtml(r)}
+   <details class="ai-identity-details"><summary>Edit / view card identity</summary><div class="ai-review-grid">
+    <div class="full">${aiFieldHead('CARD NAME',f.cardName)}<input id="aiReviewName" value="${esc(r.cardName||'')}"/></div>
+    <div>${aiFieldHead('CARD NUMBER',f.cardNumber)}<input id="aiReviewNumber" value="${esc(r.cardNumber||'')}"/></div>
+    <div>${aiFieldHead('LANGUAGE',f.language)}<input id="aiReviewLanguage" value="${esc(r.language||'')}"/></div>
+    <div>${aiFieldHead('SET NAME',f.setName)}<input id="aiReviewSet" value="${esc(r.setName||'')}"/></div>
+    <div>${aiFieldHead('SET CODE',f.setCode)}<input id="aiReviewSetCode" value="${esc(r.setCode||'')}"/></div>
+    <div>${aiFieldHead('RARITY',f.rarity)}<input id="aiReviewRarity" value="${esc(r.rarity||'')}"/></div>
+    <div>${aiFieldHead('ILLUSTRATOR',f.illustrator)}<input id="aiReviewIllustrator" value="${esc(r.illustrator||'')}"/></div>
+   </div></details>
+   <div class="ai-approved-actions"><button class="btn alt" type="button" onclick="clearAiRecognition(false);closeStockEntry()">DISCARD MATCH</button><button class="btn ${Number($('plist')?.value||0)>0?'selected':''}" type="button" onclick="useReviewSuggestedPrice()" ${marketSuggestedPrice(r)?'':'disabled'}>${marketSuggestedPrice(r)?'USE SUGGESTED PRICE':'NO MARKET PRICE'}</button></div>`;
+}
+function readAiReview(){
+ const base=pendingRecognition||{};
+ return {...base,
+   cardName:String($('aiReviewName')?.value||base.cardName||'').trim(),
+   cardNumber:String($('aiReviewNumber')?.value||base.cardNumber||'').trim(),
+   language:String($('aiReviewLanguage')?.value||base.language||'').trim(),
+   setName:String($('aiReviewSet')?.value||base.setName||'').trim(),
+   setCode:String($('aiReviewSetCode')?.value||base.setCode||'').trim(),
+   rarity:String($('aiReviewRarity')?.value||base.rarity||'').trim(),
+   illustrator:String($('aiReviewIllustrator')?.value||base.illustrator||'').trim(),
+   reviewed:true,approvedAt:new Date().toISOString()
+ };
+}
+function approveAiRecognition(){
+ const r=normaliseRecognition(readAiReview());
+ if(!r.cardName || !r.cardNumber || !r.language)return alert('Card name, card number and language are required before approving an AI match. Complete those fields or discard the match and continue manually.');
+ r.reviewDiagnostics=recognitionDiagnostics(r);
+ currentRecognition=r;
+ pendingRecognition=null;
+ const title=titleFromRecognition(r);
+ if(title && $('pn'))$('pn').value=title;
+ if($('pc'))$('pc').value='Raw Single';
+ if($('pcondition'))$('pcondition').value='Ungraded';
+ prepareVerifiedStockIntake(r);
+ setAiRecognitionPanel('approved',r);
+}
+function useReviewSuggestedPrice(){
+ const r=normaliseRecognition(readAiReview());
+ if(r.reviewRequired)return alert('Confirm the card identity before using automated pricing.');
+ const v=marketSuggestedPrice(r);
+ if(!v)return alert('No automated market price is available for this card.');
+ pendingRecognition=r;
+ if($('plist'))$('plist').value=v.toFixed(2);
+ setAiRecognitionPanel('review',pendingRecognition);
+}
+function approveAndContinueAiRecognition(){
+ const r=normaliseRecognition(readAiReview());
+ if(!r.cardName || !r.cardNumber || !r.language)return alert('Card name, card number and language are required before continuing intake. Complete those fields or discard the match and continue manually.');
+ r.reviewDiagnostics=recognitionDiagnostics(r);
+ currentRecognition=r;
+ pendingRecognition=null;
+ const title=titleFromRecognition(r);
+ if(title && $('pn'))$('pn').value=title;
+ if($('pc'))$('pc').value='Raw Single';
+ if($('pcondition'))$('pcondition').value='Ungraded';
+ prepareVerifiedStockIntake(r);
+ setAiRecognitionPanel('approved',r);
+ setTimeout(()=>document.getElementById('pn')?.scrollIntoView({behavior:'smooth',block:'start'}),40);
 }
 function clearAiRecognition(clearFields=true){
  currentRecognition=null;
+ pendingRecognition=null;
  setAiRecognitionPanel('idle');
+ clearMarketPricing();
  if(clearFields){
    if($('pn'))$('pn').value='';
    if($('pc'))$('pc').value='Raw Single';
@@ -1984,7 +2187,9 @@ function resetRecognitionForNewIntake(){
  recognitionSessionId++;
  recognitionBusy=false;
  currentRecognition=null;
+ pendingRecognition=null;
  setAiRecognitionPanel('idle');
+ clearMarketPricing();refreshSequencePreview();
  if($('pn'))$('pn').value='';
  if($('pc'))$('pc').value='Raw Single';
  if($('pcondition'))$('pcondition').value='Ungraded';
@@ -1993,16 +2198,78 @@ function resetRecognitionForNewIntake(){
  pendingCameraFiles=[];
  if($('ppreview'))$('ppreview').innerHTML='';
 }
+function printedCollectorNumber(r){
+ const raw=String(r?.printedCardNumber||r?.visionCardNumber||r?.cardNumber||'').trim();
+ const dbNo=String(r?.cardNumber||'').trim();
+ if(/^\d+\/\d+$/.test(raw) && /^\d+\/\d+$/.test(dbNo)){
+   const [a,b]=raw.split('/'),[da,dbb]=dbNo.split('/');
+   if(Number(a)===Number(da)&&Number(b)===Number(dbb)&&b.length>=dbb.length)return raw;
+ }
+ return raw||dbNo;
+}
 function titleFromRecognition(r){
- return [r?.cardName,r?.cardNumber,r?.setName].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+ const no=printedCollectorNumber(r);
+ return [r?.cardName,no,r?.setCode||r?.setName].filter(Boolean).join(' · ').replace(/\s+/g,' ').trim();
+}
+function price99(v){const n=Number(v||0);if(!(n>0))return 0;const whole=Math.floor(n);const at99=whole+.99;return at99>=n?Number(at99.toFixed(2)):Number((whole+1.99).toFixed(2))}
+function marketSuggestedPrice(r){
+ const mp=r?.marketPricing;if(!mp)return 0;
+ const direct=Number(mp.suggestedGbp||0);if(direct>0)return price99(direct);
+ const vals=[mp?.gbp?.trend,mp?.gbp?.avg7,mp?.gbp?.avg30].map(Number).filter(x=>x>0).sort((a,b)=>a-b);
+ if(!vals.length)return 0;const mid=vals.length%2?vals[(vals.length-1)/2]:(vals[vals.length/2-1]+vals[vals.length/2])/2;return price99(mid);
+}
+function marketEvidenceLabel(mp){
+ const q=String(mp?.qualityStatus||mp?.confidence||'MARKET DATA').toUpperCase();
+ return q==='VALIDATED'?'VALIDATED EXACT CARD':q;
+}
+function marketSignalLabels(mp){
+ const d=mp?.signalLabels||{};
+ const tcg=String(mp?.provider||'').toLowerCase()==='tcgplayer';
+ return {trend:d.trend||(tcg?'TCGPLAYER MARKET':'CARDMARKET TREND'),avg7:d.avg7||(tcg?'TCGPLAYER MID':'7-DAY AVG'),avg30:d.avg30||(tcg?'':'30-DAY AVG'),low:d.low||(tcg?'TCGPLAYER LOW':'MARKET LOW')};
+}
+function approvedMarketPricingHtml(r){
+ const mp=r?.marketPricing,gbp=mp?.gbp||{},sug=marketSuggestedPrice(r);
+ if(!mp||!mp.available||!sug)return `<div class="market-price-card on ai-approved-market"><div class="market-price-kicker">MARKET PRICING · V2</div><div class="market-price-note">No reliable automated market price is available for this exact card. You can continue intake and enter a target price manually below.</div></div>`;
+ const labels=marketSignalLabels(mp);
+ return `<div class="market-price-card on ai-approved-market"><div class="market-price-head"><div><div class="market-price-kicker">MARKET PRICING · V3</div><div class="market-price-main">${m(sug)} suggested</div></div><span class="market-price-confidence">${esc(marketEvidenceLabel(mp))}</span></div><div class="market-price-grid"><div><small>${esc(labels.trend)}</small><b>${gbp.trend?m(gbp.trend):'—'}</b></div><div><small>${esc(labels.avg7)}</small><b>${gbp.avg7?m(gbp.avg7):'—'}</b></div><div><small>${esc(labels.avg30||'ADDITIONAL SIGNAL')}</small><b>${gbp.avg30?m(gbp.avg30):'—'}</b></div><div><small>${esc(labels.low)}</small><b>${gbp.low?m(gbp.low):'—'}</b></div></div></div>`;
+}
+function useApprovedSuggestedPrice(){
+ const v=marketSuggestedPrice(currentRecognition);if(!v)return alert('No automated market price is available for this card.');
+ if($('plist'))$('plist').value=v.toFixed(2);
+ setAiRecognitionPanel('approved',currentRecognition);
+}
+function continueApprovedIntake(){
+ document.getElementById('pn')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function showMarketPricing(r){
+ // Pricing now lives inside the approved AI match card. Do not auto-populate target price.
+ if(currentRecognition&&r)setAiRecognitionPanel('approved',r);
+}
+function clearMarketPricing(){
+ const c=$('marketPriceCard');if(c)c.classList.remove('on');
+}
+function prepareVerifiedStockIntake(r){
+ const sku=nextSku(),purchaseId=nextPurchaseId();
+ if($('psku'))$('psku').value=sku;
+ if($('ppurchaseid'))$('ppurchaseid').value=purchaseId;
+ if($('pd')&&!$('pd').value)$('pd').value=new Date().toISOString().slice(0,10);
+ if($('pq'))$('pq').value=1;
+ if($('pstatus'))$('pstatus').value='IN_STOCK';
+ if($('plocation'))$('plocation').value='UNALLOCATED';
+ refreshSequencePreview();
+ showMarketPricing(r);
+
 }
 function applyRecognition(r){
- currentRecognition=r;
- const title=titleFromRecognition(r);
- if(title && $('pn'))$('pn').value=title;
+ currentRecognition=null;
+ pendingRecognition=normaliseRecognition(r);
+ const title=titleFromRecognition(pendingRecognition);
+ if($('pn'))$('pn').value=title;
  if($('pc'))$('pc').value='Raw Single';
  if($('pcondition'))$('pcondition').value='Ungraded';
- setAiRecognitionPanel('match',r);
+ prepareVerifiedStockIntake(pendingRecognition);
+ const panel=$('stockEntryPanel');if(panel)panel.hidden=false;
+ setAiRecognitionPanel('review',pendingRecognition);
 }
 async function fileToRecognitionDataURL(file,max=1200,quality=0.80){
  return await new Promise((resolve,reject)=>{
@@ -2024,35 +2291,42 @@ async function fileToRecognitionDataURL(file,max=1200,quality=0.80){
    img.src=url;
  });
 }
+const GENGRAIL_RECOGNITION_CONTRACT=Object.freeze({scope:'pokemon_raw_single',recognitionVersion:4,requestedFields:['cardName','cardNumber','language','setName','setCode','rarity','illustrator'],requireFieldConfidence:true,requireCanonicalIdentity:true});
+async function gengrailRecogniseImage(image,timeoutMs=30000){
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
+ try{
+  const res=await fetch(aiEndpoint()+'/api/recognise-card',{method:'POST',mode:'cors',credentials:'omit',cache:'no-store',signal:controller.signal,headers:{'content-type':'text/plain;charset=UTF-8','accept':'application/json'},body:JSON.stringify({...GENGRAIL_RECOGNITION_CONTRACT,image})});
+  let data=null;try{data=await res.json()}catch{}
+  if(!res.ok||!data?.ok)throw new Error(data?.message||`Recognition HTTP ${res.status}`);
+  return data;
+ }finally{clearTimeout(timer)}
+}
+
+function gengrailPerfHtml(p){
+ if(!p)return '';
+ const row=(k,v)=>`<span>${esc(k)}</span><b>${Number(v||0).toFixed(0)} ms</b>`;
+ return `<details class="gengrail-perf"><summary class="gengrail-perf-title">PERFORMANCE · V2.4</summary><div class="gengrail-perf-grid">${row('Image preparation',p.imagePrepMs)}${row('Request round trip',p.requestMs)}${row('Worker total',p.serverTotalMs)}${row('AI vision',p.primaryVisionMs)}${row('Canonical verification',p.canonicalVerificationMs)}${row('Network / overhead',p.networkOverheadMs)}${row('UI render',p.uiRenderMs)}${row('TOTAL',p.totalMs)}</div></details>`;
+}
+function appendGengrailPerf(p){const host=$('aiRecognitionPanel');if(host&&p)host.insertAdjacentHTML('beforeend',gengrailPerfHtml(p));}
+
 async function recogniseCardFile(file){
  if(!file || recognitionBusy)return;
  const mySession=++recognitionSessionId;
  currentRecognition=null;
+ pendingRecognition=null;
  if($('pn'))$('pn').value='';
  if($('pc'))$('pc').value='Raw Single';
  setAiRecognitionPanel('loading');
  recognitionBusy=true;
 
- const postRecognition=async(image)=>{
-   const controller=new AbortController();
-   const timer=setTimeout(()=>controller.abort(),30000);
-   try{
-     return await fetch(aiEndpoint()+'/api/recognise-card',{
-       method:'POST',
-       mode:'cors',
-       credentials:'omit',
-       cache:'no-store',
-       signal:controller.signal,
-       headers:{'content-type':'text/plain;charset=UTF-8','accept':'application/json'},
-       body:JSON.stringify({image,scope:'pokemon_raw_single'})
-     });
-   }finally{
-     clearTimeout(timer);
-   }
- };
+ const perfStart=performance.now();
+ let imagePrepMs=0,requestMs=0;
+ const postRecognition=async(image)=>{const t=performance.now();try{return await gengrailRecogniseImage(image,30000)}finally{requestMs+=performance.now()-t}};
 
  try{
+   let prepStart=performance.now();
    let image=await fileToRecognitionDataURL(file,1200,0.80);
+   imagePrepMs+=performance.now()-prepStart;
    let res;
    try{
      res=await postRecognition(image);
@@ -2060,7 +2334,9 @@ async function recogniseCardFile(file){
      const m=String(firstErr?.message||firstErr);
      if(firstErr?.name==='AbortError')throw firstErr;
      if(/load failed|failed to fetch|network/i.test(m)){
+       prepStart=performance.now();
        image=await fileToRecognitionDataURL(file,900,0.70);
+       imagePrepMs+=performance.now()-prepStart;
        await new Promise(r=>setTimeout(r,180));
        res=await postRecognition(image);
      }else{
@@ -2068,21 +2344,29 @@ async function recogniseCardFile(file){
      }
    }
 
-   let d=null; try{d=await res.json()}catch{}
+   const d=res;
    if(mySession!==recognitionSessionId)return;
-   if(!res.ok || !d?.ok)throw new Error(d?.message||`Recognition HTTP ${res.status}`);
    if(!d.identified || !d.card?.cardName){
      currentRecognition=null;
+     pendingRecognition=null;
      setAiRecognitionPanel('error',null,d?.message||'The image did not contain a clear supported Pokémon raw single.');
      return;
    }
+   const renderStart=performance.now();
    applyRecognition(d.card);
+   const uiRenderMs=performance.now()-renderStart;
+   const wp=d.performance||{};
+   const perf={imagePrepMs,requestMs,serverTotalMs:Number(wp.serverTotalMs||0),primaryVisionMs:Number(wp.primaryVisionMs||0),canonicalVerificationMs:Number(wp.canonicalVerificationMs||d.card?.verificationMs||0),networkOverheadMs:Math.max(0,requestMs-Number(wp.serverTotalMs||0)),uiRenderMs,totalMs:performance.now()-perfStart};
+   d.card.performance=perf;
+   appendGengrailPerf(perf);
+   console.table({'Image preparation ms':perf.imagePrepMs,'Request round trip ms':perf.requestMs,'Worker total ms':perf.serverTotalMs,'AI vision ms':perf.primaryVisionMs,'Canonical verification ms':perf.canonicalVerificationMs,'Network / overhead ms':perf.networkOverheadMs,'UI render ms':perf.uiRenderMs,'TOTAL ms':perf.totalMs});
  }catch(err){
    if(mySession!==recognitionSessionId)return;
    const msg=err?.name==='AbortError'
      ?'Recognition timed out. Check the AI connection and try again.'
      :String(err?.message||err);
    currentRecognition=null;
+   pendingRecognition=null;
    setAiRecognitionPanel('error',null,msg);
  }finally{
    recognitionBusy=false;
@@ -2100,13 +2384,28 @@ async function testAiRecognitionConnection(){
 function openStockEntry(mode='manual'){
  currentIntakeMode=mode;
  const panel=$('stockEntryPanel'); if(!panel)return;
- panel.hidden=false;
- if(mode==='manual')setAiRecognitionPanel('idle');
- setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'start'}),40);
+ const launcher=document.querySelector('.product-intake-launcher');
+ const workspace=$('aiIntakeWorkspace');
+ panel.classList.toggle('ai-integrated',mode!=='manual');
+ if($('stockEntryTitle'))$('stockEntryTitle').textContent=mode==='manual'?'LOG A PURCHASE':'PURCHASE DETAILS';
+ if(mode==='manual'){
+   panel.hidden=false;
+   if(workspace)workspace.hidden=true;
+   setAiRecognitionPanel('idle');
+   if(launcher)launcher.after(panel);
+ }else{
+   if(workspace){workspace.hidden=false;workspace.appendChild(panel)}
+   panel.hidden=true;
+ }
+ setTimeout(()=>{const target=mode==='manual'?panel:workspace;target?.scrollIntoView({behavior:'smooth',block:'start'})},40);
 }
 function closeStockEntry(){
- const panel=$('stockEntryPanel'); if(panel)panel.hidden=true;
- pendingCameraFiles=[];currentRecognition=null;recognitionBusy=false;recognitionSessionId++;
+ const panel=$('stockEntryPanel');
+ const launcher=document.querySelector('.product-intake-launcher');
+ const workspace=$('aiIntakeWorkspace');
+ if(panel){panel.hidden=true;panel.classList.remove('ai-integrated');if(launcher)launcher.after(panel)}
+ if(workspace)workspace.hidden=true;
+ pendingCameraFiles=[];currentRecognition=null;pendingRecognition=null;recognitionBusy=false;recognitionSessionId++;
  if($('pcamera'))$('pcamera').value='';
  if($('pphotos'))$('pphotos').value='';
  if($('ppreview'))$('ppreview').innerHTML='';
@@ -2178,15 +2477,29 @@ if($('pphotos'))$('pphotos').onchange=()=>{
 };
 if($('cancelStockEntry'))$('cancelStockEntry').onclick=()=>closeStockEntry();
 
+refreshSequencePreview();
+
 $('addp').onclick=async()=>{
+ if(pendingRecognition && !currentRecognition){
+   const r=normaliseRecognition(readAiReview());
+   if(!r.cardName || !r.cardNumber || !r.language)return alert('Card name, card number and language are required before saving this verified purchase.');
+   r.reviewDiagnostics=recognitionDiagnostics(r);r.reviewed=true;r.approvedAt=new Date().toISOString();
+   currentRecognition=r;pendingRecognition=null;
+   const title=titleFromRecognition(r);if(title&&$('pn'))$('pn').value=title;
+   if($('pc'))$('pc').value='Raw Single';if($('pcondition'))$('pcondition').value='Ungraded';
+   prepareVerifiedStockIntake(r);
+ }
  if(!$('pn').value.trim())return alert('Enter an item.');
  const pid=id(), files=currentIntakeFiles();
  const sku=$('psku').value.trim()||nextSku();
  const purchaseId=$('ppurchaseid').value.trim()||nextPurchaseId();
- const p={id:pid,name:$('pn').value.trim(),cat:$('pc').value,date:$('pd').value,q:Math.max(1,Math.floor(n('pq'))),cost:n('pp'),source:$('ps').value.trim(),condition:$('pcondition').value,sku,purchaseId,location:$('plocation').value||'UNALLOCATED',inventoryStatus:$('pstatus').value||'IN_STOCK',qrData:'GENGRAIL:SKU:'+sku,listPrice:n('plist'),ebayStatus:$('pebaystatus').value,ebayItemId:'',ebayUrl:'',photoCount:0,notes:$('pnotes').value,productMeta:currentRecognition?{game:currentRecognition.game||'Pokémon TCG',cardName:currentRecognition.cardName||'',cardNumber:currentRecognition.cardNumber||'',setName:currentRecognition.setName||'',language:currentRecognition.language||'',recognitionConfidence:Number(currentRecognition.confidence||0),recognitionVerified:!!currentRecognition.verified,recognitionSource:'workers_ai'}:null};
+ if(sequenceIdUsed('sku',sku))return alert('That SKU already exists in Gengrail history. Use the proposed next SKU instead.');
+ if(sequenceIdUsed('purchaseId',purchaseId))return alert('That Purchase / batch ID already exists in Gengrail history. Use the proposed next ID instead.');
+ const p={id:pid,name:$('pn').value.trim(),cat:$('pc').value,date:$('pd').value,q:Math.max(1,Math.floor(n('pq'))),cost:n('pp'),source:$('ps').value.trim(),condition:$('pcondition').value,sku,purchaseId,location:$('plocation').value||'UNALLOCATED',inventoryStatus:$('pstatus').value||'IN_STOCK',qrData:'GENGRAIL:SKU:'+sku,listPrice:n('plist'),ebayStatus:$('pebaystatus').value,ebayItemId:'',ebayUrl:'',photoCount:0,notes:$('pnotes').value,productMeta:currentRecognition?{game:currentRecognition.game||'Pokémon TCG',cardName:currentRecognition.cardName||'',cardNumber:printedCollectorNumber(currentRecognition),normalisedCardNumber:currentRecognition.cardNumber||'',setName:currentRecognition.setName||'',setCode:currentRecognition.setCode||'',language:currentRecognition.language||'',rarity:currentRecognition.rarity||'',illustrator:currentRecognition.illustrator||'',recognitionConfidence:Number(currentRecognition.confidence||0),intakeConfidence:Number((currentRecognition.reviewDiagnostics||recognitionDiagnostics(currentRecognition)).score||0),recognitionVerified:!!currentRecognition.verified,verificationStatus:currentRecognition.verificationStatus||'',recognitionReviewed:!!currentRecognition.reviewed,recognitionApprovedAt:currentRecognition.approvedAt||'',recognitionSource:'workers_ai',fieldConfidences:currentRecognition.fieldConfidences||{},fieldSources:currentRecognition.fieldSources||{},reviewDiagnostics:currentRecognition.reviewDiagnostics||recognitionDiagnostics(currentRecognition),recognitionVersion:3,intakeVersion:2,marketPricing:currentRecognition.marketPricing||null,suggestedListPrice:marketSuggestedPrice(currentRecognition)||0}:null};
  db.purchases.push(p);
+ commitSequenceIds(sku,purchaseId);
  try{p.photoCount=await addPhotos(pid,files)}catch(e){console.error(e);alert('Stock was saved, but one or more photos could not be stored on this device.');}
- ['pn','pp','ps','psku','ppurchaseid','plist','pnotes'].forEach(x=>$(x).value='');$('pq').value=1;$('pcondition').value='Ungraded';$('pebaystatus').value='NOT_LISTED';$('pphotos').value='';if($('pcamera'))$('pcamera').value='';pendingCameraFiles=[];currentRecognition=null;$('ppreview').innerHTML='';save();closeStockEntry();
+ ['pn','pp','ps','psku','ppurchaseid','plist','pnotes'].forEach(x=>$(x).value='');$('pq').value=1;$('pcondition').value='Ungraded';$('pebaystatus').value='NOT_LISTED';$('pphotos').value='';if($('pcamera'))$('pcamera').value='';pendingCameraFiles=[];currentRecognition=null;pendingRecognition=null;$('ppreview').innerHTML='';clearMarketPricing();refreshSequencePreview();save();closeStockEntry();
 };
 $('adds').onclick=()=>{let p=db.purchases.find(x=>x.id===$('si').value),q=Math.max(1,Math.floor(n('sq')));if(!p)return alert('Select stock.');if(q>left(p))return alert('Not enough stock.');if(n('sp')<=0)return alert('Enter sale price.');const saleId=id();db.sales.push({id:saleId,pid:p.id,date:$('sd').value,q,price:n('sp'),buyerPost:0,source:'MANUAL',pl:$('spl').value,fee:n('sf'),post:n('spo'),pack:n('spa'),other:n('so'),notes:$('snotes').value});const orderNo='ORD'+String(db.orders.length+1).padStart(6,'0');db.orders.push({id:id(),orderNo,saleId,pid:p.id,sku:p.sku,itemName:p.name,location:p.location||'UNALLOCATED',channel:$('spl').value,status:'PICK_REQUIRED',created:new Date().toISOString()});p.inventoryStatus='PICK_REQUIRED';['sp','sf','spo','spa','so'].forEach(x=>$(x).value='0');$('snotes').value='';save();if($('manualSaleForm'))$('manualSaleForm').hidden=true;if($('toggleManualSale'))$('toggleManualSale').textContent='+ ADD MANUAL SALE'};
 $('adde').onclick=()=>{if(!$('edes').value.trim())return alert('Enter expense details.');let amount=n('ea');if(amount===0)return alert('Enter an expense amount.');db.expenses.push({id:id(),date:$('ed').value,supplier:$('esupplier').value.trim(),cat:$('ec').value,class:$('eclass').value,desc:$('edes').value.trim(),qty:Math.max(1,Math.floor(n('eqty'))),amount,startup:$('estartup').value==='true',notes:$('en').value});$('esupplier').value='';$('edes').value='';$('eqty').value=1;$('ea').value='';$('estartup').value='false';$('en').value='';save()};
@@ -2383,139 +2696,121 @@ window.restockLookupItem=pid=>{
 if($('scanLookup'))$('scanLookup').onclick=()=>{const p=findStockByScan($('scanInput').value);$('scanResult').innerHTML=p?`<b>${esc(p.name)}</b><br>SKU <span class="mono">${esc(p.sku)}</span> · Location <b>${esc(p.location||'UNALLOCATED')}</b> · Status ${esc((p.inventoryStatus||'IN_STOCK').replaceAll('_',' '))}`:'No matching SKU found.'};
 
 /* ==========================
-   GENGRAIL PRICING CALCULATOR
+   GENGRAIL PRICING CALCULATOR · AI VALUATION
    ========================== */
 let pricePlatform=localStorage.getItem('gengrailPricingPlatform')||'ebay';
 let lastSuggestedPrice=0;
+let pricingRecognition=null;
 
 function priceNum(id){return Math.max(0,Number($(id)?.value)||0)}
-function priceCeil99(v){
-  if(!isFinite(v)||v<0)return 0;
-  let w=Math.floor(v),c=w+.99;
-  if(c<v-1e-9)c++;
-  return Math.round(c*100)/100;
-}
-function priceTargetRatioForMarket(mv){
-  if(mv<25)return .55;
-  if(mv<100)return .65;
-  if(mv<250)return .70;
-  return .775;
-}
-function priceResaleTarget(cost){
-  const t=[
-    {lo:0,hi:25,r:.55,label:'≤55% buy-cost rule'},
-    {lo:25,hi:100,r:.65,label:'≤65% buy-cost rule'},
-    {lo:100,hi:250,r:.70,label:'≤70% buy-cost rule'},
-    {lo:250,hi:Infinity,r:.775,label:'~77.5% buy-cost rule'}
-  ];
-  for(const x of t){const sale=cost/x.r;if(sale>=x.lo&&sale<x.hi)return{sale,label:x.label}}
-  if(cost<13.75)return{sale:cost/.55,label:t[0].label};
-  if(cost<65)return{sale:Math.max(25,cost/.65),label:t[1].label};
-  if(cost<175)return{sale:Math.max(100,cost/.70),label:t[2].label};
-  return{sale:Math.max(250,cost/.775),label:t[3].label};
-}
+function priceCeil99(v){if(!isFinite(v)||v<0)return 0;let w=Math.floor(v),c=w+.99;if(c<v-1e-9)c++;return Math.round(c*100)/100}
+const POSTAGE_PROFILE_KEY='gengrailPostageProfilesV1';
+const POSTAGE_DEFAULTS=[
+ {id:'raw_standard',name:'Raw Single · Standard',service:'Royal Mail 2nd Class Large Letter',postCost:1.55,packCost:.30,buyerPost:1.55,minValue:0,maxValue:19.99,category:'raw'},
+ {id:'raw_tracked48',name:'Raw Single · Tracked',service:'Royal Mail Tracked 48 Large Letter',postCost:2.85,packCost:.30,buyerPost:2.85,minValue:20,maxValue:99.99,category:'raw'},
+ {id:'raw_tracked24',name:'Raw Single · Premium Tracked',service:'Royal Mail Tracked 24 Large Letter',postCost:3.80,packCost:.30,buyerPost:3.80,minValue:100,maxValue:999999,category:'raw'},
+ {id:'slab_tracked48',name:'Graded Slab · Tracked',service:'Royal Mail Tracked 48 Small Parcel',postCost:3.65,packCost:.30,buyerPost:3.65,minValue:0,maxValue:999999,category:'slab'}
+];
+function postageProfiles(){try{const p=JSON.parse(localStorage.getItem(POSTAGE_PROFILE_KEY)||'null');if(Array.isArray(p)&&p.length)return p}catch{}return POSTAGE_DEFAULTS.map(x=>({...x}))}
+function savePostageProfiles(rows){localStorage.setItem(POSTAGE_PROFILE_KEY,JSON.stringify(rows));window.dispatchEvent(new CustomEvent('gengrail:postage-updated',{detail:{profiles:rows}}))}
+function postageAutoSelect({category='Raw Single',value=0}={}){const rows=postageProfiles(),cat=/graded|slab/i.test(category)?'slab':'raw';return rows.find(x=>x.category===cat&&Number(value)>=Number(x.minValue||0)&&Number(value)<=Number(x.maxValue??999999))||rows.find(x=>x.category===cat)||rows[0]}
+function postageById(id){return postageProfiles().find(x=>x.id===id)||postageProfiles()[0]}
+window.GengrailPostage={profiles:postageProfiles,autoSelect:postageAutoSelect,byId:postageById,save:savePostageProfiles};
+function renderPostageProfileSettings(){const host=$('postageProfileSettings');if(!host)return;const rows=postageProfiles();host.innerHTML=rows.map((x,i)=>`<div class="postage-setting" data-postage-index="${i}"><details><summary><div class="pf-summary-copy"><b>${esc(x.name)}</b><small>${esc(x.service)} · cost ${m(Number(x.postCost||0)+Number(x.packCost||0))} · buyer ${m(x.buyerPost||0)}</small></div><span class="pf-summary-range">${m(x.minValue||0)}–${Number(x.maxValue)>=999999?'∞':m(x.maxValue||0)}</span></summary><div class="pf-edit grid"><div class="full"><label>Service label</label><input data-pf="service" value="${esc(x.service)}"></div><div><label>Your postage cost (£)</label><input data-pf="postCost" type="number" min="0" step=".01" value="${Number(x.postCost).toFixed(2)}"></div><div><label>Packaging (£)</label><input data-pf="packCost" type="number" min="0" step=".01" value="${Number(x.packCost).toFixed(2)}"></div><div><label>Buyer postage (£)</label><input data-pf="buyerPost" type="number" min="0" step=".01" value="${Number(x.buyerPost).toFixed(2)}"></div><div><label>Auto from value (£)</label><input data-pf="minValue" type="number" min="0" step=".01" value="${Number(x.minValue).toFixed(2)}"></div><div><label>Auto to value (£)</label><input data-pf="maxValue" type="number" min="0" step=".01" value="${Number(x.maxValue).toFixed(2)}"></div></div></details></div>`).join('');host.querySelectorAll('input').forEach(inp=>inp.addEventListener('change',()=>{const idx=Number(inp.closest('[data-postage-index]').dataset.postageIndex),all=postageProfiles(),k=inp.dataset.pf;all[idx][k]=k==='service'?inp.value:Number(inp.value||0);savePostageProfiles(all);renderPostageProfileSettings();pricePopulatePostageProfiles();priceCalc()}))}
+function pricePopulatePostageProfiles(forceAuto=false){const sel=$('pricePostageProfile');if(!sel)return;const rows=postageProfiles(),market=priceNum('priceMarketValue'),auto=postageAutoSelect({category:'Raw Single',value:market});const previous=sel.value;sel.innerHTML=rows.map(x=>`<option value="${esc(x.id)}">${esc(x.name)} — ${esc(x.service)}</option>`).join('');sel.value=(!forceAuto&&previous&&rows.some(x=>x.id===previous))?previous:auto.id;if(!sel.value)sel.value=rows[0]?.id||'';if(forceAuto||!previous)priceApplyPostageProfile(sel.value)}
+function priceApplyPostageProfile(id){const p=postageById(id);if(!p)return;$('pricePostCost').value=Number(p.postCost||0).toFixed(2);$('pricePack').value=Number(p.packCost||0).toFixed(2);$('priceBuyerPost').value=Number(p.buyerPost||0).toFixed(2);priceRenderPostageSummary(p)}
+function priceRenderPostageSummary(p=postageById($('pricePostageProfile')?.value)){const h=$('pricePostageSummary');if(!h||!p)return;const post=Number(p.postCost||0),pack=Number(p.packCost||0);h.innerHTML=`<div class="pps-row"><div><small>DELIVERY METHOD</small><br><b>${esc(p.service)}</b></div><div><small>FULFILMENT COST</small><br><b>${m(post+pack)}</b></div></div>`}
 function priceFeeBreakdown(itemPrice){
-  const buyerPost=priceNum('priceBuyerPost'), total=itemPrice+buyerPost;
-  let platformFee=0, adFee=0, intlFee=0, label='', detail='';
+  const buyerPost=priceNum('priceBuyerPost'), total=itemPrice+buyerPost;let platformFee=0,adFee=0,intlFee=0,label='',detail='';
   if(pricePlatform==='ebay'){
-    const vatMult=$('priceVat').value==='include'?1.20:1;
-    const fvf=priceNum('priceEbayFvf')/100, reg=priceNum('priceEbayReg')/100;
-    const lowEligible=$('priceLowFee').value==='yes' && total<=10;
-    const orderBase=lowEligible?.10:(total<=10?.30:.40);
-    platformFee=(total*(fvf+reg)+orderBase)*vatMult;
-    const adRate=priceNum('priceAdRate')/100;
-    adFee=total*adRate*vatMult;
-    intlFee=total*(priceNum('priceIntl')/100);
-    label='eBay';
-    detail=`FVF ${priceNum('priceEbayFvf').toFixed(2)}% + regulatory ${priceNum('priceEbayReg').toFixed(2)}% on buyer total; ${lowEligible?'10p Collectables':'standard'} order fee${$('priceVat').value==='include'?' with VAT cost included':''}.`;
-  }else if(pricePlatform==='vinted'){
-    platformFee=itemPrice*(priceNum('priceVintedFee')/100);
-    label='Vinted';
-    detail=`Seller fee ${priceNum('priceVintedFee').toFixed(2)}%. Buyer Protection is not treated as a seller deduction.`;
-  }else{
-    platformFee=itemPrice*(priceNum('priceCmFee')/100);
-    intlFee=itemPrice*(priceNum('priceCmFx')/100);
-    label='Cardmarket';
-    detail=`Seller fee ${priceNum('priceCmFee').toFixed(2)}% of article value${priceNum('priceCmFx')?` + ${priceNum('priceCmFx').toFixed(2)}% currency conversion`:''}.`;
-  }
+    const vatMult=$('priceVat').value==='include'?1.20:1,fvf=priceNum('priceEbayFvf')/100,reg=priceNum('priceEbayReg')/100;
+    const lowEligible=$('priceLowFee').value==='yes'&&total<=10,orderBase=lowEligible?.10:(total<=10?.30:.40);
+    platformFee=(total*(fvf+reg)+orderBase)*vatMult;adFee=total*(priceNum('priceAdRate')/100)*vatMult;intlFee=total*(priceNum('priceIntl')/100);label='eBay';detail=`FVF ${priceNum('priceEbayFvf').toFixed(2)}% + regulatory ${priceNum('priceEbayReg').toFixed(2)}% on buyer total.`;
+  }else if(pricePlatform==='vinted'){platformFee=itemPrice*(priceNum('priceVintedFee')/100);label='Vinted';detail=`Seller fee ${priceNum('priceVintedFee').toFixed(2)}%.`;}
+  else{platformFee=itemPrice*(priceNum('priceCmFee')/100);intlFee=itemPrice*(priceNum('priceCmFx')/100);label='Cardmarket';detail=`Seller fee ${priceNum('priceCmFee').toFixed(2)}% of article value.`;}
   return {platformFee,adFee,intlFee,totalFees:platformFee+adFee+intlFee,label,detail,buyerTotal:total};
 }
-function priceNetAt(itemPrice){
-  const cost=priceNum('priceCost'), post=priceNum('pricePostCost'), pack=priceNum('pricePack');
-  const f=priceFeeBreakdown(itemPrice);
-  const revenue=itemPrice+priceNum('priceBuyerPost');
-  const net=revenue-cost-post-pack-f.totalFees;
-  return {net,revenue,fees:f.totalFees,...f};
+function priceNetAt(itemPrice,costOverride=null){const cost=costOverride===null?priceNum('priceCost'):Number(costOverride||0),post=priceNum('pricePostCost'),pack=priceNum('pricePack'),f=priceFeeBreakdown(itemPrice),revenue=itemPrice+priceNum('priceBuyerPost');return {net:revenue-cost-post-pack-f.totalFees,revenue,fees:f.totalFees,preCogs:revenue-post-pack-f.totalFees,...f}}
+function pricingMarketAnchor(r){return marketSuggestedPrice(r)||0}
+function adaptiveBuyTier(market){
+  const v=Number(market||0);
+  if(v<10)return {label:'MICRO VALUE',margin:.30,roi:.35,minProfit:1.50,baseBuffer:.10};
+  if(v<20)return {label:'LOW VALUE',margin:.30,roi:.35,minProfit:3,baseBuffer:.09};
+  if(v<100)return {label:'CORE VALUE',margin:.25,roi:.30,minProfit:8,baseBuffer:.07};
+  if(v<300)return {label:'HIGH VALUE',margin:.20,roi:.22,minProfit:20,baseBuffer:.05};
+  if(v<750)return {label:'PREMIUM',margin:.12,roi:.12,minProfit:50,baseBuffer:.04};
+  return {label:'GRAIL',margin:.10,roi:.10,minProfit:75,baseBuffer:.03};
 }
-function priceForCondition(testFn){
-  let lo=0,hi=Math.max(20,priceNum('priceCost')*3+priceNum('pricePostCost')+priceNum('pricePack')+20);
-  for(let i=0;i<30 && !testFn(hi);i++)hi*=1.5;
-  for(let i=0;i<70;i++){const mid=(lo+hi)/2;if(testFn(mid))hi=mid;else lo=mid}
-  return priceCeil99(hi);
+function pricingRiskAdjustment(){
+  const mp=pricingRecognition?.marketPricing||null,disp=Number(mp?.dispersionPct||0),q=String(mp?.qualityStatus||mp?.confidence||'').toLowerCase();
+  let extra=0;
+  if(disp>100)extra+=.05;else if(disp>70)extra+=.03;else if(disp>40)extra+=.02;else if(disp>20)extra+=.01;
+  if(q&&q!=='validated'&&q!=='high'){extra+=q.includes('medium')?.01:.025}
+  if(!mp&&priceNum('priceMarketValue')>0)extra+=.02;
+  return {extra,disp,quality:q||'manual'};
 }
+function pricePolicy(market){
+  const strategy=$('priceBuyingStrategy')?.value||'adaptive';
+  if(strategy==='manual')return {strategy,label:'MANUAL',margin:priceNum('priceTargetMargin')/100,roi:priceNum('priceTargetRoi')/100,minProfit:priceNum('priceMinProfit'),buffer:Math.min(.5,priceNum('priceSafetyBuffer')/100),risk:{extra:0,disp:0,quality:'manual'}};
+  const tier=adaptiveBuyTier(market),risk=pricingRiskAdjustment();
+  return {...tier,strategy,buffer:Math.min(.18,tier.baseBuffer+risk.extra),risk};
+}
+function priceSetManualVisibility(){const manual=($('priceBuyingStrategy')?.value||'adaptive')==='manual';document.querySelectorAll('[data-manual-target]').forEach(el=>el.hidden=!manual)}
 function priceCalc(){
-  const cost=priceNum('priceCost'), target=priceResaleTarget(cost);
-  const p10=priceForCondition(p=>{const x=priceNetAt(p);return x.revenue>0 && x.net/x.revenue>=.10});
-  const p5=priceForCondition(p=>{const x=priceNetAt(p);return x.revenue>0 && x.net/x.revenue>=.05});
-  const p3=priceForCondition(p=>priceNetAt(p).net>=3);
-  const suggested=priceCeil99(Math.max(target.sale,p10,p3));
-  const r=priceNetAt(suggested), roi=cost?r.net/cost*100:0, margin=r.revenue?r.net/r.revenue*100:0;
+  const costEl=$('priceCost'),hasCost=!!costEl&&String(costEl.value).trim()!=='';
+  const cost=hasCost?Math.max(0,Number(costEl.value)||0):0,market=priceNum('priceMarketValue');
+  const suggested=priceCeil99(market>0?market:Math.max(cost/.65,cost+priceNum('pricePostCost')+priceNum('pricePack')+5));
+  const r=priceNetAt(suggested,hasCost?cost:0),policy=pricePolicy(market||suggested);
+  const targetMargin=policy.margin,targetRoi=policy.roi,minProfit=policy.minProfit,buffer=policy.buffer;
+  const maxByMargin=r.preCogs-(targetMargin*r.revenue),maxByRoi=targetRoi>=0?r.preCogs/(1+targetRoi):r.preCogs,maxByProfit=r.preCogs-minProfit;
+  const rawMax=Math.min(maxByMargin,maxByRoi,maxByProfit),maxBuy=Math.max(0,rawMax),recommendedBuy=Math.max(0,maxBuy*(1-buffer)),breakEven=Math.max(0,r.preCogs);
+  const roi=hasCost?(cost>0?r.net/cost*100:null):null,margin=hasCost&&r.revenue?r.net/r.revenue*100:null;
+  const limits=[['margin',maxByMargin],['ROI',maxByRoi],['cash profit',maxByProfit]].sort((a,b)=>a[1]-b[1]);
   lastSuggestedPrice=suggested;
-  $('pricePlatformLabel').textContent=r.label.toUpperCase()+' SUGGESTED LIST PRICE';
-  $('priceSuggested').textContent=m(suggested);
-  $('priceProfit').textContent=`Estimated net profit ${m(r.net)} • ${margin.toFixed(1)}% net margin • estimated fees ${m(r.fees)}`;
-  $('priceP5').textContent=m(p5);
-  $('priceP10').textContent=m(p10);
-  $('priceRoi').textContent=roi.toFixed(1)+'%';
-  $('priceResult').style.display='block';
-  $('priceFeeNote').textContent=r.detail+' Guidance only — actual fees can vary by category, seller status, promotions, taxes and transaction details.';
-  ['priceCost','priceBuyerPost','pricePostCost','pricePack','priceEbayFvf','priceEbayReg','priceAdRate','priceIntl','priceVintedFee','priceCmFee','priceCmFx','priceVat','priceLowFee'].forEach(k=>localStorage.setItem('gengrailPricing_'+k,$(k).value));
+  $('pricePlatformLabel').textContent=r.label.toUpperCase()+' GUIDED ITEM PRICE';$('priceSuggested').textContent=m(suggested);
+  $('priceProfit').textContent=hasCost?`At your entered buy cost: ${m(r.net)} net profit · ${margin.toFixed(1)}% margin · estimated fees ${m(r.fees)}`:`Enter the seller's asking price to calculate profit, ROI and a BUY / CONSIDER / PASS decision. Estimated fees at this sell price: ${m(r.fees)}.`;
+  $('priceRecommendedBuy').textContent=rawMax>0?m(recommendedBuy):'Not achievable';$('priceRecommendedBuy').parentElement.classList.toggle('na',rawMax<=0);
+  $('priceMaxBuy').textContent=rawMax>0?m(maxBuy):'Not achievable';$('priceMaxBuy').parentElement.classList.toggle('na',rawMax<=0);
+  $('priceBreakEven').textContent=m(breakEven);
+  $('priceRoi').textContent=!hasCost?'—':(roi===null?'N/A':roi.toFixed(1)+'%');$('priceMargin').textContent=!hasCost?'—':margin.toFixed(1)+'%';$('priceResult').style.display='block';
+  const riskText=policy.strategy==='adaptive'?` · risk buffer ${(buffer*100).toFixed(0)}%${policy.risk.disp?` (${policy.risk.disp.toFixed(1)}% market spread)`:''}`:` · safety buffer ${(buffer*100).toFixed(0)}%`;
+  $('pricePolicyStrip').innerHTML=`<b>${esc(policy.label)} BUYING PROFILE</b> · ${(targetMargin*100).toFixed(0)}% net margin · ${(targetRoi*100).toFixed(0)}% ROI · ${m(minProfit)} minimum cash profit${esc(riskText)}.`;
+  const box=$('priceDecisionBox'),word=$('priceDecisionWord'),text=$('priceDecisionText'),miss=$('priceDecisionMiss');
+  if(market>0){
+    box.style.display='block';miss.textContent='';
+    if(!hasCost){box.className='pricing-decision await';word.textContent='ENTER BUY COST';text.textContent=rawMax>0?`Gengrail recommends paying up to ${m(recommendedBuy)}; ${m(maxBuy)} is the hard ceiling for this value/risk profile.`:`This card cannot satisfy every current target even at a £0 acquisition cost.`;if(rawMax<=0)miss.textContent=`The limiting target is ${limits[0][0]}. Break-even acquisition ceiling is ${m(breakEven)}.`}
+    else if(rawMax>0&&cost<=recommendedBuy){box.className='pricing-decision buy';word.textContent='BUY';text.textContent=`Asking price ${m(cost)} is within Gengrail's risk-adjusted ${m(recommendedBuy)} recommendation.`}
+    else if(rawMax>0&&cost<=maxBuy){box.className='pricing-decision negotiate';word.textContent='CONSIDER';text.textContent=`Asking price ${m(cost)} is above the preferred buy level but still within the ${m(maxBuy)} maximum acceptable buy.`}
+    else{box.className='pricing-decision pass';word.textContent='PASS';text.textContent=rawMax>0?`Asking price ${m(cost)} is above the ${m(maxBuy)} maximum acceptable buy.`:`This market value cannot satisfy every current buying target.`;const failed=[];if(margin!==null&&margin+1e-9<targetMargin*100)failed.push(`margin ${margin.toFixed(1)}% < ${(targetMargin*100).toFixed(0)}%`);if(roi!==null&&roi+1e-9<targetRoi*100)failed.push(`ROI ${roi.toFixed(1)}% < ${(targetRoi*100).toFixed(0)}%`);if(r.net+1e-9<minProfit)failed.push(`profit ${m(r.net)} < ${m(minProfit)}`);miss.textContent=failed.length?`Targets missed: ${failed.join(' · ')}.`:`Limiting target: ${limits[0][0]}.`}
+  }else box.style.display='none';
+  $('priceFeeNote').textContent=r.detail+` Fee, buyer-postage and fulfilment assumptions are included in the recommendation.`;
+  priceRenderPostageSummary();
+  ['priceBuyerPost','pricePostCost','pricePack','priceTargetMargin','priceTargetRoi','priceMinProfit','priceSafetyBuffer','priceEbayFvf','priceEbayReg','priceAdRate','priceIntl','priceVintedFee','priceCmFee','priceCmFx','priceVat','priceLowFee','priceBuyingStrategy'].forEach(k=>{if($(k))localStorage.setItem('gengrailPricing_'+k,$(k).value)});
 }
-function priceSyncPlatform(){
-  document.querySelectorAll('.pricing-tab').forEach(b=>b.classList.toggle('on',b.dataset.pricePlatform===pricePlatform));
-  const ebay=pricePlatform==='ebay',vinted=pricePlatform==='vinted',cm=pricePlatform==='cardmarket';
-  ['priceEbayFvfWrap','priceEbayRegWrap','priceVatWrap','priceLowWrap','priceAdWrap','priceIntlWrap'].forEach(id=>$(id).style.display=ebay?'block':'none');
-  $('priceVintedWrap').style.display=vinted?'block':'none';
-  $('priceCmWrap').style.display=cm?'block':'none';
-  $('priceCmFxWrap').style.display=cm?'block':'none';
-  localStorage.setItem('gengrailPricingPlatform',pricePlatform);
-  priceCalc();
+function priceSyncPlatform(){document.querySelectorAll('.pricing-tab').forEach(b=>b.classList.toggle('on',b.dataset.pricePlatform===pricePlatform));const ebay=pricePlatform==='ebay',vinted=pricePlatform==='vinted',cm=pricePlatform==='cardmarket';['priceEbayFvfWrap','priceEbayRegWrap','priceVatWrap','priceLowWrap','priceAdWrap','priceIntlWrap'].forEach(id=>$(id).style.display=ebay?'block':'none');$('priceVintedWrap').style.display=vinted?'block':'none';$('priceCmWrap').style.display=cm?'block':'none';$('priceCmFxWrap').style.display=cm?'block':'none';localStorage.setItem('gengrailPricingPlatform',pricePlatform);priceCalc()}
+function pricingAiRender(state='idle',r=null,msg=''){
+ const host=$('pricingAiCard');if(!host)return;if(state==='idle'){host.hidden=true;host.innerHTML='';return}host.hidden=false;
+ if(state==='loading'){host.innerHTML='<div class="ai-recognition-kicker">AI VALUATION</div><div class="ai-recognition-title"><span class="ai-spinner"></span>Recognising card…</div><div class="ai-recognition-sub">Reading identity, verifying the exact card and requesting available market evidence.</div>';return}
+ if(state==='error'){host.innerHTML=`<div class="ai-recognition-kicker">AI VALUATION</div><div class="ai-recognition-title">Could not price this card</div><div class="ai-recognition-sub">${esc(msg||'Try a clearer front photo or enter market value manually.')}</div>`;return}
+ const x=normaliseRecognition(r||{}),diag=recognitionDiagnostics(x),mp=x.marketPricing,market=x.reviewRequired?0:pricingMarketAnchor(x),gbp=mp?.gbp||{},labels=marketSignalLabels(mp);
+ if(x.reviewRequired){host.innerHTML=`<div class="ai-recognition-kicker">REVIEW REQUIRED · RAW CARD IDENTITY</div><div class="pricing-ai-title">${esc(x.cardName||'Pokémon card')}</div><div class="pricing-ai-meta">${esc(printedCollectorNumber(x)||x.cardNumber||'—')} · ${esc(x.language||'—')}</div><div class="market-price-note">${esc(x.message||'Two visual reads disagreed. Confirm the exact card identity before Gengrail values it.')}</div>`;return;}
+ host.innerHTML=`<div class="ai-recognition-kicker">${x.verified?'VERIFIED EXACT CARD':'AI MATCH'} · ${diag.score}%</div><div class="pricing-ai-title">${esc(x.cardName||'Pokémon card')}</div><div class="pricing-ai-meta">${esc(printedCollectorNumber(x)||x.cardNumber||'—')} · ${esc(x.setName||'Unknown set')} · ${esc(x.language||'—')} · ${esc(x.rarity||'—')}</div>${market?`<div class="pricing-ai-market"><div><small>SUGGESTED MARKET VALUE</small><b>${m(market)}</b></div><span>${esc(marketEvidenceLabel(mp))}</span></div><div class="pricing-ai-signals"><span>${esc(labels.trend)} ${gbp.trend?m(gbp.trend):'—'}</span><span>${esc(labels.avg7)} ${gbp.avg7?m(gbp.avg7):'—'}</span><span>${esc(labels.avg30||'Signal')} ${gbp.avg30?m(gbp.avg30):'—'}</span><span>${esc(labels.low)} ${gbp.low?m(gbp.low):'—'}</span></div>`:'<div class="market-price-note">Exact card identity verified, but no reliable automated market price was returned. Enter market value manually.</div>'}`;
 }
-function priceLoadStock(){
-  const p=db.purchases.find(x=>x.id===$('priceStock').value);
-  if(p)$('priceCost').value=uc(p).toFixed(2);
-  priceCalc();
+async function pricingRecogniseFile(file){
+ if(!file)return;if($('priceCost'))$('priceCost').value='';if($('priceMarketValue'))$('priceMarketValue').value='0';pricingAiRender('loading');
+ try{const image=await fileToRecognitionDataURL(file,1200,.80);const d=await gengrailRecogniseImage(image,30000);if(!d?.ok||!d?.identified||!d?.card?.cardName)throw new Error(d?.message||'Recognition failed');pricingRecognition=normaliseRecognition(d.card);pricingAiRender('match',pricingRecognition);const mv=pricingRecognition.reviewRequired?0:pricingMarketAnchor(pricingRecognition);if(mv>0)$('priceMarketValue').value=mv.toFixed(2);pricePopulatePostageProfiles(true);priceCalc();}
+ catch(e){pricingRecognition=null;pricingAiRender('error',null,e?.name==='AbortError'?'Recognition timed out.':String(e?.message||e))}
 }
-function priceUse(){
-  const p=db.purchases.find(x=>x.id===$('priceStock').value);
-  if(!p)return alert('Select a stock item first to write the price back to Stock.');
-  if(!lastSuggestedPrice)priceCalc();
-  p.listPrice=lastSuggestedPrice;
-  save();
-  alert(`${p.name} target / eBay list price updated to ${m(lastSuggestedPrice)}.`);
-}
-function priceCheckDeal(){
-  const ask=priceNum('dealAsk'),mv=priceNum('dealMarket');
-  if(mv<=0)return alert('Enter a realistic market value.');
-  const ratio=priceTargetRatioForMarket(mv),targetBuy=mv*ratio,stretchBuy=mv*Math.min(ratio+.10,.87);
-  let decision,cls,msg;
-  if(ask<=targetBuy){decision='BUY';cls='buy';msg=`Target buy price is ${m(targetBuy)} or less. This asking price is ${((ask/mv)*100).toFixed(1)}% of market value.`}
-  else if(ask<=stretchBuy){decision='NEGOTIATE';cls='negotiate';msg=`Try to get the seller toward ${m(targetBuy)}. Current ask is ${((ask/mv)*100).toFixed(1)}% of market value.`}
-  else{decision='PASS';cls='pass';msg=`The ask is too close to market value for the margin rules. Target about ${m(targetBuy)} or below.`}
-  const box=$('dealBox');box.className='pricing-decision '+cls;box.style.display='block';$('dealWord').textContent=decision;$('dealText').textContent=msg;
-  localStorage.setItem('gengrailPricing_dealAsk',$('dealAsk').value);localStorage.setItem('gengrailPricing_dealMarket',$('dealMarket').value);
-}
+function pricingAiClear(){pricingRecognition=null;if($('pricingAiPhoto'))$('pricingAiPhoto').value='';if($('priceCost'))$('priceCost').value='';if($('priceMarketValue'))$('priceMarketValue').value='0';pricingAiRender('idle');priceCalc()}
 if($('priceCalcBtn')){
-  ['priceCost','priceBuyerPost','pricePostCost','pricePack','priceEbayFvf','priceEbayReg','priceAdRate','priceIntl','priceVintedFee','priceCmFee','priceCmFx','priceVat','priceLowFee'].forEach(k=>{
-    const v=localStorage.getItem('gengrailPricing_'+k);if(v!==null)$(k).value=v;
-  });
-  const da=localStorage.getItem('gengrailPricing_dealAsk'),dm=localStorage.getItem('gengrailPricing_dealMarket');
-  if(da!==null)$('dealAsk').value=da;if(dm!==null)$('dealMarket').value=dm;
-  document.querySelectorAll('.pricing-tab').forEach(btn=>btn.onclick=()=>{pricePlatform=btn.dataset.pricePlatform;priceSyncPlatform()});
-  $('priceCalcBtn').onclick=priceCalc;$('priceStock').onchange=priceLoadStock;$('priceUseBtn').onclick=priceUse;$('dealBtn').onclick=priceCheckDeal;
-  priceSyncPlatform();
+ ['priceBuyerPost','pricePostCost','pricePack','priceTargetMargin','priceTargetRoi','priceMinProfit','priceSafetyBuffer','priceEbayFvf','priceEbayReg','priceAdRate','priceIntl','priceVintedFee','priceCmFee','priceCmFx','priceVat','priceLowFee','priceBuyingStrategy'].forEach(k=>{const v=localStorage.getItem('gengrailPricing_'+k);if(v!==null&&$(k))$(k).value=v});if($('priceCost'))$('priceCost').value='';if($('priceMarketValue'))$('priceMarketValue').value='0';priceSetManualVisibility();
+ renderPostageProfileSettings();pricePopulatePostageProfiles(false);
+ document.querySelectorAll('.pricing-tab').forEach(btn=>btn.onclick=()=>{pricePlatform=btn.dataset.pricePlatform;priceSyncPlatform()});
+ $('priceCalcBtn').onclick=priceCalc;$('pricingAiPhoto').onchange=e=>pricingRecogniseFile(e.target.files?.[0]);$('pricingAiClear').onclick=pricingAiClear;
+ $('pricePostageProfile').onchange=()=>{priceApplyPostageProfile($('pricePostageProfile').value);priceCalc()};
+ $('resetPostageProfiles').onclick=()=>{if(confirm('Reset Gengrail postage profiles to the current default assumptions?')){localStorage.removeItem(POSTAGE_PROFILE_KEY);renderPostageProfileSettings();pricePopulatePostageProfiles(true);priceCalc()}};
+ ['priceCost','priceMarketValue','priceBuyerPost','pricePostCost','pricePack','priceTargetMargin','priceTargetRoi','priceMinProfit','priceSafetyBuffer'].forEach(id=>$(id).addEventListener('input',priceCalc));$('priceBuyingStrategy').onchange=()=>{priceSetManualVisibility();priceCalc()};priceSyncPlatform();
 }
-
 
 /* ==========================
    GENGRAIL OPPORTUNITY FINDER
@@ -2590,40 +2885,7 @@ if($('oppAnalyse')){
 }
 
 
-/* Keep injected eBay Channel panel Sales-only without changing eBay data logic. */
-function placeEbayChannelInSales(){
-  const sales=$('sales');
-  if(!sales)return;
-
-  /* gengrail-ebay.js uses ordinary panel markup, so identify the large
-     channel panel by its visible heading/content rather than a class name. */
-  const candidates=[...document.querySelectorAll('.panel,section,div')];
-  const ebayPanel=candidates.find(node=>{
-    if(node===sales || sales.contains(node))return false;
-    const ownText=(node.textContent||'').replace(/\s+/g,' ').trim();
-    if(!/eBay\s*CHANNEL/i.test(ownText))return false;
-
-    /* Prefer the smallest container that actually holds the channel UI. */
-    const childHas=[...node.children].some(ch=>/eBay\s*CHANNEL/i.test((ch.textContent||'').replace(/\s+/g,' ').trim()));
-    return !childHas || node.classList.contains('panel');
-  });
-
-  if(ebayPanel){
-    ebayPanel.setAttribute('data-ebay-channel-main','true');
-    if(!sales.contains(ebayPanel))sales.appendChild(ebayPanel);
-  }
-
-  document.body.classList.toggle(
-    'sales-active',
-    document.querySelector('.nav button.on')?.dataset.tab==='sales'
-  );
-}
-
-const ebayVisibilityObserver=new MutationObserver(()=>placeEbayChannelInSales());
-ebayVisibilityObserver.observe(document.body,{childList:true,subtree:true});
-window.addEventListener('load',()=>setTimeout(placeEbayChannelInSales,150));
-setTimeout(placeEbayChannelInSales,300);
-
+/* eBay Channel now mounts directly in its dedicated Channels view. */
 function dl(name,text,type){let a=document.createElement('a'),b=new Blob([text],{type});a.href=URL.createObjectURL(b);a.download=name;a.click()}
 $('json').onclick=()=>{
  const prefs={};
@@ -2664,6 +2926,7 @@ $('imp').onchange=e=>{
    const before=readJSON(K);
    if(validDB(before))localStorage.setItem(SAFETY_K,JSON.stringify(normaliseDB(before)));
    db=normaliseDB(x);
+   ensureSequenceLedger();
    if(x._preferences&&typeof x._preferences==='object'){
     Object.entries(x._preferences).forEach(([k,v])=>{if(typeof v==='string')localStorage.setItem(k,v)});
    }
@@ -2691,7 +2954,7 @@ $('imp').onchange=e=>{
  };
  r.readAsText(f)
 };
-$('wipe').onclick=()=>{if(confirm('Erase all data? A last-good safety snapshot will be kept on this device.')){const before=readJSON(K);if(validDB(before))localStorage.setItem(SAFETY_K,JSON.stringify(normaliseDB(before)));db=freshDB();db.settings.startupAmazonLoaded=true;$('salary').value=57000;$('divUsedElsewhere').value=0;persistDB({renderAfter:true,writeVault:false})}};
+$('wipe').onclick=()=>{if(!confirm('Erase ALL live Gengrail business data on this device?'))return;const phrase=prompt('Type ERASE to confirm. A last-good Safety Vault snapshot will remain on this device.');if(String(phrase||'').trim().toUpperCase()!=='ERASE')return;const before=readJSON(K);if(validDB(before))localStorage.setItem(SAFETY_K,JSON.stringify(normaliseDB(before)));db=freshDB();db.settings.startupAmazonLoaded=true;$('salary').value=57000;$('divUsedElsewhere').value=0;persistDB({renderAfter:true,writeVault:false})};
 
 // Hardened startup: localStorage remains the live database, but if it is
 // unexpectedly absent after an app update we check the independent IndexedDB
