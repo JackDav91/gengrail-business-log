@@ -282,3 +282,9 @@ body{
    This deliberately removes brown / coffee backgrounds.
    Final look = black + charcoal + orange + restrained gold.
    ========================================================= */
+
+/* ---------- STOCK RECOGNITION DIAGNOSTICS ---------- */
+/* Keep performance instrumentation available internally, but remove the developer timing panel from Stock. */
+#aiRecognitionPanel .gengrail-perf{
+  display:none !important;
+}

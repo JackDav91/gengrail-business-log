@@ -1,5 +1,5 @@
 /*
- GENGRAIL TCG — eBay Channel v8.3 — AUTO SALES + POSTAGE SPLIT
+ GENGRAIL TCG — eBay Channel v8.4 — POSTAGE PROFILE POLICY MAPPING
  Exact integration for the current Gengrail Business Log.
  ---------------------------------------------------------
  Main app storage key: gengrailBizV1
@@ -25,7 +25,7 @@
   const esc = (v='') => String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 
   const defaults = {
-    version: 8.3,
+    version: 8.4,
     connection: { status:'awaiting_authorisation', sellerName:'', lastSync:null, lastError:'' },
     listings: [],
     orders: [],
@@ -49,6 +49,7 @@
       merchantLocationKey:'',
       paymentPolicyId:'',
       fulfillmentPolicyId:'',
+      postagePolicyMap:{},
       returnPolicyId:''
     }
   };
@@ -68,7 +69,7 @@
         ...clone(defaults), ...p,
         connection:{...defaults.connection,...(p.connection||{})},
         live:{...defaults.live,...(p.live||{})},
-        settings:{...defaults.settings,...(p.settings||{})}
+        settings:{...defaults.settings,...(p.settings||{}),postagePolicyMap:{...(defaults.settings.postagePolicyMap||{}),...((p.settings||{}).postagePolicyMap||{})}}
       };
     }catch{
       return clone(defaults);
@@ -315,6 +316,8 @@
     p.ebayOfferId=listing.offerId||'';
     p.ebayItemId=listing.ebayItemId||'';
     p.ebayUrl=listing.ebayUrl||'';
+    p.postageProfileId=listing.postageProfileId||'';
+    p.ebayFulfillmentPolicyId=resolvedFulfillmentPolicyId(listing);
     localStorage.setItem(MAIN_KEY,JSON.stringify(db));
     window.dispatchEvent(new CustomEvent('gengrail:main-updated'));
   }
@@ -331,7 +334,7 @@
     if(missing.length){
       throw new Error('Listing still needs: '+missing.join(', ')+'.');
     }
-    const prereq=publishPrerequisites();
+    const prereq=publishPrerequisites(listing);
     if(prereq.length) throw new Error('Publishing setup still needs: '+prereq.join(', ')+'.');
 
     const imageUrls=listing.ebayImageUrls?.length
@@ -351,7 +354,7 @@
       aspects:listing.aspects||{},
       imageUrls,
       offerId:listing.offerId||'',
-      settings:{...state.settings}
+      settings:{...state.settings,fulfillmentPolicyId:resolvedFulfillmentPolicyId(listing)}
     });
 
     listing.offerId=String(d.offerId||listing.offerId||'');
@@ -685,12 +688,24 @@
     return missing;
   }
 
-  function publishPrerequisites(){
+  function postageProfileForListing(listing={}){
+    const engine=window.GengrailPostage;
+    if(listing.postageProfileId && engine?.byId)return engine.byId(listing.postageProfileId);
+    if(engine?.autoSelect)return engine.autoSelect({category:listing.category||'',value:num(listing.listPrice)});
+    return null;
+  }
+
+  function resolvedFulfillmentPolicyId(listing={}){
+    const s=state.settings||{},profile=postageProfileForListing(listing);
+    return String(listing.fulfillmentPolicyId || s.postagePolicyMap?.[profile?.id] || s.fulfillmentPolicyId || '').trim();
+  }
+
+  function publishPrerequisites(listing={}){
     const s=state.settings||{};
     const missing=[];
     if(!s.merchantLocationKey)missing.push('inventory location');
     if(!s.paymentPolicyId)missing.push('payment policy');
-    if(!s.fulfillmentPolicyId)missing.push('fulfilment policy');
+    if(!resolvedFulfillmentPolicyId(listing))missing.push('fulfilment policy / postage-profile mapping');
     if(!s.returnPolicyId)missing.push('return policy');
     return missing;
   }
@@ -726,7 +741,7 @@
         merchantLocationKey:settings.merchantLocationKey||'',
         listingPolicies:{
           paymentPolicyId:settings.paymentPolicyId||'',
-          fulfillmentPolicyId:settings.fulfillmentPolicyId||'',
+          fulfillmentPolicyId:resolvedFulfillmentPolicyId(listing),
           returnPolicyId:settings.returnPolicyId||''
         },
         pricingSummary:{price:{value:num(listing.listPrice).toFixed(2),currency:settings.currency||'GBP'}},
@@ -762,9 +777,13 @@
       conditionApi:data.conditionApi??listing?.conditionApi??apiCondition(data.condition||listing?.condition||'Ungraded'),
       conditionDescriptorName:data.conditionDescriptorName??listing?.conditionDescriptorName??'',
       conditionDescriptorValue:data.conditionDescriptorValue??listing?.conditionDescriptorValue??'',
+      postageProfileId:data.postageProfileId||listing?.postageProfileId||'',
+      fulfillmentPolicyId:data.fulfillmentPolicyId||listing?.fulfillmentPolicyId||'',
       status:data.status||listing?.status||'DRAFT',
       updatedAt:nowISO()
     };
+
+    if(!patch.postageProfileId){const pp=window.GengrailPostage?.autoSelect?.({category:patch.category,value:patch.listPrice});patch.postageProfileId=pp?.id||'';}
 
     if(listing){
       Object.assign(listing,patch);
@@ -873,6 +892,8 @@
           sale.buyerPost=num(order.buyerPostage);
           sale.ebayOrderId=order.ebayOrderId||'';
           sale.ebayLineItemId=order.ebayLineItemId||'';
+          sale.profitDataStatus=order.source==='ebay_api'?'PENDING_COSTS':'CONFIRMED';
+          sale.profitDataReason=order.source==='ebay_api'?'Live eBay order imported before marketplace/direct sale costs are confirmed.':'';
         }
         const fulfil=db.orders[db.orders.length-1];
         if(fulfil && sale && fulfil.saleId===sale.id){
@@ -881,6 +902,7 @@
           fulfil.buyerRef=order.buyerRef||'';
         }
         localStorage.setItem(MAIN_KEY,JSON.stringify(db));
+        if(typeof window.reloadGengrailMainDBFromStorage==='function')window.reloadGengrailMainDBFromStorage();
         window.dispatchEvent(new CustomEvent('gengrail:main-updated'));
       }
       return {ok:true,message:'Sale automatically added to Sales and fulfilment.'};
@@ -1003,7 +1025,7 @@
   }
 
   function exportData(){
-    return {module:'gengrail-ebay',version:8.2,exportedAt:nowISO(),data:clone(state)};
+    return {module:'gengrail-ebay',version:8.4,exportedAt:nowISO(),data:clone(state)};
   }
 
   function importData(payload){
@@ -1014,7 +1036,7 @@
       ...clone(defaults),...incoming,
       connection:{...defaults.connection,...(incoming.connection||{})},
       live:{...defaults.live,...(incoming.live||{})},
-      settings:{...defaults.settings,...(incoming.settings||{})}
+      settings:{...defaults.settings,...(incoming.settings||{}),postagePolicyMap:{...(defaults.settings.postagePolicyMap||{}),...((incoming.settings||{}).postagePolicyMap||{})}}
     };
     saveState();render();return true;
   }
@@ -1107,8 +1129,10 @@
         <div><label>Duration</label><select name="listingDuration"><option value="GTC">Good 'Til Cancelled (GTC)</option></select></div>
         <div class="full"><label>Merchant location</label><select name="merchantLocationKey">${locationOpt}</select></div>
         <div><label>Payment policy</label><select name="paymentPolicyId">${opt(payment,'paymentPolicyId','name',s.paymentPolicyId)}</select></div>
-        <div><label>Fulfilment policy</label><select name="fulfillmentPolicyId">${opt(fulfillment,'fulfillmentPolicyId','name',s.fulfillmentPolicyId)}</select></div>
+        <div><label>Fallback fulfilment policy</label><select name="fulfillmentPolicyId">${opt(fulfillment,'fulfillmentPolicyId','name',s.fulfillmentPolicyId)}</select></div>
         <div><label>Return policy</label><select name="returnPolicyId">${opt(returns,'returnPolicyId','name',s.returnPolicyId)}</select></div>
+        <div class="full"><div class="ge-section-title" style="margin-top:4px">Gengrail postage → eBay policy mapping</div><div class="ge-note">Map each Gengrail delivery profile to one of your synced eBay fulfilment policies. The selected mapping is attached automatically when a listing is prepared.</div></div>
+        ${(window.GengrailPostage?.profiles?.()||[]).map(p=>`<div class="full"><label>${esc(p.name)} · ${esc(p.service)}</label><select name="postageMap_${esc(p.id)}">${opt(fulfillment,'fulfillmentPolicyId','name',s.postagePolicyMap?.[p.id]||'')}</select></div>`).join('')}
         <button class="ge-btn full" type="submit">SAVE PUBLISHING SETUP</button>
       </form>
       <button class="ge-btn alt" id="ge-sync-policies" style="margin-top:8px">SYNC LIVE EBAY POLICIES</button>
@@ -1116,7 +1140,9 @@
     const f=m.querySelector('form');
     f.onsubmit=e=>{
       e.preventDefault();
-      Object.assign(state.settings,Object.fromEntries(new FormData(f).entries()));
+      const raw=Object.fromEntries(new FormData(f).entries()),map={...(state.settings.postagePolicyMap||{})};
+      Object.keys(raw).filter(k=>k.startsWith('postageMap_')).forEach(k=>{map[k.slice(11)]=raw[k]||'';delete raw[k]});
+      Object.assign(state.settings,raw,{postagePolicyMap:map});
       saveState();render();m.remove();
     };
     m.querySelector('#ge-sync-policies').onclick=async()=>{
@@ -1148,6 +1174,7 @@
           <option value="LIKE_NEW" ${x.conditionApi==='LIKE_NEW'?'selected':''}>Graded</option>
           <option value="NEW" ${x.conditionApi==='NEW'?'selected':''}>New</option>
         </select></div>
+        <div class="full"><label>Gengrail delivery profile</label><select name="postageProfileId">${(window.GengrailPostage?.profiles?.()||[]).map(p=>`<option value="${esc(p.id)}" ${p.id===(x.postageProfileId||postageProfileForListing(x)?.id)?'selected':''}>${esc(p.name)} — ${esc(p.service)}</option>`).join('')}</select><div class="ge-note">Mapped eBay policy: <b>${esc((state.live.fulfillmentPolicies||[]).find(q=>String(q.fulfillmentPolicyId)===resolvedFulfillmentPolicyId(x))?.name||resolvedFulfillmentPolicyId(x)||'Not mapped')}</b></div></div>
         <details class="full" style="border:1px solid #333;border-radius:10px;padding:10px;background:#0b0b0b">
           <summary style="cursor:pointer;font-weight:800">eBay technical metadata ${x.categoryId && (x.conditionApi==='NEW' || (x.conditionDescriptorName && x.conditionDescriptorValue)) ? '✓' : ''}</summary>
           <div class="ge-form" style="margin-top:10px">
@@ -1175,7 +1202,7 @@
       e.preventDefault();
       const d=Object.fromEntries(new FormData(f).entries());
       x.title=d.title.trim();x.sku=d.sku.trim();x.listPrice=num(d.listPrice);x.quantity=Math.max(1,parseInt(d.quantity||1,10));
-      x.categoryId=d.categoryId.trim();x.conditionApi=d.conditionApi;
+      x.categoryId=d.categoryId.trim();x.conditionApi=d.conditionApi;x.postageProfileId=d.postageProfileId||x.postageProfileId||'';
       x.conditionDescriptorName=d.conditionDescriptorName.trim();x.conditionDescriptorValue=d.conditionDescriptorValue.trim();
       x.aspects=parseAspects(d.aspects);x.description=d.description.trim();x.updatedAt=nowISO();
       saveState();render();m.remove();
@@ -1190,7 +1217,7 @@
         const d=Object.fromEntries(new FormData(f).entries());
         x.title=d.title.trim();x.sku=d.sku.trim();x.listPrice=num(d.listPrice);
         x.quantity=Math.max(1,parseInt(d.quantity||1,10));
-        x.conditionApi=d.conditionApi;
+        x.conditionApi=d.conditionApi;x.postageProfileId=d.postageProfileId||x.postageProfileId||'';
         x.aspects=parseAspects(d.aspects);
         x.description=d.description.trim();
 
@@ -1226,7 +1253,7 @@
         const d=Object.fromEntries(new FormData(f).entries());
         x.title=d.title.trim();x.sku=d.sku.trim();x.listPrice=num(d.listPrice);
         x.quantity=Math.max(1,parseInt(d.quantity||1,10));
-        x.categoryId=d.categoryId.trim();x.conditionApi=d.conditionApi;
+        x.categoryId=d.categoryId.trim();x.conditionApi=d.conditionApi;x.postageProfileId=d.postageProfileId||x.postageProfileId||'';
         x.conditionDescriptorName=d.conditionDescriptorName.trim();
         x.conditionDescriptorValue=d.conditionDescriptorValue.trim();
         x.aspects=parseAspects(d.aspects);x.description=d.description.trim();
@@ -1331,7 +1358,7 @@
     if(!root){
       root=document.createElement('section');
       root.id='gengrail-ebay-channel';
-      document.getElementById('sales')?.appendChild(root) || document.querySelector('.app')?.appendChild(root) || document.body.appendChild(root);
+      document.getElementById('ebayChannelMount')?.appendChild(root) || document.getElementById('ebayChannel')?.appendChild(root) || document.querySelector('.app')?.appendChild(root) || document.body.appendChild(root);
     }
 
     const s=getSummary();
