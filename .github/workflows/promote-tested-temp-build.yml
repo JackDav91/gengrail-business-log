@@ -1,0 +1,94 @@
+name: Promote tested temp build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/promote-tested-temp-build.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout production repo
+        uses: actions/checkout@v4
+        with:
+          path: prod
+          ref: main
+          fetch-depth: 2
+
+      - name: Checkout tested temp repo
+        uses: actions/checkout@v4
+        with:
+          repository: JackDav91/temporary-test-repo
+          ref: main
+          path: tested
+          fetch-depth: 1
+
+      - name: Copy tested runtime files
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            index.html
+            manifest.json
+            sw.js
+            gengrail-theme.css
+            gengrail-ebay.js
+            gengrail-profit-engine.js
+            profit-engine-diagnostic.js
+            graded-integration.js
+            graded-market-engine.js
+            graded-stock-ui.js
+            home-compact.css
+            ebay-callback.html
+            ebay-declined.html
+          )
+          for f in "${files[@]}"; do
+            test -f "tested/$f" || { echo "Missing tested runtime file: $f"; exit 1; }
+            cp "tested/$f" "prod/$f"
+          done
+
+      - name: Runtime safety gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd prod
+          test -s index.html
+          test -s gengrail-ebay.js
+          test -s gengrail-profit-engine.js
+          test -s graded-integration.js
+          test -s graded-market-engine.js
+          test -s graded-stock-ui.js
+          test -s profit-engine-diagnostic.js
+          test -s home-compact.css
+          grep -q 'recognise-card' index.html
+          grep -q 'GengrailProfitEngine' gengrail-profit-engine.js
+          grep -q 'recognise-slab' graded-integration.js
+          grep -q 'gengrail-ebay-backend' gengrail-ebay.js
+          grep -q 'home-compact.css' index.html
+          grep -q 'gengrail-profit-engine.js' index.html
+          grep -q 'profit-engine-diagnostic.js' index.html
+          grep -q 'graded-integration.js' index.html
+          grep -q 'home-compact.css' sw.js
+          grep -q 'gengrail-profit-engine.js' sw.js
+          grep -q 'graded-integration.js' sw.js
+          ! grep -R -n 'temporary-test-repo' index.html gengrail-ebay.js graded-integration.js profit-engine-diagnostic.js home-compact.css
+
+      - name: Commit tested application build
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd prod
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html manifest.json sw.js gengrail-theme.css gengrail-ebay.js gengrail-profit-engine.js profit-engine-diagnostic.js graded-integration.js graded-market-engine.js graded-stock-ui.js home-compact.css ebay-callback.html ebay-declined.html
+          if git diff --cached --quiet; then
+            echo 'Production runtime already matches tested build.'
+            exit 0
+          fi
+          git commit -m 'Promote tested Profit Engine and graded build to production app'
+          git push origin HEAD:main
