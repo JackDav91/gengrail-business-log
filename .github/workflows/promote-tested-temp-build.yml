@@ -76,7 +76,6 @@ jobs:
           grep -q 'graded-integration.js' index.html
           grep -q 'home-compact.css' sw.js
           grep -q 'gengrail-profit-engine.js' sw.js
-          grep -q 'graded-integration.js' sw.js
           ! grep -R -n 'temporary-test-repo' index.html gengrail-ebay.js graded-integration.js profit-engine-diagnostic.js home-compact.css
 
       - name: Commit tested application build
