@@ -68,7 +68,8 @@ jobs:
           grep -q 'recognise-card' index.html
           grep -q 'GengrailProfitEngine' gengrail-profit-engine.js
           grep -q 'recognise-slab' graded-integration.js
-          grep -q 'gengrail-ebay-backend' gengrail-ebay.js
+          grep -q "EBAY_KEY = 'gengrail_ebay_channel_v3'" gengrail-ebay.js
+          grep -q "marketplaceId:'EBAY_GB'" gengrail-ebay.js
           grep -q 'home-compact.css' index.html
           grep -q 'gengrail-profit-engine.js' index.html
           grep -q 'profit-engine-diagnostic.js' index.html
