@@ -1,4 +1,4 @@
-/* GENGRAIL HOME COMPACT v1 — single-screen command centre
+/* GENGRAIL HOME COMPACT v1.1 — restored command centre with viewport fill
    Presentation-only overrides. No navigation or business logic changes.
 */
 body.home-page{
@@ -8,6 +8,8 @@ body.home-page{
 }
 body.home-page .app{
   min-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 10px);
+  height:auto;
+  overflow:visible;
   display:flex;
   flex-direction:column;
   max-width:840px;
@@ -158,4 +160,245 @@ body.home-page .gengrail-ticker-item b{
   body.home-page .home-menu{gap:8px !important}
   body.home-page .home-menu .home-label{font-size:18px !important}
   body.home-page .home-menu .home-sub{font-size:9.5px !important}
+}
+
+
+/* Viewport-fill correction v1.2: preserve the restored design and consume spare phone height. */
+@media (max-width:520px) and (min-height:821px){
+  body.home-page .app{min-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 10px) !important}
+  body.home-page .home-screen{flex:1 1 auto !important;min-height:0 !important}
+  body.home-page .home-menu{flex:1 1 auto !important;grid-template-rows:repeat(3,minmax(108px,1fr)) !important;align-content:stretch !important}
+  body.home-page .home-menu button{min-height:108px !important}
+  body.home-page .gengrail-performance-ticker{margin-top:8px !important}
+}
+@media (max-width:520px) and (min-height:900px){
+  body.home-page .home-menu{grid-template-rows:repeat(3,minmax(118px,1fr)) !important}
+  body.home-page .home-menu button{min-height:118px !important}
+}
+
+/* Final viewport fill v1.3: keep the restored visual design but move the ticker toward the browser chrome. */
+@media (max-width:520px) and (min-height:821px){
+  body.home-page{min-height:100dvh !important}
+  body.home-page .app{height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 4px) !important;min-height:0 !important;display:flex !important;flex-direction:column !important}
+  body.home-page .home-screen{display:flex !important;flex-direction:column !important;flex:1 1 auto !important}
+  body.home-page .home-menu{flex:1 1 auto !important;grid-template-rows:repeat(3,1fr) !important}
+  body.home-page .home-menu button{height:100% !important;min-height:112px !important}
+  body.home-page .gengrail-performance-ticker{margin-top:6px !important;margin-bottom:0 !important}
+}
+@media (max-width:520px) and (min-height:900px){
+  body.home-page .home-menu button{min-height:122px !important}
+}
+
+
+/* HOME UI REVIEW v1.4 — viewport-only correction. No navigation or business logic changes. */
+@media (max-width:520px){
+  body.home-page{
+    height:100svh !important;
+    min-height:100svh !important;
+    overflow:hidden !important;
+  }
+  body.home-page .app{
+    height:calc(100svh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 10px) !important;
+    min-height:0 !important;
+    overflow:hidden !important;
+  }
+  body.home-page .home-screen{
+    flex:1 1 auto !important;
+    min-height:0 !important;
+    overflow:hidden !important;
+  }
+  body.home-page .home-menu{
+    flex:1 1 auto !important;
+    min-height:0 !important;
+    grid-template-rows:repeat(3,minmax(0,1fr)) !important;
+    align-content:stretch !important;
+  }
+  body.home-page .home-menu button{
+    min-height:0 !important;
+    height:100% !important;
+  }
+  body.home-page .gengrail-performance-ticker{
+    flex:0 0 auto !important;
+    overflow:hidden !important;
+    margin:6px 0 0 !important;
+  }
+  body.home-page .gengrail-ticker-track{
+    padding-left:12px !important;
+    padding-right:12px !important;
+  }
+}
+@supports not (height:100svh){
+  @media (max-width:520px){
+    body.home-page{height:100vh !important;min-height:100vh !important}
+    body.home-page .app{height:calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 10px) !important}
+  }
+}
+
+
+/* HOME UI REVIEW v1.5 — dynamic viewport fill. Presentation only. */
+@media (max-width:520px){
+  body.home-page{
+    height:100dvh !important;
+    min-height:100dvh !important;
+    padding-top:6px !important;
+    padding-bottom:4px !important;
+    overflow:hidden !important;
+  }
+  body.home-page .app{
+    height:calc(100dvh - 10px) !important;
+    min-height:0 !important;
+    overflow:hidden !important;
+    display:flex !important;
+    flex-direction:column !important;
+  }
+  body.home-page .brand{
+    flex:0 0 auto !important;
+  }
+  body.home-page .home-screen{
+    display:flex !important;
+    flex-direction:column !important;
+    flex:1 1 auto !important;
+    min-height:0 !important;
+    overflow:hidden !important;
+  }
+  body.home-page .home-screen > .panel,
+  body.home-page .home-command-title,
+  body.home-page .gengrail-performance-ticker{
+    flex:0 0 auto !important;
+  }
+  body.home-page .home-menu{
+    flex:1 1 auto !important;
+    min-height:0 !important;
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    grid-template-rows:repeat(3,minmax(0,1fr)) !important;
+    align-content:stretch !important;
+  }
+  body.home-page .home-menu button{
+    min-height:0 !important;
+    height:100% !important;
+  }
+  body.home-page .gengrail-performance-ticker{
+    margin:6px 0 0 !important;
+    overflow:hidden !important;
+  }
+  body.home-page .gengrail-ticker-track{
+    padding-left:12px !important;
+    padding-right:12px !important;
+  }
+}
+
+
+/* HOME UI REVIEW v1.6 — restore the larger scrolling command-centre composition. */
+@media (max-width:520px){
+  html,body.home-page{
+    min-height:100% !important;
+    height:auto !important;
+  }
+  body.home-page{
+    overflow-x:hidden !important;
+    overflow-y:auto !important;
+    padding-top:calc(env(safe-area-inset-top) + 8px) !important;
+    padding-bottom:calc(env(safe-area-inset-bottom) + 18px) !important;
+  }
+  body.home-page .app{
+    height:auto !important;
+    min-height:0 !important;
+    overflow:visible !important;
+    display:block !important;
+  }
+  body.home-page .brand{
+    margin:0 0 12px !important;
+  }
+  body.home-page .brand img{
+    height:150px !important;
+    max-height:150px !important;
+  }
+  body.home-page .home-screen{
+    display:block !important;
+    min-height:0 !important;
+    overflow:visible !important;
+    padding:0 2px 8px !important;
+  }
+  body.home-page .home-screen > .panel{
+    margin-top:8px !important;
+    padding:12px 12px !important;
+    border-radius:14px !important;
+  }
+  body.home-page .home-screen > .panel .title{
+    font-size:14px !important;
+    margin-bottom:10px !important;
+  }
+  body.home-page .home-screen > .panel .kpi{
+    padding:10px 6px !important;
+  }
+  body.home-page .home-screen > .panel .kpi small{
+    font-size:8px !important;
+  }
+  body.home-page .home-screen > .panel .kpi b{
+    font-size:15px !important;
+  }
+  body.home-page .home-command-title{
+    margin:14px 0 12px !important;
+    font-size:10px !important;
+    letter-spacing:.24em !important;
+  }
+  body.home-page .home-menu{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    grid-template-rows:none !important;
+    gap:10px !important;
+    min-height:0 !important;
+    height:auto !important;
+  }
+  body.home-page .home-menu button{
+    min-height:154px !important;
+    height:auto !important;
+    padding:16px 38px 14px 14px !important;
+    border-radius:17px !important;
+    border-width:2px !important;
+  }
+  body.home-page .home-menu button:after{
+    right:12px !important;
+    font-size:34px !important;
+  }
+  body.home-page .home-icon svg{
+    width:36px !important;
+    height:36px !important;
+  }
+  body.home-page .home-menu .home-icon{
+    margin-bottom:8px !important;
+  }
+  body.home-page .home-menu .home-label{
+    font-size:21px !important;
+    line-height:1 !important;
+  }
+  body.home-page .home-menu .home-sub{
+    font-size:11px !important;
+    line-height:1.12 !important;
+    margin-top:6px !important;
+    max-width:96% !important;
+  }
+  body.home-page .gengrail-performance-ticker{
+    display:block !important;
+    margin:10px 0 0 !important;
+    min-height:34px !important;
+    overflow:hidden !important;
+  }
+  body.home-page .gengrail-ticker-track{
+    padding:8px 12px !important;
+  }
+  body.home-page .gengrail-ticker-item{
+    font-size:9.5px !important;
+    padding:0 12px !important;
+  }
+  body.home-page .gengrail-ticker-item b{
+    font-size:10.5px !important;
+  }
+}
+@media (max-width:390px){
+  body.home-page .brand img{height:138px !important;max-height:138px !important}
+  body.home-page .home-menu button{min-height:142px !important}
+  body.home-page .home-menu .home-label{font-size:19px !important}
+  body.home-page .home-menu .home-sub{font-size:10px !important}
 }

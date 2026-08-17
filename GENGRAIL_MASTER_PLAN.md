@@ -193,3 +193,26 @@
 
 ## Changelog
 - v1.0 - Initial consolidated architecture and build roadmap.
+
+
+## 16. Profit Engine & Grail Plan Foundation
+
+**Status: IN DEVELOPMENT — schema 4 test foundation.** The factual Sales ledger remains the source of completed transaction data. A separate Profit Engine derives realised transaction economics, bootstrap/trading provenance, Profit Split allocations, protected pots, rolling performance signals and Grail Plan state without replacing the existing accounting-profit or Corporation Tax calculations.
+
+**Realised trading profit:** Sale revenue plus buyer-paid postage, less acquisition cost, marketplace/payment fees, postage, packaging and other directly attributable sale costs. Acquisition capital returns to business cash; only positive realised trading profit is eligible for Profit Split. Break-even and loss sales remain performance outcomes but create no allocation credits.
+
+**Profit Split ledger:** Allocations are idempotent and sale-linked. The engine records nominal percentages/amounts, actual amounts, protection redirects and reasons. Sale edits, deletion, refunds/cancellations and resynchronisation reverse previous ledger entries before replacement calculations. Live eBay sales with unconfirmed direct costs are `PENDING_COSTS` and cannot create realised-profit allocations.
+
+**Capital provenance:** Purchased-for-resale inventory produces trading-profit metrics. Owner-contributed inventory produces bootstrap proceeds and never inflates trading-profit averages, stage progression or Owner Readiness. Owner cash contributions remain historically visible as owner funding. Management cost basis on contributed inventory does not create a fictitious business cash outflow.
+
+**Dynamic stages:** Stage selection uses rolling 30-day average daily realised trading profit with configurable 7/30/90/180-day metrics and configurable hysteresis. Defaults require 14 days above an upgrade threshold or 14 days materially below a prior threshold before downgrade. Stage allocations and thresholds live in one configuration structure.
+
+**Protected pots:** Tax Reserve, Business Reserve, Growth Fund and Owner Pot are separate from deployable trading liquidity. Owner/Growth allocations may be transparently redirected when configured tax, reserve or protected-liquidity targets are underfunded; each redirect records its amount and reason.
+
+**Grail Plan state:** `window.getGrailPlanState()` exposes mode (SEED / BUILD / SCALE), deployable/protected liquidity, committed inventory capital, dynamic target range, minimum quality rules, liquidity constraints, stage, rolling averages, self-funding metrics and Owner Readiness inputs. `window.getProfitFinanceSnapshot()` exposes the same financial foundation for a future Finance → Profit Split screen. The full Grail Plan interface is deliberately not part of this foundation patch.
+
+**Opportunity quality:** Grail Plan targets are search objectives, never guarantees. Minimum ROI, minimum margin, confidence, expected sell-through, liquidity protection and concentration safeguards remain superior constraints. Capital velocity is modular and combines projected net profit, ROI, expected days to sale, confidence and capital required.
+
+**Migration/data portability:** Schema-3 backups remain accepted. Historical/ambiguous sales are not blindly assigned Profit Split allocations. New backups carry Profit Engine allocations, ledger, configuration and stage history because the complete database is exported. Data portability remains mandatory.
+
+**Promotion rule:** This foundation stays in `temporary-test-repo` until Profit Engine tests, manual migration/persistence tests and the existing raw/graded recognition, pricing, Stock, Sales, Orders, eBay, Finance, Expenses, Owner, Tax and PWA regression checklist pass.

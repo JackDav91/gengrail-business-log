@@ -1,4 +1,4 @@
-/* GENGRAIL PROFIT ENGINE DASHBOARD v1.2
+/* GENGRAIL PROFIT ENGINE DASHBOARD v1.3
    Read-only presentation layer for Profit Engine, business financials,
    allocation protection visibility and the Home Screen live performance ticker.
 */
@@ -31,16 +31,20 @@ function ensureStyles(){
  #profitEngineDiagnostic .ped-pot{background:#080b09;border:1px solid #28362c;border-radius:8px;padding:9px;min-width:0}
  #profitEngineDiagnostic .ped-pot small{display:block;color:#888;font-size:9px;font-weight:900}
  #profitEngineDiagnostic .ped-pot b{display:block;margin-top:3px;font-size:16px;word-break:break-word}
- #profitEngineDiagnostic .ped-note{margin-top:10px;border-left:3px solid #8a6c25;padding:8px 10px;background:#171107;color:#d7c48f;font-size:10px;line-height:1.45}
- #profitEngineDiagnostic .ped-protection{border:1px solid #8a6c25;background:#171107;border-radius:10px;padding:11px;margin-top:10px}
- #profitEngineDiagnostic .ped-protection strong{color:#ffd36f;display:block;font-size:12px;margin-bottom:6px}
- #profitEngineDiagnostic .ped-redirect{display:flex;justify-content:space-between;gap:10px;border-top:1px solid #4b3b1c;padding-top:7px;margin-top:7px;font-size:11px}
+ #profitEngineDiagnostic .ped-pot.owner-readiness{grid-column:1/-1}
+ #profitEngineDiagnostic .ped-note{margin-top:8px;border-left:3px solid #8a6c25;padding:7px 9px;background:#171107;color:#d7c48f;font-size:9.5px;line-height:1.4}
+ #profitEngineDiagnostic .ped-protection{border:1px solid #8a6c25;background:#171107;border-radius:10px;padding:9px;margin-top:8px}
+ #profitEngineDiagnostic .ped-protection strong{color:#ffd36f;display:block;font-size:11px;margin-bottom:4px}
+ #profitEngineDiagnostic .ped-redirect{display:flex;justify-content:space-between;gap:10px;border-top:1px solid #4b3b1c;padding-top:5px;margin-top:5px;font-size:10px}
  #profitEngineDiagnostic .ped-redirect span:last-child{color:#ffd36f;font-weight:900;text-align:right}
- #profitEngineDiagnostic .ped-split{display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:6px;font-size:10px;margin-top:5px}
+ #profitEngineDiagnostic .ped-split{display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:6px;font-size:9.5px;margin-top:3px}
  #profitEngineDiagnostic .ped-split.head{color:#8f8f8f;font-weight:900}
- #profitEngineDiagnostic .ped-split:not(.head){padding:5px 0;border-top:1px solid #302b1d}
+ #profitEngineDiagnostic .ped-split:not(.head){padding:3px 0;border-top:1px solid #302b1d}
  #profitEngineDiagnostic .ped-financials{border-color:#4a4026}
  #profitEngineDiagnostic .ped-financials b{color:#f2f0e8}
+ #profitEngineDiagnostic .ped-financials.outcome{border-color:#31543b;background:#08120b}
+ #profitEngineDiagnostic .ped-financials.outcome b{color:#78e39a}
+ #profitEngineDiagnostic .ped-accounting-note{border-left-color:#4a4a3d;background:#0b0b09;color:#aaa394;font-size:9px;padding:7px 9px}
  .gengrail-performance-ticker{margin:20px 0 6px;border-top:1px solid #6e5019;border-bottom:1px solid #6e5019;background:linear-gradient(90deg,#080808,#111007,#080808);overflow:hidden;position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent}
  .gengrail-performance-ticker:before,.gengrail-performance-ticker:after{content:'';position:absolute;top:0;bottom:0;width:32px;z-index:2;pointer-events:none}
  .gengrail-performance-ticker:before{left:0;background:linear-gradient(90deg,#080808,transparent)}
@@ -52,7 +56,7 @@ function ensureStyles(){
  .gengrail-ticker-dot{color:#e0ad16;font-weight:950}
  @keyframes gengrailTicker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
  @media(prefers-reduced-motion:reduce){.gengrail-ticker-track{animation:none;overflow:auto;max-width:100vw}}
- @media(min-width:700px){#profitEngineDiagnostic .ped-grid{grid-template-columns:repeat(5,1fr)}#profitEngineDiagnostic .ped-hero{grid-template-columns:repeat(4,1fr)}}`;
+ @media(min-width:700px){#profitEngineDiagnostic .ped-grid{grid-template-columns:repeat(5,1fr)}#profitEngineDiagnostic .ped-hero{grid-template-columns:repeat(4,1fr)}#profitEngineDiagnostic .ped-pot.owner-readiness{grid-column:auto}}`;
  document.head.appendChild(s);
 }
 function stageLabel(g){return g?.profitStage?.label||`Stage ${g?.currentProfitStage||1}`}
@@ -82,9 +86,9 @@ function financialsHtml(){return `<div class="ped-section"><div class="ped-secti
  <div class="ped-pot ped-financials"><small>SELLING FEES</small><b>${esc(text('sellfees'))}</b></div>
  <div class="ped-pot ped-financials"><small>DIRECT COSTS</small><b>${esc(text('directcosts'))}</b></div>
  <div class="ped-pot ped-financials"><small>OPERATING EXPENSES</small><b>${esc(text('opex'))}</b></div>
- <div class="ped-pot ped-financials"><small>REALISED PRE-TAX PROFIT</small><b>${esc(text('profit'))}</b></div>
+ <div class="ped-pot ped-financials outcome"><small>REALISED PRE-TAX PROFIT</small><b>${esc(text('profit'))}</b></div>
  <div class="ped-pot ped-financials"><small>CORP TAX REQUIREMENT</small><b>${money(currentCorpTax())}</b></div>
- <div class="ped-pot ped-financials"><small>RETAINED AFTER-TAX</small><b>${esc(text('retained'))}</b></div>
+ <div class="ped-pot ped-financials outcome"><small>RETAINED AFTER-TAX</small><b>${esc(text('retained'))}</b></div>
  </div></div>`}
 function dashboardState(){
  const getG=window.getGrailPlanState,getF=window.getProfitFinanceSnapshot;
@@ -152,7 +156,7 @@ function render(){
    <div class="ped-pot"><small>30-DAY AVG / DAY</small><b>${money(tr.avg30)}</b></div>
    <div class="ped-pot"><small>90-DAY AVG / DAY</small><b>${money(tr.avg90)}</b></div>
    <div class="ped-pot"><small>180-DAY AVG / DAY</small><b>${money(tr.avg180)}</b></div>
-   <div class="ped-pot"><small>OWNER READINESS</small><b>${esc(owner.status||'NOT READY')}</b></div>
+   <div class="ped-pot owner-readiness"><small>OWNER READINESS</small><b>${esc(owner.status||'NOT READY')}</b></div>
   </div></div>
   <div class="ped-section"><div class="ped-section-title">CAPITAL ORIGIN</div><div class="ped-grid">
    <div class="ped-pot"><small>OWNER CASH CONTRIBUTIONS</small><b>${money(g.ownerCashContributions)}</b></div>
@@ -162,7 +166,7 @@ function render(){
    <div class="ped-pot"><small>SELF-FUNDED</small><b>${pct(g.selfFundedPercentage)}</b></div>
   </div></div>
   ${financialsHtml()}
-  <div class="ped-note">Accounting KPIs remain calculated by Gengrail's accounting functions. Grail Plan uses protected deployable liquidity and realised trading profit.</div>`;
+  <div class="ped-note ped-accounting-note">Accounting KPIs remain calculated by Gengrail's accounting functions. Grail Plan uses protected deployable liquidity and realised trading profit.</div>`;
  renderTicker();
 }
 function mount(){
