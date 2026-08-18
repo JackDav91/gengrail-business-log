@@ -1,0 +1,89 @@
+name: Recover production from working test repo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/recover-working-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gengrail-production-recovery
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout business repo
+        uses: actions/checkout@v4
+        with:
+          path: prod
+          ref: main
+          fetch-depth: 2
+
+      - name: Checkout known-working test repo
+        uses: actions/checkout@v4
+        with:
+          repository: JackDav91/temporary-test-repo
+          path: tested
+          ref: main
+          fetch-depth: 1
+
+      - name: Replace production app with tested app
+        shell: bash
+        run: |
+          set -euo pipefail
+          rsync -a --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            tested/ prod/
+
+          python3 - <<'PY'
+          from pathlib import Path
+          exts={'.html','.js','.css','.json','.md','.txt'}
+          for p in Path('prod').rglob('*'):
+              if not p.is_file() or '.git' in p.parts or '.github' in p.parts or p.suffix.lower() not in exts:
+                  continue
+              try:
+                  s=p.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+              ns=s.replace('/temporary-test-repo/','/gengrail-business-log/').replace('temporary-test-repo','gengrail-business-log')
+              if ns!=s:
+                  p.write_text(ns,encoding='utf-8')
+          PY
+
+          cat > prod/reset-launch.html <<'HTML'
+          <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080808"><title>Gengrail Reset</title><style>body{margin:0;background:#080808;color:#fff;font-family:system-ui;display:grid;place-items:center;min-height:100vh}.b{padding:28px;max-width:480px}.g{color:#82dda0;font-weight:900}</style></head><body><div class="b"><h1>GENGRAIL</h1><p>Clearing the previous production cache.</p><p class="g" id="s">RESETTING…</p></div><script>(async()=>{try{if('serviceWorker'in navigator){const r=await navigator.serviceWorker.getRegistrations();await Promise.all(r.map(x=>x.unregister()))}if('caches'in window){const k=await caches.keys();await Promise.all(k.map(x=>caches.delete(x)))}document.getElementById('s').textContent='READY · LOADING APP…';setTimeout(()=>location.replace('./?recovery=working-test'),500)}catch(e){location.replace('./?recovery=working-test')}})();</script></body></html>
+          HTML
+
+      - name: Verify recovered baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd prod
+          required=(index.html manifest.json sw.js gengrail-theme.css home-compact.css gengrail-ebay.js gengrail-profit-engine.js graded-integration.js graded-market-engine.js graded-stock-ui.js grail-hub.css grail-hub.js grail-selectable-stream-v1.js grail-pre2002-safety.js grail-visual-gate.js icon-192.png icon-512.png)
+          for f in "${required[@]}"; do test -s "$f" || { echo "Missing tested app file: $f"; exit 1; }; done
+          ! grep -R -n 'temporary-test-repo' --include='*.html' --include='*.js' --include='*.css' --include='*.json' .
+          grep -q 'GengrailSelectableStream' grail-selectable-stream-v1.js
+          grep -q '_gengrail_stream' grail-hub.js
+          grep -q 'FAST_TITLE_SAFETY' grail-visual-gate.js
+
+      - name: Commit recovered app
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd prod
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m 'Recover production from working test app baseline'
+            git push origin HEAD:main
+          else
+            echo 'Production already matches working test baseline.'
+          fi
