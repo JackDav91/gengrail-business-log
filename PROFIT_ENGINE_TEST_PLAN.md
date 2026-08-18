@@ -1,6 +1,6 @@
 # Gengrail Profit Engine + Grail Plan Foundation — Manual Test Plan
 
-Status: IN DEVELOPMENT — temporary-test-repo only
+Status: IN DEVELOPMENT — gengrail-business-log only
 
 Do not promote to `gengrail-business-log` until this checklist and the existing app regression checks pass.
 

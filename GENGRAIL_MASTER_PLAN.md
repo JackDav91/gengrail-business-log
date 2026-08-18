@@ -215,4 +215,4 @@
 
 **Migration/data portability:** Schema-3 backups remain accepted. Historical/ambiguous sales are not blindly assigned Profit Split allocations. New backups carry Profit Engine allocations, ledger, configuration and stage history because the complete database is exported. Data portability remains mandatory.
 
-**Promotion rule:** This foundation stays in `temporary-test-repo` until Profit Engine tests, manual migration/persistence tests and the existing raw/graded recognition, pricing, Stock, Sales, Orders, eBay, Finance, Expenses, Owner, Tax and PWA regression checklist pass.
+**Promotion rule:** This foundation stays in `gengrail-business-log` until Profit Engine tests, manual migration/persistence tests and the existing raw/graded recognition, pricing, Stock, Sales, Orders, eBay, Finance, Expenses, Owner, Tax and PWA regression checklist pass.
