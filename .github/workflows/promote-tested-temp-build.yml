@@ -1,18 +1,40 @@
-name: Promote tested temp build
+name: Promote tested Gengrail build
 
 on:
   push:
     branches: [main]
     paths:
       - '.github/workflows/promote-tested-temp-build.yml'
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type PROMOTE to deploy the tested build'
+        required: true
+        default: ''
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+environment:
+  name: github-pages
+  url: ${{ steps.deployment.outputs.page_url }}
+
+concurrency:
+  group: gengrail-production-pages
+  cancel-in-progress: false
 
 jobs:
-  promote:
+  promote-and-deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Validate manual promotion
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          test "${{ inputs.confirm }}" = "PROMOTE" || { echo 'Promotion cancelled: confirmation must be PROMOTE'; exit 1; }
+
       - name: Checkout production repo
         uses: actions/checkout@v4
         with:
@@ -28,7 +50,7 @@ jobs:
           path: tested
           fetch-depth: 1
 
-      - name: Copy tested baseline
+      - name: Copy tested application baseline
         shell: bash
         run: |
           set -euo pipefail
@@ -46,6 +68,9 @@ jobs:
             graded-stock-ui.js
             grail-hub.css
             grail-hub.js
+            grail-selectable-stream-v1.js
+            grail-pre2002-safety.js
+            grail-visual-gate.js
             ebay-callback.html
             ebay-declined.html
             privacy.html
@@ -59,38 +84,113 @@ jobs:
             test -f "tested/$f" || { echo "Missing tested baseline file: $f"; exit 1; }
             cp "tested/$f" "prod/$f"
           done
+          # These are production policy modules and deliberately come from the business repo,
+          # not from the disposable test repo.
+          test -s prod/gengrail-consistency-patch.js
+          test -s prod/gengrail-catalogue-live-pricing.js
 
-      - name: Baseline safety gates
+      - name: Convert tested build to production
         shell: bash
         run: |
           set -euo pipefail
           cd prod
-          for f in index.html manifest.json sw.js gengrail-theme.css home-compact.css gengrail-ebay.js gengrail-profit-engine.js profit-engine-diagnostic.js graded-integration.js graded-market-engine.js graded-stock-ui.js grail-hub.css grail-hub.js; do
-            test -s "$f"
-            cmp "$f" "../tested/$f"
-          done
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          # Normalise the tested GitHub Pages path to the live business-log scope.
+          for name in [
+              'index.html','sw.js','gengrail-ebay.js','profit-engine-diagnostic.js',
+              'graded-integration.js','home-compact.css','grail-hub.js','grail-hub.css',
+              'grail-selectable-stream-v1.js','grail-pre2002-safety.js','grail-visual-gate.js'
+          ]:
+              p=Path(name)
+              if p.exists():
+                  s=p.read_text(encoding='utf-8')
+                  s=s.replace('/temporary-test-repo/','/gengrail-business-log/')
+                  s=s.replace('temporary-test-repo','gengrail-business-log')
+                  p.write_text(s,encoding='utf-8')
+
+          # Always load the production commercial policy on the main app shell.
+          p=Path('index.html')
+          html=p.read_text(encoding='utf-8')
+          tags=(
+              '<script src="gengrail-consistency-patch.js?v=launch-20260818"></script>'
+              '<script src="gengrail-catalogue-live-pricing.js?v=launch-20260818"></script>'
+          )
+          html=re.sub(r'<script[^>]+gengrail-consistency-patch\.js[^>]*></script>','',html,flags=re.I)
+          html=re.sub(r'<script[^>]+gengrail-catalogue-live-pricing\.js[^>]*></script>','',html,flags=re.I)
+          html=html.replace('</body>',tags+'</body>') if '</body>' in html else html+tags
+          p.write_text(html,encoding='utf-8')
+
+          # Production service-worker identity and policy assets.
+          p=Path('sw.js')
+          sw=p.read_text(encoding='utf-8')
+          sw=re.sub(r"const C='[^']+'", "const C='gengrail-live-v25.0.0-business-launch'", sw, count=1)
+          if "'./gengrail-consistency-patch.js'" not in sw:
+              sw=sw.replace("'./grail-selectable-stream-v1.js'", "'./grail-selectable-stream-v1.js','./gengrail-consistency-patch.js','./gengrail-catalogue-live-pricing.js'")
+
+          # Deal Economics must obey the same seller-mode/stage policy as catalogue/listing.
+          old="function showDeal(x){const fee=.135,pack=.30,landed=x.ask+x.ship,req15=(landed+pack)/(1-fee-.15),req20=(landed+pack)/(1-fee-.20),fee15=req15*fee,market=x.market||0,gap15=market-req15;"
+          new="function showDeal(x){const pol=window.GengrailListingPolicy,st=pol&&pol.stage?pol.stage():{key:'SEED',minimumMargin:.10,preferredMargin:.15},seller=pol&&pol.sellerMode?pol.sellerMode():'PRIVATE_UK',fee=seller==='PRIVATE_UK'?0:.135,pack=.30,landed=x.ask+x.ship,minM=Number(st.minimumMargin||.10),prefM=Number(st.preferredMargin||.15),req15=(landed+pack)/(1-fee-minM),req20=(landed+pack)/(1-fee-prefM),fee15=req15*fee,market=x.market||0,gap15=market-req15;"
+          if old in sw:
+              sw=sw.replace(old,new)
+          sw=sw.replace('EST. SELLING FEES @ 15%','EST. SELLING FEES')
+          sw=sw.replace('15% MARGIN RESALE','PROTECTED MARGIN RESALE')
+          sw=sw.replace('20% MARGIN RESALE','PREFERRED MARGIN RESALE')
+          sw=sw.replace('above the 15% target resale.','above the protected target resale.')
+          sw=sw.replace('15% target resale is ','Protected target resale is ')
+          p.write_text(sw,encoding='utf-8')
+          PY
+
+      - name: Production launch safety gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd prod
+          required=(
+            index.html manifest.json sw.js gengrail-theme.css home-compact.css
+            gengrail-ebay.js gengrail-profit-engine.js profit-engine-diagnostic.js
+            gengrail-consistency-patch.js gengrail-catalogue-live-pricing.js
+            graded-integration.js graded-market-engine.js graded-stock-ui.js
+            grail-hub.css grail-hub.js grail-selectable-stream-v1.js
+            grail-pre2002-safety.js grail-visual-gate.js
+          )
+          for f in "${required[@]}"; do test -s "$f" || { echo "Missing/empty production file: $f"; exit 1; }; done
           grep -q 'recognise-card' index.html
           grep -q 'GengrailProfitEngine' gengrail-profit-engine.js
           grep -q 'recognise-slab' graded-integration.js
-          grep -q 'home-compact.css' index.html
-          grep -q 'grail-hub.css' index.html
-          grep -q 'grail-hub.js' index.html
-          grep -q 'home-compact.css' sw.js
-          grep -q 'grail-hub.css' sw.js
-          grep -q 'grail-hub.js' sw.js
-          ! grep -R -n 'temporary-test-repo' index.html gengrail-ebay.js graded-integration.js profit-engine-diagnostic.js home-compact.css grail-hub.js grail-hub.css
+          grep -q 'GengrailListingPolicy' gengrail-consistency-patch.js
+          grep -q 'GengrailCatalogueLivePricing' gengrail-catalogue-live-pricing.js
+          grep -q 'grail-selectable-stream-v1.js' sw.js
+          grep -q 'gengrail-live-v25.0.0-business-launch' sw.js
+          grep -q 'gengrail-consistency-patch.js?v=launch-20260818' index.html
+          grep -q 'gengrail-catalogue-live-pricing.js?v=launch-20260818' index.html
+          ! grep -R -n 'temporary-test-repo' index.html sw.js gengrail-ebay.js graded-integration.js profit-engine-diagnostic.js home-compact.css grail-hub.js grail-hub.css grail-selectable-stream-v1.js grail-pre2002-safety.js grail-visual-gate.js
 
-      - name: Commit current tested application baseline
+      - name: Commit live production build
         shell: bash
         run: |
           set -euo pipefail
           cd prod
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html manifest.json sw.js gengrail-theme.css home-compact.css gengrail-ebay.js gengrail-profit-engine.js profit-engine-diagnostic.js graded-integration.js graded-market-engine.js graded-stock-ui.js grail-hub.css grail-hub.js ebay-callback.html ebay-declined.html privacy.html icon-192.png icon-512.png GENGRAIL_MASTER_PLAN.md PROFIT_ENGINE_TEST_PLAN.md README.txt
-          if git diff --cached --quiet; then
-            echo 'Production already matches the current tested baseline.'
-            exit 0
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m 'Promote tested Gengrail build for business launch'
+            git push origin HEAD:main
+          else
+            echo 'Production source already matches the tested launch build.'
           fi
-          git commit -m 'Set current tested Gengrail build as production baseline'
-          git push origin HEAD:main
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload production Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: prod
+
+      - name: Deploy live Gengrail site
+        id: deployment
+        uses: actions/deploy-pages@v4
