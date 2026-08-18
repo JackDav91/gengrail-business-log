@@ -187,3 +187,5 @@ jobs:
       - name: Deploy live Gengrail site
         id: deployment
         uses: actions/deploy-pages@v4
+
+# 2026-08-18: redeploy production artifact so reset-launch.html is included.
