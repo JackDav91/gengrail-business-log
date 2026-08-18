@@ -1,12 +1,12 @@
-/* GENGRAIL CONSISTENCY PATCH v1.0
+/* GENGRAIL CONSISTENCY PATCH v1.1
    One commercial policy for Stock, Pricing Calculator, eBay listing and Profit Engine guardrails.
    Current seller context: eBay UK PRIVATE seller — £0 seller transaction fee; Buyer Protection is buyer-paid.
    Accounting remains factual; packaging allocation is used for unit economics only and is not double-counted in accounting KPIs.
 */
 (function(){
 'use strict';
-if(window.__gengrailConsistencyPatchV1)return;
-window.__gengrailConsistencyPatchV1=true;
+if(window.__gengrailConsistencyPatchV11)return;
+window.__gengrailConsistencyPatchV11=true;
 
 const CFG_KEY='gengrail_listing_policy_v1';
 const DEFAULT_CFG={sellerMode:'PRIVATE_UK',businessFeeRate:.135,businessOrderFee:.40,promotedRate:0,internationalRate:0};
@@ -68,7 +68,6 @@ function quoteStock(p){
  return quote({cost:unitCost,market,...post});
 }
 
-/* Existing Profit Engine databases are migrated on every load so old 30% SEED rules cannot survive in local storage. */
 function migrateProfitPolicy(){
  try{
   if(typeof db==='undefined'||!db||!window.GengrailProfitEngine)return;
@@ -83,7 +82,6 @@ function migrateProfitPolicy(){
  }catch(e){console.warn('[Gengrail consistency] Profit policy migration skipped',e)}
 }
 
-/* Raw + graded catalogue suggestions now use the same stage-aware listing policy. */
 try{
  const legacyMarketSuggested=typeof marketSuggestedPrice==='function'?marketSuggestedPrice:null;
  marketSuggestedPrice=function(r){
@@ -93,7 +91,6 @@ try{
  };
 }catch(e){console.warn('[Gengrail consistency] market suggestion hook skipped',e)}
 
-/* Pricing Calculator: private eBay means zero seller transaction fee. Optional promoted/international fees remain seller costs. */
 try{
  const legacyFee=typeof priceFeeBreakdown==='function'?priceFeeBreakdown:null;
  if(legacyFee)priceFeeBreakdown=function(itemPrice){
@@ -108,8 +105,7 @@ try{
 function refreshCalculatorRecommendation(){
  try{
   if(typeof priceCalc!=='function'||!byId('priceMarketValue'))return;
-  const legacy=priceCalc;
-  if(legacy.__consistencyWrapped)return;
+  const legacy=priceCalc;if(legacy.__consistencyWrapped)return;
   const wrapped=function(){legacy();try{
    const market=num(byId('priceMarketValue')?.value),hasCost=String(byId('priceCost')?.value||'').trim()!=='',cost=hasCost?num(byId('priceCost')?.value):0,buyerPost=num(byId('priceBuyerPost')?.value),outboundPost=num(byId('pricePostCost')?.value),pack=num(byId('pricePack')?.value),q=quote({cost,market,buyerPost,outboundPost,pack}),e=q.economics;
    if(market>0){if(typeof lastSuggestedPrice!=='undefined')lastSuggestedPrice=q.recommended;if(byId('priceSuggested'))byId('priceSuggested').textContent=money(q.recommended);if(byId('priceProfit'))byId('priceProfit').textContent=hasCost?`At your entered buy cost: ${money(e.profit)} projected unit profit · ${(e.margin*100).toFixed(1)}% net margin · ${money(e.fees)} seller fees.`:`${q.mode} recommendation: price for velocity while protecting a ${(q.stage.minimumMargin*100).toFixed(0)}% net margin floor.`;if(byId('pricePolicyStrip'))byId('pricePolicyStrip').innerHTML=`<b>${q.mode} LISTING POLICY</b> · velocity price ${money(q.competitive)} · protected floor ${money(q.floor)} · preferred ${(q.stage.preferredMargin*100).toFixed(0)}% margin${q.constrained?' · <strong>MARKET CONSTRAINED</strong>':''}.`;}
@@ -117,7 +113,6 @@ function refreshCalculatorRecommendation(){
  }catch(e){console.warn('[Gengrail consistency] calculator wrapper skipped',e)}
 }
 
-/* Drafting from Stock uses the same recommendation instead of cost × 1.30. */
 function hookEbayDraft(){
  try{
   if(typeof prepareEbayFromStock!=='function'||prepareEbayFromStock.__consistencyWrapped)return;
@@ -126,21 +121,27 @@ function hookEbayDraft(){
  }catch(e){console.warn('[Gengrail consistency] eBay draft hook skipped',e)}
 }
 
-/* Final eBay publish guardrail: no accidental listing below the current stage floor. */
+function guardEbayListing(listing){
+ if(typeof db==='undefined'||!db||!listing)return null;
+ const p=(db.purchases||[]).find(x=>String(x.id)===String(listing.inventoryId)||String(x.sku)===String(listing.sku));
+ if(!p)return null;
+ const q=quoteStock(p),price=num(listing.listPrice??listing.price);
+ if(price+0.009<q.floor){
+  const err=new Error(`Gengrail ${q.mode} floor protects ${Math.round(q.stage.minimumMargin*100)}% net margin. Minimum viable item price is ${money(q.floor)}; entered price is ${money(price)}.`);err.code='GENGRAIL_MARGIN_FLOOR';throw err;
+ }
+ return q;
+}
 function hookEbayPublish(){
  try{
-  const api=window.GengrailEbay;if(!api||typeof api.publishOffer!=='function'||api.publishOffer.__consistencyWrapped)return;
-  const legacy=api.publishOffer.bind(api);
-  const wrapped=async function(payload){
-   try{if(typeof db!=='undefined'&&payload?.sku){const p=(db.purchases||[]).find(x=>String(x.sku)===String(payload.sku));if(p){const q=quoteStock(p),price=num(payload.price);if(price+0.009<q.floor)throw new Error(`Gengrail ${q.mode} floor protects ${Math.round(q.stage.minimumMargin*100)}% net margin. Minimum viable item price is ${money(q.floor)}; entered price is ${money(price)}.`)}}}catch(e){if(/^Gengrail /.test(String(e?.message||''))){alert(e.message);throw e}console.warn('[Gengrail consistency] publish guardrail',e)}
-   return legacy(payload);
-  };wrapped.__consistencyWrapped=true;api.publishOffer=wrapped;
+  const api=window.GengrailEbay;if(!api)return;
+  if(typeof api.prepareLiveListing==='function'&&!api.prepareLiveListing.__consistencyWrapped){const legacy=api.prepareLiveListing.bind(api);const wrapped=async function(listing){try{guardEbayListing(listing)}catch(e){alert(e.message);throw e}return legacy(listing)};wrapped.__consistencyWrapped=true;api.prepareLiveListing=wrapped}
+  if(typeof api.publishLiveListing==='function'&&!api.publishLiveListing.__consistencyWrapped){const legacy=api.publishLiveListing.bind(api);const wrapped=async function(listing){try{guardEbayListing(listing)}catch(e){alert(e.message);throw e}return legacy(listing)};wrapped.__consistencyWrapped=true;api.publishLiveListing=wrapped}
  }catch(e){console.warn('[Gengrail consistency] publish hook skipped',e)}
 }
 
-/* Manual Sales: capture buyer-paid postage separately so unit profit matches imported eBay sales. */
 function patchManualSale(){
- const salePrice=byId('sp'),saveBtn=byId('adds');if(!salePrice||!saveBtn)return;
+ const salePrice=byId('sp'),saveBtn=byId('adds'),platform=byId('spl');if(!salePrice||!saveBtn)return;
+ if(platform&&![...platform.options].some(o=>/^ebay$/i.test(o.value||o.textContent))){const o=document.createElement('option');o.textContent='eBay';o.value='eBay';platform.insertBefore(o,platform.firstChild)}
  if(!byId('sbp')){const box=document.createElement('div');box.innerHTML='<label>Buyer postage charged (£)</label><input id="sbp" step=".01" type="number" value="0">';salePrice.closest('div')?.insertAdjacentElement('afterend',box)}
  if(saveBtn.__buyerPostWrapped)return;
  const legacy=saveBtn.onclick;saveBtn.onclick=function(e){const bp=num(byId('sbp')?.value),before=(typeof db!=='undefined'&&Array.isArray(db.sales))?db.sales.length:0;const out=legacy?.call(this,e);try{if(typeof db!=='undefined'&&db.sales.length>before){const s=db.sales[db.sales.length-1];s.buyerPost=bp;if(sellerMode()==='PRIVATE_UK'&&/^ebay$/i.test(String(s.pl||'')))s.fee=0;if(byId('sbp'))byId('sbp').value='0';if(typeof save==='function')save()}}catch(err){console.warn('[Gengrail consistency] manual buyer postage',err)}return out};saveBtn.__buyerPostWrapped=true;
@@ -153,8 +154,8 @@ function mountSellerModeUi(){
 }
 function mountStockPolicyNote(){const el=byId('plist');if(!el||byId('gengrailStockPolicyNote'))return;const n=document.createElement('div');n.id='gengrailStockPolicyNote';n.className='note';n.style.marginTop='6px';n.textContent=`${stage().key}: recommended list price prioritises velocity while protecting the ${Math.round(stage().minimumMargin*100)}% net-margin floor.`;el.closest('div')?.appendChild(n)}
 
-function init(){migrateProfitPolicy();refreshCalculatorRecommendation();hookEbayDraft();hookEbayPublish();patchManualSale();mountSellerModeUi();mountStockPolicyNote();document.documentElement.dataset.gengrailEbaySellerMode=sellerMode();window.dispatchEvent(new CustomEvent('gengrail:consistency-ready',{detail:{version:1,sellerMode:sellerMode(),stage:currentMode()}}))}
-window.GengrailListingPolicy={version:1,STAGES,readConfig:readCfg,setConfig:writeCfg,currentMode,stage,sellerMode,sellerFee,unitProfit,solveFloor,quote,quoteStock,marketFromRecognition,postageFor};
+function init(){migrateProfitPolicy();refreshCalculatorRecommendation();hookEbayDraft();hookEbayPublish();patchManualSale();mountSellerModeUi();mountStockPolicyNote();document.documentElement.dataset.gengrailEbaySellerMode=sellerMode();window.dispatchEvent(new CustomEvent('gengrail:consistency-ready',{detail:{version:'1.1',sellerMode:sellerMode(),stage:currentMode()}}))}
+window.GengrailListingPolicy={version:'1.1',STAGES,readConfig:readCfg,setConfig:writeCfg,currentMode,stage,sellerMode,sellerFee,unitProfit,solveFloor,quote,quoteStock,marketFromRecognition,postageFor,guardEbayListing};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,0));else setTimeout(init,0);
 window.addEventListener('gengrail:main-updated',()=>setTimeout(()=>{migrateProfitPolicy();hookEbayPublish();mountStockPolicyNote()},0));
 })();
