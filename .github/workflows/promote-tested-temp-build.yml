@@ -17,10 +17,6 @@ permissions:
   pages: write
   id-token: write
 
-environment:
-  name: github-pages
-  url: ${{ steps.deployment.outputs.page_url }}
-
 concurrency:
   group: gengrail-production-pages
   cancel-in-progress: false
@@ -28,6 +24,9 @@ concurrency:
 jobs:
   promote-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Validate manual promotion
         if: github.event_name == 'workflow_dispatch'
@@ -84,8 +83,6 @@ jobs:
             test -f "tested/$f" || { echo "Missing tested baseline file: $f"; exit 1; }
             cp "tested/$f" "prod/$f"
           done
-          # These are production policy modules and deliberately come from the business repo,
-          # not from the disposable test repo.
           test -s prod/gengrail-consistency-patch.js
           test -s prod/gengrail-catalogue-live-pricing.js
 
@@ -98,7 +95,6 @@ jobs:
           from pathlib import Path
           import re
 
-          # Normalise the tested GitHub Pages path to the live business-log scope.
           for name in [
               'index.html','sw.js','gengrail-ebay.js','profit-engine-diagnostic.js',
               'graded-integration.js','home-compact.css','grail-hub.js','grail-hub.css',
@@ -111,7 +107,6 @@ jobs:
                   s=s.replace('temporary-test-repo','gengrail-business-log')
                   p.write_text(s,encoding='utf-8')
 
-          # Always load the production commercial policy on the main app shell.
           p=Path('index.html')
           html=p.read_text(encoding='utf-8')
           tags=(
@@ -123,14 +118,12 @@ jobs:
           html=html.replace('</body>',tags+'</body>') if '</body>' in html else html+tags
           p.write_text(html,encoding='utf-8')
 
-          # Production service-worker identity and policy assets.
           p=Path('sw.js')
           sw=p.read_text(encoding='utf-8')
           sw=re.sub(r"const C='[^']+'", "const C='gengrail-live-v25.0.0-business-launch'", sw, count=1)
           if "'./gengrail-consistency-patch.js'" not in sw:
               sw=sw.replace("'./grail-selectable-stream-v1.js'", "'./grail-selectable-stream-v1.js','./gengrail-consistency-patch.js','./gengrail-catalogue-live-pricing.js'")
 
-          # Deal Economics must obey the same seller-mode/stage policy as catalogue/listing.
           old="function showDeal(x){const fee=.135,pack=.30,landed=x.ask+x.ship,req15=(landed+pack)/(1-fee-.15),req20=(landed+pack)/(1-fee-.20),fee15=req15*fee,market=x.market||0,gap15=market-req15;"
           new="function showDeal(x){const pol=window.GengrailListingPolicy,st=pol&&pol.stage?pol.stage():{key:'SEED',minimumMargin:.10,preferredMargin:.15},seller=pol&&pol.sellerMode?pol.sellerMode():'PRIVATE_UK',fee=seller==='PRIVATE_UK'?0:.135,pack=.30,landed=x.ask+x.ship,minM=Number(st.minimumMargin||.10),prefM=Number(st.preferredMargin||.15),req15=(landed+pack)/(1-fee-minM),req20=(landed+pack)/(1-fee-prefM),fee15=req15*fee,market=x.market||0,gap15=market-req15;"
           if old in sw:
